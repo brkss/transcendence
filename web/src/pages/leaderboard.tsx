@@ -1,29 +1,21 @@
-
-
 import {
 	Table,
-	Thead,
 	Tbody,
-	Tfoot,
 	Tr,
-	Th,
 	Td,
-	TableCaption,
 	TableContainer,
 	Box,
-	Container,
 	Text
 } from '@chakra-ui/react'
-
-import { Avatar } from '../components'
+import { Layout, Avatar } from '../components'
 
 export default function(){
 
 
 
 	return (
+		<Layout>
 		<Box>
-			<Container maxW={'container.md'}>
 				<Text mb={'20px'} fontSize={'25px'} fontWeight={'bold'}>Leaderboard</Text>
 				<TableContainer>
 					<Table variant='simple'>
@@ -48,7 +40,7 @@ export default function(){
 						</Tbody>
 					</Table>
 				</TableContainer>
-			</Container>
 		</Box>
+		</Layout>
 	)
 }
