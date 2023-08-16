@@ -5,6 +5,7 @@ import { SideBar } from './Sidebar';
 
 // Drawers --- 
 import { FriendsDrawer } from './FriendsDrawer';
+import { ChatDrawer } from './ChatDrawer';
 
 const _singnals = [
 	{
@@ -73,6 +74,7 @@ export const Layout : React.FC<any> = ({children}) => {
 				</GridItem>
 			</Grid>
 			{  <FriendsDrawer isOpen={showFriends.isOpen} onClose={showFriends.onClose} /> }			
+			{ <ChatDrawer isOpen={showChat.isOpen}  onClose={showChat.onClose} /> }
 		</Box>
 	)
 }

@@ -19,7 +19,7 @@ export const PersonalInfo : React.FC = () => {
 						<Text fontSize={'17px'} fontWeight={'bold'} opacity={.7}>Profile</Text>
 						<Text fontSize={'30px'} fontWeight={'bold'}>@Avocado</Text>
 					</GridItem>
-					<GridItem colSpan={5} textAlign={'right'} alignItems={'center'} >
+					<GridItem colSpan={6} textAlign={'right'} alignItems={'center'} >
 
 						<Button variant={'unstyled'} bg={'black'} color={'white'} size={'sm'} p={'50x 20px'}>
 							Send Message

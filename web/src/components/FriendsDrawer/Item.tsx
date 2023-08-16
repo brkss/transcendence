@@ -10,12 +10,12 @@ export const FriendBox: React.FC = () => {
 
 
 	return (
-		<Box mt={'30px'}>
+		<Box mt={'40px'}>
 			<Stack direction={['column', 'row']} spacing={'10px'}>
 				<Avatar d={'50px'} />
 				<Box>
 					<Text fontWeight={'bold'}>@Avocado</Text>
-					<Text bg={'green.100'} rounded={'4px'} fontWeight={'bold'} fontSize={'13px'} p={'2px 3px'} display={'inline-block'}>online</Text>
+					<Text bg={'green.100'} rounded={'4px'} fontWeight={'bold'} fontSize={'13px'} p={'1px 6px'} display={'inline-block'}>online</Text>
 				</Box>
 				<Box ml={'auto'}>
 					<Menu>
