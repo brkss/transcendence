@@ -10,9 +10,9 @@ export const PersonalInfo : React.FC = () => {
 
 
 	return (
-		<Box>
+		<Box mb={'80px'}>
 				<Grid templateColumns={'repeat(12, 1fr)'}>
-					<GridItem colSpan={3}>
+					<GridItem colSpan={2}>
 						<Avatar />
 					</GridItem>
 					<GridItem colSpan={4} flexDir={'column'} display={'flex'} justifyContent={'center'}>

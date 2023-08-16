@@ -41,7 +41,7 @@ export const Stats: React.FC = () => {
 					</Grid>
 					<Text mb={'20px'} fontWeight={'bold'} fontSize={'30px'}>History</Text>
 					<TableContainer mt={'20px'}>
-						<Table variant='striped' size={'sm'}>
+						<Table variant='striped' size={'md'}>
 							<Thead>
 								<Tr>
 									<Th>Type</Th>
