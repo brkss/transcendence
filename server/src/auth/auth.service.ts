@@ -16,9 +16,6 @@ export class AuthService {
     }
 
     login(req: any): string {
-        // db logic
-        // user exists ? return jwt
-        // else insert in db then return jwt
         const payload = {
             sub: req.user.login,
             email: req.user.email,
@@ -27,7 +24,9 @@ export class AuthService {
         const jwToken = this.jwtService.sign(payload)
         return (jwToken)
     }
-    getProfile(req: any): object {
-        return (req.user)
+    loginpage() {
+        const htm: string  = '<a href="http://localhost:3000/auth/sync"> Login with 42 </a>'
+        return htm
     }
+
 }
