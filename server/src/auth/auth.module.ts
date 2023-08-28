@@ -1,10 +1,10 @@
-import { Inject, Module } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { authController} from './auth.controller'
-import { authService } from './auth.service'
+import { AuthService } from './auth.service'
 import { PassportModule } from '@nestjs/passport'
 import { auth42Strategy } from './strategies/auth42.strategy'
-import { ConfigModule, ConfigService} from '@nestjs/config'
-import { JwtModule} from "@nestjs/jwt"
+import { JwtModule } from "@nestjs/jwt"
+import { ConfigModule, ConfigService } from '@nestjs/config'
 
 @Module({
     imports: [
@@ -20,7 +20,8 @@ import { JwtModule} from "@nestjs/jwt"
           }),
         ],
     controllers: [authController],
-    providers: [authService, auth42Strategy],
+    providers: [AuthService, auth42Strategy],
+    exports: [JwtModule, ConfigModule]
 })
 export class AuthModule {
 

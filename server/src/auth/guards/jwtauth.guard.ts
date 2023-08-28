@@ -12,12 +12,12 @@ export class JwtAuth implements CanActivate {
 
     async canActivate(context: ExecutionContext): Promise<boolean>  {
         const request = context.switchToHttp().getRequest()        
-        //const jwtoken =  this.getTokenFromHeader(request)
         const jwtoken = this.getTokenFromCookie(request)
 
         if (!jwtoken)
             throw new UnauthorizedException()
         try {
+
             const payload = await this.jwtService.verifyAsync(
                 jwtoken, 
                 {
@@ -32,14 +32,6 @@ export class JwtAuth implements CanActivate {
         return (true)
     }
 
-    // header retuns req object IDK why
-    // getTokenFromHeader(@Headers() req_header: any){ 
-    //     const authorization = req_header.headers.authorization
-    //     if (!authorization)
-    //         return undefined
-    //     const [type, token] = authorization?.split(' ') ?? []
-    //     return (type === "Bearer") ? token : undefined;
-    // }
     getTokenFromCookie(@Req() req: Request) {
         const token = req.cookies.access_token
         if (!token)

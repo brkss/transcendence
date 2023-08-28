@@ -29,6 +29,7 @@ export class auth42Strategy extends PassportStrategy(Strategy, '42-auth2') {
         }
     }
     async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback): Promise<any> {
+        console.log('in validate')
         const user = {
             email: profile.email, 
             login: profile.login,

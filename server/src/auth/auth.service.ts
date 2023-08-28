@@ -1,10 +1,18 @@
 import { Injectable } from "@nestjs/common";
-import { JwtService} from "@nestjs/jwt"
-import { JwtAuth } from "./guards/jwtauth.guard";
+import { JwtModule, JwtModuleOptions, JwtService } from "@nestjs/jwt"
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
-export class authService {
-    constructor(private jwtService: JwtService) {
+export class AuthService {
+    constructor(
+            private jwtService: JwtService, 
+            private configService: ConfigService
+        ) {
+            const jwtConfig : JwtModuleOptions = {
+            secret: this.configService.get("JWT_SECRET"),
+            signOptions: { expiresIn: '60s' },
+        }
+        JwtModule.register(jwtConfig)
     }
 
     login(req: any): string {
