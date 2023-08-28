@@ -26,6 +26,7 @@ export class AuthService {
     }
     loginpage() {
         const htm: string  = '<a href="http://localhost:3000/auth/sync"> Login with 42 </a>'
+
         return htm
     }
 
