@@ -5,9 +5,11 @@ import { PassportModule } from '@nestjs/passport'
 import { auth42Strategy } from './strategies/auth42.strategy'
 import { JwtModule } from "@nestjs/jwt"
 import { ConfigModule, ConfigService } from '@nestjs/config'
+import { PrismaModule } from 'src/prisma/prisma.module'
 
 @Module({
     imports: [
+        PrismaModule,
         ConfigModule.forRoot(),
         PassportModule.register({ defaultStrategy: '42-auth2'}),
         JwtModule.registerAsync({

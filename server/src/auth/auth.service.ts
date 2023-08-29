@@ -1,12 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { JwtModule, JwtModuleOptions, JwtService } from "@nestjs/jwt"
 import { ConfigService } from "@nestjs/config";
+import { PrismaService } from "src/prisma/prisma.service";
+import { use } from "passport";
 
 @Injectable()
 export class AuthService {
     constructor(
             private jwtService: JwtService, 
-            private configService: ConfigService
+            private configService: ConfigService,
+            private prismaService: PrismaService
         ) {
             const jwtConfig : JwtModuleOptions = {
             secret: this.configService.get("JWT_SECRET"),
@@ -15,18 +18,31 @@ export class AuthService {
         JwtModule.register(jwtConfig)
     }
 
-    login(req: any): string {
+    async login(req: any): Promise<string> {
+        let user: any
+        const  userExists = await this.prismaService.user.findUnique({
+            where: {login: req.user.login}
+        })
+        if (!userExists) {
+            user = await this.prismaService.user.create({
+            data: {
+                email: req.user.email,
+                fullName: req.user.usual_full_name,
+                login: req.user.login,
+             },
+        })
+        }else {
+            user = userExists
+        }
         const payload = {
-            sub: req.user.login,
-            email: req.user.email,
-            full_name: req.user.usual_full_name
+            sub: user.id,
+            email: user.email,
         }
         const jwToken = this.jwtService.sign(payload)
         return (jwToken)
     }
     loginpage() {
         const htm: string  = '<a href="http://localhost:3000/auth/sync"> Login with 42 </a>'
-
         return htm
     }
 

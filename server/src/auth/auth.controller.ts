@@ -16,9 +16,8 @@ export class authController {
     }
     @Get('sync')
     @UseGuards(auth42Guard)
-    userLogin(@Req() req: any, @Res({passthrough: true}) resp: Response) {
-        console.log("in user 42 route")
-        const access_token = this.auth_service.login(req)
+    async userLogin(@Req() req: any, @Res({passthrough: true}) resp: Response) {
+        const access_token = await this.auth_service.login(req)
         resp.cookie('access_token', access_token)
         resp.redirect("/") 
     }
