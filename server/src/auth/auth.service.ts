@@ -1,44 +1,26 @@
 import { Injectable } from "@nestjs/common";
 import { JwtModule, JwtModuleOptions, JwtService } from "@nestjs/jwt"
 import { ConfigService } from "@nestjs/config";
-import { PrismaService } from "src/prisma/prisma.service";
-import { use } from "passport";
+//import { PrismaService } from "src/prisma/prisma.service";
+import { UserService } from "src/user/user.service";
 
 @Injectable()
 export class AuthService {
-    constructor(
-            private jwtService: JwtService, 
-            private configService: ConfigService,
-            private prismaService: PrismaService
-        ) {
-            const jwtConfig : JwtModuleOptions = {
-            secret: this.configService.get("JWT_SECRET"),
-            signOptions: { expiresIn: '60s' },
+    constructor(private jwtService: JwtService, 
+                private configService: ConfigService,
+                private userService: UserService ) {
         }
-        JwtModule.register(jwtConfig)
-    }
 
     async login(req: any): Promise<string> {
-        let user: any
-        const  userExists = await this.prismaService.user.findUnique({
-            where: {login: req.user.login}
-        })
-        if (!userExists) {
-            user = await this.prismaService.user.create({
-            data: {
-                email: req.user.email,
-                fullName: req.user.usual_full_name,
-                login: req.user.login,
-             },
-        })
-        }else {
-            user = userExists
-        }
+        // retunrs (user === req.user) if user exits
+        const user = await this.userService.createUser(req.user)
         const payload = {
             sub: user.id,
             email: user.email,
+            login: user.login
         }
         const jwToken = this.jwtService.sign(payload)
+        console.log(jwToken)
         return (jwToken)
     }
     loginpage() {

@@ -6,6 +6,8 @@ CREATE TABLE "user" (
     "email" TEXT NOT NULL,
     "login" TEXT NOT NULL,
     "fullName" TEXT NOT NULL,
+    "auth2faOn" BOOLEAN DEFAULT false,
+    "auth2faSercret" TEXT,
 
     CONSTRAINT "user_pkey" PRIMARY KEY ("id")
 );
