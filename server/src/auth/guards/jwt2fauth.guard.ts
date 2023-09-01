@@ -1,10 +1,10 @@
-import { CanActivate, ExecutionContext, UnauthorizedException, Req, Injectable } from "@nestjs/common";
-import { JwtService} from "@nestjs/jwt"
-import { ConfigService } from "@nestjs/config";
-import { Request} from 'express'
+import { CanActivate, ExecutionContext, Injectable, Req, UnauthorizedException } from "@nestjs/common"
+import { JwtService } from "@nestjs/jwt"
+import { ConfigService } from "@nestjs/config"
+import { Request } from 'express'
 
 @Injectable()
-export class JwtAuth implements CanActivate {
+export class Jwt2faAuth implements CanActivate {
     constructor(
         private jwtService: JwtService,
         private configService: ConfigService) {
@@ -17,14 +17,13 @@ export class JwtAuth implements CanActivate {
         if (!jwtoken)
             throw new UnauthorizedException()
         try {
-
             const payload = await this.jwtService.verifyAsync(
                 jwtoken, 
                 {
                     secret: this.configService.get('JWT_SECRET') 
                 }
             ) 
-            if (payload.is2faToken === false) {
+            if (payload.is2faToken === true) { // ditinguish auth and 2fa tokens
                 request.user = payload
                 return (true)
             }
@@ -33,13 +32,13 @@ export class JwtAuth implements CanActivate {
         catch {
             throw new UnauthorizedException()
         }
+        return (true)
     }
 
     getTokenFromCookie(@Req() req: Request) {
-        const token = req.cookies.access_token
+        const token = req.cookies.auth2fa_token
         if (!token)
             return undefined
         return (token)
-
     }
 }

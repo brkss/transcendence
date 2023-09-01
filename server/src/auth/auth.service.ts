@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { JwtModule, JwtModuleOptions, JwtService } from "@nestjs/jwt"
+import { JwtService } from "@nestjs/jwt"
 import { ConfigService } from "@nestjs/config";
-//import { PrismaService } from "src/prisma/prisma.service";
 import { UserService } from "src/user/user.service";
 
 @Injectable()
@@ -17,11 +16,26 @@ export class AuthService {
         const payload = {
             sub: user.id,
             email: user.email,
-            login: user.login
+            login: user.login,
+            is2faToken: false
         }
         const jwToken = this.jwtService.sign(payload)
-        console.log(jwToken)
         return (jwToken)
+    }
+    async auth2faActive(user_login: string) {
+        return (await this.userService.is2faActivated(user_login))
+    }
+
+    async login2fa(req_user: any): Promise<string> {
+        const user = await this.userService.createUser(req_user.user)
+        const payload = {
+            sub: user.id,
+            email: user.email,
+            login: user.login,
+            is2faToken: true
+        }
+        const jwt2fa_token = this.jwtService.sign(payload)
+        return (jwt2fa_token)
     }
     loginpage() {
         const htm: string  = '<a href="http://localhost:3000/auth/sync"> Login with 42 </a>'

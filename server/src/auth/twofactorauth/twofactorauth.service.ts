@@ -22,7 +22,7 @@ export class TwofactorauthService {
     async generate2fa(current_user: string) {
         const isActivated: boolean = await this.userService.is2faActivated(current_user)
         if (isActivated) {
-            return "<h3> 2fa is already activated</h3>"
+            return "<h3> 2fa is already activated </h3>"
         }
         
         const secret = authenticator.generateSecret();
@@ -35,7 +35,19 @@ export class TwofactorauthService {
         const optauth_url = authenticator.keyuri(current_user, "42 ft_PongGame", secret)
         const qr_code = await qrcode.toDataURL(optauth_url)
         //console.log(qr_code)
-        return (qr_code) // idk you! render it 
+        const temp = `<!DOCTYPE html>
+        <html>
+          <head>
+            <title>2FA generate</title>
+          </head>
+          <body>
+            <div>
+              <p>Scan QR code with googlAuthenticator app</p>
+              <img src="${qr_code}" alt="Red dot" />
+            </div>
+          </body>
+        </html>`
+        return (temp)
     }
 
     async activate2fa(current_user: string, token: string) {
@@ -56,5 +68,32 @@ export class TwofactorauthService {
         else {
             return "<h3> Time Based One Time Password invalid!!</h3>"
         }
+    }
+    async isValidOTP(otp_code:string, user_login: string) {
+        const  secret = await this.userService.get2faSecret(user_login)
+        return (this.validate2fatoken(otp_code, secret))
+    }
+
+    getOptPage() {
+      const page_html = `<!DOCTYPE html>
+      <html>
+      <head>
+          <title>POST Form Example</title>
+      </head>
+      <body>
+      
+      <h2>Submit Data to Server</h2>
+      
+      <form action="/2fa/otp" method="post">
+          <label for="data">Enter OTP code:</label>
+          <input type="json" id="data" name="auth2fa_token" required>
+          <br>
+          <input type="submit" value="Submit">
+      </form>
+      
+      </body>
+      </html>
+      `
+      return (page_html)
     }
 }
