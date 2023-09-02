@@ -28,7 +28,7 @@ export class TwofactorauthService {
         const secret = authenticator.generateSecret();
         const query = {
             where: { login: current_user },   
-            data: { auth2faSercret: secret }   // should be sanitized? 🤔
+            data: { auth2faSercret: secret } // should be sanitized? 🤔
         }
         await this.userService.updateField(query)
 
@@ -86,7 +86,7 @@ export class TwofactorauthService {
       
       <form action="/2fa/otp" method="post">
           <label for="data">Enter OTP code:</label>
-          <input type="json" id="data" name="auth2fa_token" required>
+          <input type="application/json" id="data" name="token" required>
           <br>
           <input type="submit" value="Submit">
       </form>

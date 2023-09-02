@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Post, Redirect, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Post, Redirect, Req, Res, UseGuards, UsePipes } from "@nestjs/common";
 import { TwofactorauthService } from "./twofactorauth.service";
 import { JwtAuth } from "../guards/jwtauth.guard";
 import { UserService } from "src/user/user.service";
 import { Jwt2faAuth } from "../guards/jwt2fauth.guard";
 import { AuthService } from "../auth.service";
+import { OnetimePasswordDTO } from "../dtos/otp.dto";
 
 @Controller('2fa')
 export class TwofactorauController {
@@ -21,8 +22,9 @@ export class TwofactorauController {
 
     @UseGuards(JwtAuth)
     @Post('activate')
-    async activate2fa(@Req() req: any) {
-        const token  = req.body.token // has to be vialidated
+    @UsePipes(OnetimePasswordDTO)
+    async activate2fa(@Body() body: OnetimePasswordDTO, @Req() req: any) {
+        const token  = req.body.token
         const current_user = req.user.login
         return (await this.twofaservice.activate2fa(current_user, token))        
     }
@@ -34,10 +36,13 @@ export class TwofactorauController {
     }
 
     @UseGuards(Jwt2faAuth)
+    @UsePipes(OnetimePasswordDTO)
     @Post('otp')
-    async verify_OTP(@Req() req: any, @Res({passthrough: true}) resp: any) {
-        const token: string = req.body.auth2fa_token
-        console.log(req.body)
+    async verify_OTP(@Req() req: any,
+                    @Body() body: OnetimePasswordDTO,
+                    @Res({passthrough: true}) resp: any) {
+
+        const token: string = req.body.token
         const isValidCode = await this.twofaservice.isValidOTP(token, req.user.login)
         if (isValidCode) {
             const access_token = await this.authService.login(req)             
