@@ -14,9 +14,23 @@ model user {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  email          String @unique
-  login          String @unique
+  email          String   @unique
+  login          String   @unique
+  username       String   @unique
   fullName       String
   auth2faOn      Boolean? @default(false)
   auth2faSercret String?
+
+  sent_friendship     Friendship[] @relation("SentFriendShip")
+  recieved_friendship Friendship[] @relation("RecievedFriendShip")
+}
+
+model Friendship {
+  friendship_id Int    @unique @default(autoincrement())
+  user_id       Int
+  friend_id     Int
+  status        String @default("pending")
+
+  friend user @relation("SentFriendShip", fields: [user_id], references: [id])
+  user   user @relation("RecievedFriendShip", fields: [friend_id], references: [id])
 }

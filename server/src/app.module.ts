@@ -8,13 +8,14 @@ import { ConfigModule } from '@nestjs/config';
 import { TwofactorauthService } from './auth/twofactorauth/twofactorauth.service'
 import { TwofactorauController } from './auth/twofactorauth/twofactorauth.controller'
 import { AuthService } from './auth/auth.service';
+import { UserController } from './user/user.controller';
 
 @Module({
   imports: [AuthModule, PrismaModule, UserModule,
     ConfigModule.forRoot({
             isGlobal:true
   }),],
-  controllers: [AppController, TwofactorauController ],
+  controllers: [AppController, TwofactorauController, UserController],
   providers: [AppService, AuthService, TwofactorauthService],
 
 })

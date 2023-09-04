@@ -17,6 +17,7 @@ export class AuthService {
             sub: user.id,
             email: user.email,
             login: user.login,
+            username: user.login, // login by default
             is2faToken: false
         }
         const jwToken = this.jwtService.sign(payload)
