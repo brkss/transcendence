@@ -18,7 +18,8 @@ CREATE TABLE "Friendship" (
     "friendship_id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
     "friend_id" INTEGER NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'pending'
+    "status" TEXT NOT NULL DEFAULT 'pending',
+    "connection" TEXT NOT NULL
 );
 
 -- CreateIndex
@@ -33,8 +34,11 @@ CREATE UNIQUE INDEX "user_username_key" ON "user"("username");
 -- CreateIndex
 CREATE UNIQUE INDEX "Friendship_friendship_id_key" ON "Friendship"("friendship_id");
 
--- AddForeignKey
-ALTER TABLE "Friendship" ADD CONSTRAINT "Friendship_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+-- CreateIndex
+CREATE UNIQUE INDEX "Friendship_connection_key" ON "Friendship"("connection");
 
 -- AddForeignKey
 ALTER TABLE "Friendship" ADD CONSTRAINT "Friendship_friend_id_fkey" FOREIGN KEY ("friend_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Friendship" ADD CONSTRAINT "Friendship_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

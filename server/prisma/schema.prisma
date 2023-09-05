@@ -30,7 +30,8 @@ model Friendship {
   user_id       Int
   friend_id     Int
   status        String @default("pending")
+  connection    String @unique
 
-  friend user @relation("SentFriendShip", fields: [user_id], references: [id])
-  user   user @relation("RecievedFriendShip", fields: [friend_id], references: [id])
+  friend user @relation("RecievedFriendShip", fields: [friend_id], references: [id])
+  user   user @relation("SentFriendShip", fields: [user_id], references: [id])
 }
