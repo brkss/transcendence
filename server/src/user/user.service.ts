@@ -93,7 +93,7 @@ export class UserService {
         return ({error: `User ${friend_user} Already a Friend :)`})
     }
     try { 
-        const friedship_id = await this.prismaService.friendship.create({
+        await this.prismaService.friendship.create({
             data: {
                  user_id: userId,
                  friend_id: friendId,
