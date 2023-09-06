@@ -20,6 +20,7 @@ model user {
   fullName       String
   auth2faOn      Boolean? @default(false)
   auth2faSercret String?
+  lastSeen       String
 
   sent_friendship     Friendship[] @relation("SentFriendShip")
   recieved_friendship Friendship[] @relation("RecievedFriendShip")

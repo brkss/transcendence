@@ -11,6 +11,7 @@ export class authController {
 
     @Get('login')
     loginpage() {
+        console.log(typeof(Date.now()))
         return this.auth_service.loginpage()
     }
 

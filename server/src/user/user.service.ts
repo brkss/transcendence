@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { connect } from 'http2';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -31,10 +30,10 @@ export class UserService {
                 email: user.email,
                 fullName: user.usual_full_name,
                 login: user.login,
-                username: user.login
+                username: user.login,
+                lastSeen: Date()
             },
             })
-            return (userExists)
         }
         return (user)
     }
@@ -90,7 +89,7 @@ export class UserService {
     }
     const isFriend = await this.alreadyFriend(userId, friendId)
     if (isFriend) {
-        return ({error: `User ${friend_user} Already a Friend :)`})
+       return ({error: `User ${friend_user} Already a Friend :)`})
     }
     try { 
         await this.prismaService.friendship.create({
@@ -152,5 +151,43 @@ export class UserService {
             return ff.user.id == userId ? ff.friend : ff.user;
         })
         return (user_friends)
+    }
+    async getUserProfile(username: string) {
+        interface UserProfile extends Record<string, any> {
+            username: string,
+            email: string,
+            fullName: string,
+            online?: boolean
+        }
+        const profile = await this.prismaService.user.findUnique({
+            where:{
+                username: username
+            },
+            select: {
+                username: true,
+                email: true,
+                fullName: true,
+                lastSeen: true
+            }
+        })
+        //const lastSeen: bigint = BigInt(Date.now()) - profile.lastSeen
+        if (profile == null)
+            return ({error: `User ${username} Not found`})
+        let user_profile : UserProfile = profile;
+        const ms_passed = Date.parse(Date()) - Date.parse(profile.lastSeen)
+        user_profile.online = (ms_passed * 6000 < 3) // offline if mins_passed  3
+
+        return (profile) // profile is const WTF!
+    }
+
+    async updateLastLogin(username: string) {
+        await this.prismaService.user.update({
+            where: {
+                username: username
+            },
+            data: {
+                lastSeen: Date()
+            }
+        })
     }
 }

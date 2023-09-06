@@ -2,11 +2,13 @@ import { CanActivate, ExecutionContext, UnauthorizedException, Req, Injectable }
 import { JwtService} from "@nestjs/jwt"
 import { ConfigService } from "@nestjs/config";
 import { Request} from 'express'
+import { UserService } from "src/user/user.service";
 
 @Injectable()
 export class JwtAuth implements CanActivate {
     constructor(
         private jwtService: JwtService,
+        private userService: UserService,
         private configService: ConfigService) {
     }
 
@@ -26,6 +28,7 @@ export class JwtAuth implements CanActivate {
             ) 
             if (payload.is2faToken === false) {
                 request.user = payload
+                await this.userService.updateLastLogin(payload.username)
                 return (true)
             }
             return (false)

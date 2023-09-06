@@ -14,7 +14,6 @@ export class AuthService {
         // retunrs (user === req.user) if user exits
         const user = await this.userService.createUser(req.user)
         const payload = {
-            sub: user.id,
             email: user.email,
             login: user.login,
             username: user.login, // login by default
