@@ -10,7 +10,7 @@ export const FriendBox: React.FC = () => {
 
 
 	return (
-		<Box mt={'40px'}>
+		<Box mt={'30px'}>
 			<Stack direction={['column', 'row']} spacing={'10px'}>
 				<Avatar d={'50px'} />
 				<Box>

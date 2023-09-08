@@ -1,4 +1,5 @@
 import React from 'react';
+import { useRouter } from 'next/router'
 import { Box, Grid, Container, GridItem, useDisclosure } from '@chakra-ui/react';
 import { TopBar } from './TopBar';
 import { SideBar } from './Sidebar';
@@ -32,6 +33,7 @@ const _singnals = [
 export const Layout : React.FC<any> = ({children}) => {
 
 	
+	const router = useRouter();
 	const showFriends = useDisclosure();
 	const showGame = useDisclosure();
 	const showBoard = useDisclosure();
@@ -55,7 +57,7 @@ export const Layout : React.FC<any> = ({children}) => {
 				showChat.onOpen()
 				break;
 			case "board":
-				showBoard.onOpen()
+				router.push("/leaderboard")
 				break;
 			default:
 				break;

@@ -9,7 +9,7 @@ import { Box, Text, Button, Grid, GridItem, Container, Table,
   TableCaption,
   TableContainer, 
 } from '@chakra-ui/react';
-
+import { Badges } from './Badges';  
 
 
 export const Stats: React.FC = () => {
@@ -17,26 +17,27 @@ export const Stats: React.FC = () => {
 
 	return (
 		<Box mt={'20px'}>
-					<Text mb={'20px'} fontWeight={'bold'} fontSize={'30px'}>Stats</Text>
-					<Grid templateColumns={'repeat(12, 1fr)'} gap={10} mb={'30px'}>
+					<Grid templateColumns={'repeat(12, 1fr)'} gap={10}>
 						<GridItem colSpan={6}>
-							<Box>
-								<Text fontWeight={'bold'}>Wins (40%)</Text>
-								<Box w={'100%'} h={'20px'} bg={'gray.200'} rounded={'5px'}>
-									<Box w={'40%'} bg={'green.200'} h={'20px'} rounded={'5px'} />
-								</Box>
+							<Box mb={'20px'} fontWeight={'bold'} fontSize={'30px'} display={'flex'} justifyContent={'space-between'} alignItems={'baseline'}>
+								Stats
+								<Text float={"right"} fontSize={'sm'} display={'inline-block'} p={'5px 20px'} bg={'black'} fontWeight={'bold'} color={'white'} rounded={"15px"} >Ranked #12</Text>
 							</Box>
-							<Box mt={'10px'}>
-								<Text fontWeight={'bold'}>Loses (60%)</Text>
-								<Box w={'100%'} h={'20px'} bg={'gray.200'} rounded={'5px'}>
-									<Box w={'60%'} bg={'red.100'} h={'20px'} rounded={'5px'} />
-								</Box>
-							</Box>
+									<Box>
+										<Text fontWeight={'bold'}>Wins (40%)</Text>
+										<Box w={'100%'} h={'20px'} bg={'gray.200'} rounded={'5px'}>
+											<Box w={'40%'} bg={'green.200'} h={'20px'} rounded={'5px'} />
+										</Box>
+									</Box>
+									<Box mt={'10px'}>
+										<Text fontWeight={'bold'}>Loses (60%)</Text>
+										<Box w={'100%'} h={'20px'} bg={'gray.200'} rounded={'5px'}>
+											<Box w={'60%'} bg={'red.100'} h={'20px'} rounded={'5px'} />
+										</Box>
+									</Box>
 						</GridItem>
-						<GridItem colSpan={6} textAlign={'right'} display={'flex'} flexDir={'column'} justifyContent={'flex-end'}>
-							<Box>	
-								<Text display={'inline-block'} p={'5px 20px'} bg={'black'} fontWeight={'bold'} color={'white'} >Ranked #12</Text>
-							</Box>
+						<GridItem colSpan={6}>
+							<Badges />
 						</GridItem>
 					</Grid>
 					<Text mb={'20px'} fontWeight={'bold'} fontSize={'30px'}>History</Text>

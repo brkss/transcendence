@@ -18,7 +18,7 @@ export default function(){
 		<Box>
 				<Text mb={'20px'} fontSize={'25px'} fontWeight={'bold'}>Leaderboard</Text>
 				<TableContainer>
-					<Table variant='simple'>
+					<Table variant='striped' size={'sm'}>
 						<Tbody>
 							<Tr>
 								<Td>
