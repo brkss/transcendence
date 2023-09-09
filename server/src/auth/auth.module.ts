@@ -5,7 +5,6 @@ import { PassportModule } from '@nestjs/passport'
 import { auth42Strategy } from './strategies/auth42.strategy'
 import { JwtModule } from "@nestjs/jwt"
 import { ConfigModule, ConfigService } from '@nestjs/config'
-//import { PrismaModule } from 'src/prisma/prisma.module'
 import { UserModule } from 'src/user/user.module'
 
 @Module({
