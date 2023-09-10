@@ -12,24 +12,27 @@ export const Badges : React.FC = () => {
 		<Box>
 			<Text mb={'20px'} fontWeight={'bold'} fontSize={'30px'}>Badges</Text>
 			<Box overflow={'auto'} whiteSpace={'nowrap'}>
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
-				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'gray.100'} mr={'10px'} rounded={'18px'} />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
+				<Box display={'inline-block'} h={'150px'} w={'200px'}  bg={'#e7f8ff'} mr={'10px'} rounded={'18px'} border="1px solid #00000036" />
 			</Box>
 		</Box>
 	)

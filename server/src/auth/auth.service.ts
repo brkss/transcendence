@@ -38,7 +38,7 @@ export class AuthService {
         return (jwt2fa_token)
     }
     loginpage() {
-        const htm: string  = '<a href="http://localhost:3000/auth/sync"> Login with 42 </a>'
+        const htm: string  = '<a href="http://localhost:8000/auth/sync"> Login with 42 </a>'
         return htm
     }
 

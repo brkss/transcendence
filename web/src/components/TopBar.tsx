@@ -9,7 +9,7 @@ export const TopBar : React.FC = () => {
 
 	return (
 			<Box>
-				<Box bg={'black'}  rounded={''} p={'10px 20px'} color={'white'} mb={'40px'} pos={"fixed"} w={"100%"} zIndex="9999" >
+				<Box bg={'black'}  rounded={''} p={'10px 20px'} color={'white'} mb={'40px'} pos={"fixed"} w={"100%"} zIndex="99" >
 					<Grid templateColumns={'repeat(12, 1fr)'}>
 						<GridItem colSpan={4} display={'flex'} flexDir={'column'} justifyContent={'center'} >
 							<Text fontSize={'15px'} fontWeight={'bold'}>TRANSADANCE!</Text>
