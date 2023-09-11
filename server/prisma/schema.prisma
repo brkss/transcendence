@@ -24,6 +24,16 @@ model user {
 
   sent_friendship     Friendship[] @relation("SentFriendShip")
   recieved_friendship Friendship[] @relation("RecievedFriendShip")
+  chat_rooms          ChatRoom[] // implicit m-n relation 
+}
+
+model ChatRoom {
+  id         Int      @id @unique @default(autoincrement())
+  name       String   @unique()
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  users user[] // implicit m-n 
 }
 
 model Friendship {

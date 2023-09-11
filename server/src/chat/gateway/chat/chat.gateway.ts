@@ -2,6 +2,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Socket } from 'socket.io'
+import { RoomService } from 'src/chat/room/room.service';
 
 
 //@WebSocketGateway({cors: {origin: "https://hoppscotch.io"}})
@@ -10,7 +11,7 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect{
   @WebSocketServer()
   private server;
 
-  constructor(private jwtService: JwtService) {
+  constructor(private jwtService: JwtService, private roomService: RoomService) {
 
   }
 
@@ -21,12 +22,20 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect{
   private connectionSuccess(socket: Socket) {
     socket.emit("message", {Connection: "success"})
   }
+  private async emitAllUserRooms(socket: Socket, userID: number) {
+    const user_rooms = await this.roomService.getUserRooms(userID); 
+    socket.emit("message", user_rooms)
+    console.log(user_rooms)
+  }
 
   handleConnection(socket: Socket) {
     const access_token = socket.request.headers.authorization
     try {
       const payload = this.jwtService.verify(access_token) // use canactivate with
-      console.log(payload) // palyload verifitcation user exists
+      // add user to socket on succcess 
+      socket.data.user = payload;
+      this.emitAllUserRooms(socket, payload.id)
+      
     }catch (error) {
       console.log(error)
       this.UnauthorizedDisconnect(socket)
@@ -37,7 +46,6 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect{
   handleDisconnect(client: any) {
     console.log("Log on disconnect") 
     this.server.emit("message", "test is a test on close")
-    //console.log(client)
   }
 
   @SubscribeMessage('message')
@@ -47,4 +55,17 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect{
     return 'Hello world!';
   }
 
+  @SubscribeMessage('newRoom')
+  async handleRoomCreate(client: any, payload: any): Promise<any> { 
+    const newRoom = await this.roomService.createChatRoom(client.data.user, payload);
+    if (!newRoom)
+    {
+      const error = {Error: "Room With Same Name Already exits"}
+      client.emit("Error", error)
+      return undefined;
+    }
+    console.log(newRoom)
+    client.emit("RoomCreated", newRoom)
+    return (newRoom)
+  }
 }

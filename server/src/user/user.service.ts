@@ -21,7 +21,7 @@ export class UserService {
         const query = {
            where: {
                 login: user.login
-           } 
+           },
         }
         const  userExists = await this.findUserUnique(query)
         if (!userExists) {
@@ -34,8 +34,9 @@ export class UserService {
                 lastSeen: Date()
             },
             })
+            return (db_user)
         }
-        return (user)
+        return (userExists)
     }
 
     async updateField(data: any) {

@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ChatGateway } from './gateway/chat/chat.gateway';
-import { JwtAuth } from 'src/auth/guards/jwtauth.guard';
-import { JwtService } from '@nestjs/jwt';
-import { UserService } from 'src/user/user.service';
 import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { RoomService } from './room/room.service';
 
 @Module({
   imports: [AuthModule, UserModule],
-  providers: [ChatGateway]
+  providers: [ChatGateway, PrismaService, RoomService]
 })
 export class ChatModule {}
