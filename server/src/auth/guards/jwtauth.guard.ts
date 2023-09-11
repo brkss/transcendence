@@ -40,6 +40,7 @@ export class JwtAuth implements CanActivate {
 
     getTokenFromCookie(@Req() req: Request) {
         const token = req.cookies.access_token
+        console.log("access_token:" + token) 
         if (!token)
             return undefined
         return (token)
