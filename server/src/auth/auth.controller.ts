@@ -1,4 +1,4 @@
-import { UseGuards, Controller, Get,Req, Res } from '@nestjs/common'
+import { UseGuards, Controller, Get,Req, Res, Post } from '@nestjs/common'
 import { AuthService } from './auth.service';
 import { auth42Guard } from './guards/auth.guard';
 import { Response } from 'express';
@@ -6,7 +6,7 @@ import { Response } from 'express';
 @Controller('auth')
 export class authController {
     constructor(private auth_service: AuthService) {
-
+        
     }
 
     @Get('login')
@@ -18,7 +18,6 @@ export class authController {
     @Get('sync')
     @UseGuards(auth42Guard)
     async userLogin(@Req() req: any, @Res({passthrough: true}) resp: Response) {
-
 		const access_token = await this.auth_service.login(req)
         const auth2fa_active = await this.auth_service.auth2faActive(req.user.login)
         if (auth2fa_active){
@@ -32,4 +31,5 @@ export class authController {
         }
         
     }
+
 }

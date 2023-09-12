@@ -1,9 +1,9 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { Socket } from 'socket.io'
+//import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+//import { Socket } from 'socket.io'
 
-
+/*
 //@WebSocketGateway({cors: {origin: "https://hoppscotch.io"}})
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect{
@@ -48,3 +48,4 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect{
   }
 
 }
+*/
