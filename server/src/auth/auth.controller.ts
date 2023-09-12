@@ -27,7 +27,7 @@ export class authController {
         }
         else {
             resp.cookie('access_token', access_token)
-            resp.redirect("/")
+            resp.redirect("http://localhost:3000")
         }
         
     }
