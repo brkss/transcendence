@@ -8,7 +8,7 @@ export class AuthService {
     constructor(private jwtService: JwtService, 
                 private configService: ConfigService,
                 private userService: UserService ) {
-        }
+    }
 
     async login(req: any): Promise<string> {
         // retunrs (user === req.user) if user exits
@@ -43,5 +43,7 @@ export class AuthService {
         const htm: string  = '<a href="http://localhost:8000/auth/sync"> Login with 42 </a>'
         return htm
     }
+
+
 
 }

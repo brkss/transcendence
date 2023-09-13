@@ -1,7 +1,8 @@
 import { UseGuards, Controller, Get,Req, Res, Post } from '@nestjs/common'
 import { AuthService } from './auth.service';
 import { auth42Guard } from './guards/auth.guard';
-import { Response } from 'express';
+import { Response, Request } from 'express';
+import { generateRefreshToken } from './token';
 
 @Controller('auth')
 export class authController {
@@ -26,10 +27,21 @@ export class authController {
             resp.redirect("/2fa/otp")
         }
         else {
-            resp.cookie('access_token', access_token)
+            resp.cookie('refresh_token', access_token, {maxAge: 7 * 24 * 3600 * 1000, httpOnly: true});
             resp.redirect("http://localhost:3000")
         }
         
     }
+
+	@Post("refresh-token")
+	async refreshToken(@Req() req: Request, @Res() res: Response) {
+
+		const refresh_token = req.cookies["refresh_token"];
+		console.log("refresh token : ", refresh_token);
+		res.json({status: false, access_token: ""});
+		//console.log("refresh token : ", );
+		//const refresh_token = req.cookies["refresh_token"]
+		//console.log("refresh_token : ", refresh_token)
+	}
 
 }
