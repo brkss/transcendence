@@ -14,12 +14,12 @@ export class JwtAuth implements CanActivate {
 
     async canActivate(context: ExecutionContext): Promise<boolean>  {
         const request = context.switchToHttp().getRequest()        
-        const jwtoken = this.getTokenFromCookie(request)
+        const jwtoken = this.getTokenFromHeader(request)
 
         if (!jwtoken)
             throw new UnauthorizedException()
         try {
-
+            // need to verify expiration !
             const payload = await this.jwtService.verifyAsync(
                 jwtoken, 
                 {
@@ -38,9 +38,8 @@ export class JwtAuth implements CanActivate {
         }
     }
 
-    getTokenFromCookie(@Req() req: Request) {
-        const token = req.cookies.access_token
-        //console.log("access_token:" + token) 
+    getTokenFromHeader(@Req() req: Request) {
+        const token = req.headers["authorization"]
         if (!token)
             return undefined
         return (token)

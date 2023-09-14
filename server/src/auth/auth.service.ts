@@ -2,6 +2,9 @@ import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt"
 import { ConfigService } from "@nestjs/config";
 import { UserService } from "src/user/user.service";
+import { IRefreshTokenResponse } from '../utils'
+import { verify } from 'jsonwebtoken';
+import { generateRefreshToken } from "./token";
 
 @Injectable()
 export class AuthService {
@@ -44,6 +47,46 @@ export class AuthService {
         return htm
     }
 
+
+	/*
+	*	GET USER'S ID 
+	*/
+
+	async getUserID(req: any): Promise<number> {
+        // retunrs (user === req.user) if user exits
+        const user = await this.userService.createUser(req.user)
+       	if(user)
+			return user.id;
+		return null;
+    }
+
+	async refreshToken(token: string): Promise<IRefreshTokenResponse>{
+		if(!token)
+			return { status: false, access_token: "", refresh_token: "" }
+		
+		let payload: any = null;
+		try {
+			payload = verify(token, this.configService.get("JWT_REFRESH_SECRET"))
+		}catch(e){
+			return {
+				status: false,
+				access_token: "",
+				refresh_token: ""
+			}
+		}
+		const user = await this.userService.getUserByID(payload.userID);
+		if(!user)
+			return { status: false, access_token: "", refresh_token: "" }
+		const access_token_payload = {
+			userID: user.id,
+        }
+		const access_token = this.jwtService.sign(access_token_payload);
+		return {
+			status: true,
+			access_token,
+			refresh_token: generateRefreshToken(user.id)
+		}
+	}
 
 
 }

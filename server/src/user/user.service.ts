@@ -58,6 +58,15 @@ export class UserService {
         })
         return (isActivated.auth2faOn)
     }
+
+	// get user by its id 
+	async getUserByID(userID: number) {
+		const user = await this.prismaService.user.findUnique({
+			where: { id: userID }
+		})
+		return user;
+	}
+
     async getUserId(username: string) {
         const userId = await this.prismaService.user.findUnique({
             where: { username: username },
