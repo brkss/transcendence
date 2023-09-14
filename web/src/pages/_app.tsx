@@ -20,8 +20,9 @@ export default function App({ Component, pageProps }: AppProps) {
 			method: "POST"
 		}).then(async res => {
 			const data = await res.json();
+			console.log("data : ", data);
 			if(data.status === true){
-				setAccessToken(data.accessToken)
+				setAccessToken(data.access_token)
 				console.log("access token : ", getAccessToken());
 			}
 			setLoading(false);

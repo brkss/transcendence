@@ -3,6 +3,8 @@ import { Box, Center, Text, Button, Image, keyframes } from '@chakra-ui/react';
 import { animations, motion } from 'framer-motion';
 import queryString from 'querystring';
 import { API_URL } from '@/utils/constants';
+import { getAccessToken } from '@/utils/token';
+import { useRouter } from 'next/router';
 
 const lightKeyframes = keyframes`
 	0% { box-shadow: 0px 0px 20px 4px rgba(255, 255, 255, 0.4);}
@@ -15,6 +17,13 @@ const lightKeyframes = keyframes`
 const animation = `${lightKeyframes} 2s infinite`;
 
 export default function Login(){
+
+	const router = useRouter();
+
+	React.useEffect(() => {
+		if(getAccessToken())
+			router.push("/")
+	}, [])
 
 	const authorize = () => {
 		window.location.replace(`${API_URL}/auth/sync`);
