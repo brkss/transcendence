@@ -8,7 +8,13 @@ export class UserController {
     constructor(private userService: UserService){
 
     }
-    @Get('friends/add/:username')
+    
+	@Get("ping")
+	async ping(){
+		return  "pong";
+	}
+
+	@Get('friends/add/:username')
     async addFriend(@Req() req: any, @Param("username") username: string) {
         const current_username: string = req.user.username;
         const status = await this.userService.addFriend(current_username, username)

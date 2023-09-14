@@ -24,7 +24,7 @@ export class AuthService {
             username: user.login, // login by default
             is2faToken: false
         }
-        const jwToken = this.jwtService.sign(payload)
+        const jwToken = this.jwtService.sign(payload, { expiresIn: '15m' })
         return (jwToken)
     }
     async auth2faActive(user_login: string) {
@@ -39,7 +39,7 @@ export class AuthService {
             login: user.login,
             is2faToken: true
         }
-        const jwt2fa_token = this.jwtService.sign(payload)
+        const jwt2fa_token = this.jwtService.sign(payload, { expiresIn: '15m' })
         return (jwt2fa_token)
     }
     loginpage() {
@@ -79,7 +79,10 @@ export class AuthService {
 			return { status: false, access_token: "", refresh_token: "" }
 		const access_token_payload = {
 			userID: user.id,
+			username: user.username,
+			is2faToken: user.auth2faOn
         }
+		console.log("user: ", user);
 		const access_token = this.jwtService.sign(access_token_payload);
 		return {
 			status: true,

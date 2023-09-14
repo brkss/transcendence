@@ -21,7 +21,7 @@ export class JwtAuth implements CanActivate {
         try {
             // need to verify expiration !
             const payload = await this.jwtService.verifyAsync(
-                jwtoken, 
+                jwtoken as string, 
                 {
                     secret: this.configService.get('JWT_SECRET') 
                 }
