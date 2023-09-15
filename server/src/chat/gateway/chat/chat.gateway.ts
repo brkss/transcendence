@@ -3,15 +3,17 @@ import { JwtService } from '@nestjs/jwt';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Socket } from 'socket.io'
 import { RoomService } from 'src/chat/room/room.service';
+import { ConnectionService } from './connnection.service';
+import e from 'express';
 
-
-//@WebSocketGateway({cors: {origin: "https://hoppscotch.io"}})
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect{
   @WebSocketServer()
   private server;
 
-  constructor(private jwtService: JwtService, private roomService: RoomService) {
+  constructor(private jwtService: JwtService, 
+              private roomService: RoomService,
+              private connectionService: ConnectionService) {
 
   }
 
@@ -19,53 +21,69 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect{
     socket.emit("Error", new UnauthorizedException())
     socket.disconnect()
   }
+
   private connectionSuccess(socket: Socket) {
     socket.emit("message", {Connection: "success"})
   }
-  private async emitAllUserRooms(socket: Socket, userID: number) {
-    const user_rooms = await this.roomService.getUserRooms(userID); 
-    socket.emit("message", user_rooms)
-    console.log(user_rooms)
-  }
+
+  // private async emitAllUserRooms(socket: Socket, userID: number) {
+  //   const user_rooms = await this.roomService.getUserRooms(userID); 
+  //   socket.emit("message", user_rooms)
+  // }
+
+  // private async addConnection(socket: Socket, userID: number) {
+  //   await this.connectionService.creatConnectionSocket(socket.id, userID)
+  // }
+
+  // private async deleteConnection(socket: Socket) {
+  //   await this.connectionService.deleteConnectionSocket(socket.id)
+  // }
 
   handleConnection(socket: Socket) {
     const access_token = socket.request.headers.authorization
     try {
       const payload = this.jwtService.verify(access_token) // use canactivate with
-      // add user to socket on succcess 
       socket.data.user = payload;
-      this.emitAllUserRooms(socket, payload.id)
-      
+      this.connectionSuccess(socket)
+
     }catch (error) {
-      console.log(error)
       this.UnauthorizedDisconnect(socket)
     }
-    this.connectionSuccess(socket)
   }
 
-  handleDisconnect(client: any) {
+  handleDisconnect(socket: Socket) {
     console.log("Log on disconnect") 
-    this.server.emit("message", "test is a test on close")
-  }
-
-  @SubscribeMessage('message')
-  handleMessage(client: any, payload: any): string {
-    console.log(payload)
-    this.server.emit("message", "test is a test")
-    return 'Hello world!';
+    //const user = socket.data.user
+    //this.deleteConnection(socket)
   }
 
   @SubscribeMessage('newRoom')
-  async handleRoomCreate(client: any, payload: any): Promise<any> { 
-    const newRoom = await this.roomService.createChatRoom(client.data.user, payload);
+  async handleRoomCreate(socket: Socket, payload: any): Promise<any> { 
+    const newRoom = await this.roomService.createChatRoom(socket.data.user, payload);
     if (!newRoom)
     {
       const error = {Error: "Room With Same Name Already exits"}
-      client.emit("Error", error)
+      socket.emit("Error", error)
       return undefined;
     }
-    console.log(newRoom)
-    client.emit("RoomCreated", newRoom)
+    socket.emit("RoomCreated", newRoom)
+    socket.join(newRoom.name)
     return (newRoom)
   }
+
+   @SubscribeMessage('joinRoom')
+   async joinRoom(socket: Socket, payload: any) {
+     const user = socket.data.user
+     const roomName = payload.roomName
+     const verify = await this.roomService.UserRoomExists(user, roomName);
+     if (verify) {
+      socket.emit("Error", verify.Error)
+      return (undefined)
+     }
+     const roomMembers = await this.roomService.joinUserToRoom(user, roomName)
+     // join socket  chanel
+     socket.join(payload.roomName)
+     socket.to(roomName).emit("message", `${user.username} Joined Room ${roomName}`)
+     socket.emit("users", roomMembers)
+   }
 }
