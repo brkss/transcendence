@@ -19,15 +19,21 @@ export class UserController {
 		return results;
 	}
 
-	@Get('friends/add/:username')
-    async addFriend(@Req() req: any, @Param("username") username: string) {
+	@Post('friends/add')
+    async addFriend(@Req() req: any) {
+		const { username } = req.body;
+		if(!username)
+			return { error: "Invalid username" }
         const current_username: string = req.user.username;
         const status = await this.userService.addFriend(current_username, username)
         return status
     }
 
-    @Get('friends/accept/:username')
-    async acceptFriend(@Req() req: any, @Param("username") username: string) {
+    @Post('friends/accept')
+    async acceptFriend(@Req() req: any) {
+		const { username } = req.body;
+		if(!username)
+			return { error: "Invalid username"} 
         const current_username: string = req.user.username;
         return (await this.userService.acceptFriend(current_username, username))
     }
