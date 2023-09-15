@@ -1,7 +1,8 @@
 import React from 'react';
 import { Box, Grid, GridItem, Text, Input, Button } from '@chakra-ui/react';
-import { Avatar } from './Avatar';
+import { Avatar } from '../Avatar';
 import { useRouter } from 'next/router';
+import { SearchSug } from './SearchSug';
 
 export const TopBar : React.FC = () => {
 
@@ -14,8 +15,9 @@ export const TopBar : React.FC = () => {
 						<GridItem colSpan={4} display={'flex'} flexDir={'column'} justifyContent={'center'} >
 							<Text fontSize={'15px'} fontWeight={'bold'}>TRANSADANCE!</Text>
 						</GridItem>
-						<GridItem colSpan={4}>
+						<GridItem colSpan={4} pos={'relative'}>
 							<Input size={'sm'} w={'100%'} p={'7px 20px'} rounded={'5px'} variant={'unstyled'} bg={'#262626'} color={'white'} placeholder={'search...'} fontWeight={'bold'} />
+							<SearchSug />
 						</GridItem>
 						<GridItem colSpan={4}>
 							<Button float={'right'} variant={'unstyled'} onClick={() => router.push("/user/profile")}>
