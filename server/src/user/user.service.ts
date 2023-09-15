@@ -31,7 +31,8 @@ export class UserService {
 					fullName: user.usual_full_name,
 					login: user.login,
 					username: user.login,
-					lastSeen: Date()
+					lastSeen: Date(),
+					avatar: user.image
 				},
 			})
 			return (db_user)
@@ -177,7 +178,8 @@ export class UserService {
 				username: true,
 				email: true,
 				fullName: true,
-				lastSeen: true
+				lastSeen: true,
+				avatar: true
 			}
 		})
 		//const lastSeen: bigint = BigInt(Date.now()) - profile.lastSeen

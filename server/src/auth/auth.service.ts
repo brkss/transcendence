@@ -16,8 +16,8 @@ export class AuthService {
     async login(req: any): Promise<string> {
         // retunrs (user === req.user) if user exits
         const user = await this.userService.createUser(req.user)
-        console.log(user)
-        const payload = {
+        console.log("req : ", req.user);
+		const payload = {
             id: user.id,
             email: user.email,
             login: user.login,

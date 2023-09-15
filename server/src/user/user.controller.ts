@@ -31,11 +31,13 @@ export class UserController {
         const current_username: string = req.user.username;
         return (await this.userService.acceptFriend(current_username, username))
     }
+
     @Get('friends/all')
     async getAllFriends(@Req() req: any) {
         const current_username: string = req.user.username;
         return (await this.userService.getAllFriends(current_username))
     }
+
     @Get('profile/:username')
     async getUserprofile(@Param("username") username: string) {
         const profile = await this.userService.getUserProfile(username);
