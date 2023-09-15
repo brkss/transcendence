@@ -7,9 +7,10 @@ import {
 	Box,
 	Text
 } from '@chakra-ui/react'
-import { Layout, Avatar } from '../components'
+import { Layout, Avatar, withAuth } from '../components'
 
-export default function(){
+
+function Leaderboard(){
 
 
 
@@ -44,3 +45,4 @@ export default function(){
 		</Layout>
 	)
 }
+export default withAuth(Leaderboard);

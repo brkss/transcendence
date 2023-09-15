@@ -82,7 +82,6 @@ export class AuthService {
 			username: user.username,
 			is2faToken: user.auth2faOn
         }
-		console.log("user: ", user);
 		const access_token = this.jwtService.sign(access_token_payload);
 		return {
 			status: true,

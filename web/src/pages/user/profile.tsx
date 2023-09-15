@@ -1,7 +1,7 @@
 import { Box, Text } from '@chakra-ui/react';
-import { PersonalInfo, Stats, Layout, Badges } from '../../components'; 
+import { PersonalInfo, Stats, Layout, Badges, withAuth } from '../../components'; 
 
-export default function Profile(){
+function Profile(){
 
 	return (
 		<Layout>
@@ -13,3 +13,5 @@ export default function Profile(){
 		</Layout>
 	)
 }
+
+export default withAuth(Profile);
