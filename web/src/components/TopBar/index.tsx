@@ -23,7 +23,7 @@ export const TopBar : React.FC = () => {
 						</GridItem>
 						<GridItem colSpan={4} pos={'relative'}>
 							<Input onChange={(e) => handleSearchInput(e)} size={'sm'} w={'100%'} p={'7px 20px'} rounded={'5px'} variant={'unstyled'} bg={'#262626'} color={'white'} placeholder={'search...'} fontWeight={'bold'}  />
-							{ query.length >= 3 && <SearchSug query={query} /> }
+							{ query.length >= 3 && <SearchSug query={query} clearEntry={() => setQuery("")} /> }
 						</GridItem>
 						<GridItem colSpan={4}>
 							<Button float={'right'} variant={'unstyled'} onClick={() => router.push("/user/profile")}>

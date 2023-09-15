@@ -8,5 +8,6 @@ export const search = async (query: string) => {
 
 export const profile = async (username: string) => {
 	const response = await api.get(`${API_URL}/user/profile/${username}`)
+	console.log("profile : ", response)
 	return response.data
 }
