@@ -1,6 +1,7 @@
 import { UserService } from "./user.service";
-import {Controller, Get, Param, Req, UseGuards} from "@nestjs/common"
+import {Controller, Get, Param, Req, UseGuards, Post} from "@nestjs/common"
 import { JwtAuth } from "src/auth/guards/jwtauth.guard";
+import { Request } from 'express'
 
 @Controller('user')
 @UseGuards(JwtAuth)
@@ -8,10 +9,14 @@ export class UserController {
     constructor(private userService: UserService){
 
     }
-    
-	@Get("ping")
-	async ping(){
-		return  "pong";
+   
+	@Post("/search")
+	async searchPeople(@Req() req: Request){
+		const {query }= req.body;
+		if(!query)
+			return [];
+		const results = this.userService.searchFriends(query);
+		return results;
 	}
 
 	@Get('friends/add/:username')
