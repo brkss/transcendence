@@ -3,11 +3,13 @@ import React from 'react';
 import { Box, Text, Button, Grid, GridItem, } from '@chakra-ui/react';
 import { Avatar } from '../Avatar'; 
 
+interface Props {
+	username: string;
+	name: string;
+}
 
 
-
-export const PersonalInfo : React.FC = () => {
-
+export const PersonalInfo : React.FC<Props> = ({username, name}) => {
 
 	return (
 		<Box mb={'80px'}>
@@ -16,8 +18,8 @@ export const PersonalInfo : React.FC = () => {
 						<Avatar />
 					</GridItem>
 					<GridItem colSpan={4} flexDir={'column'} display={'flex'} justifyContent={'center'}>
-						<Text fontSize={'17px'} fontWeight={'bold'} opacity={.7}>Profile</Text>
-						<Text fontSize={'30px'} fontWeight={'bold'}>@Avocado</Text>
+						<Text fontSize={'17px'} fontWeight={'bold'} opacity={.7}>{name}</Text>
+						<Text fontSize={'30px'} fontWeight={'bold'}>@{username}</Text>
 					</GridItem>
 					<GridItem colSpan={6} textAlign={'right'} alignItems={'center'} >
 
