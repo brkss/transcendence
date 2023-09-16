@@ -8,6 +8,11 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+enum RoomType {
+  PUBLIC
+  PROTECTED
+  PRIVATE
+}
 
 model user {
   id        Int      @id @default(autoincrement())
@@ -37,7 +42,7 @@ model ChatRoom {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   password   String?
-  //roomType    enum @default(PUBLIC)
+  roomType   RoomType @default(PUBLIC)
 
   ownerRef       user          @relation(fields: [owner], references: [id])
   membersRef     RoomMembers[]
@@ -48,6 +53,7 @@ model RoomMembers {
   id      Int     @id @unique @default(autoincrement())
   userId  Int
   roomId  Int
+  userBanned Boolean @default(false)
   isAdmin Boolean @default(false)
 
   user user     @relation(fields: [userId], references: [id])
@@ -71,8 +77,9 @@ model Friendship {
   user_id       Int
   friend_id     Int
   status        String @default("pending")
-  connection    String @unique
 
   friend user @relation("RecievedFriendShip", fields: [friend_id], references: [id])
   user   user @relation("SentFriendShip", fields: [user_id], references: [id])
+
+  @@unique([user_id, friend_id])
 }
