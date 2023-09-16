@@ -22,7 +22,7 @@ export class RoomService {
         try {
             const newRoom = await this.prismaService.chatRoom.create({
                 data: {
-                    name: roominfo.name,
+                    name: roominfo.roomName,
                     owner: user.id
                 }
             })
@@ -32,6 +32,7 @@ export class RoomService {
             return (newRoom)
 
         } catch (error) {
+            console.log(error)
             return (undefined)
         }
     }
@@ -90,9 +91,39 @@ export class RoomService {
         return (payload)
     }
 
-    // async removeUserFromRooom(user: any, room_name: string) {
-    //     await this.removeUserFromChatRoom(user, room_name)
-    // }
+    async removeUserFromRoom(userId: number, room_name: string) {
+        const roomUser = await this.prismaService.roomMembers.deleteMany({
+            where: {
+                userId: userId,
+                room: { 
+                    name: room_name
+                }
+            }
+        })
+        return (roomUser)
+    }
+    async deleteMemberFromRooms(userId: number) {
+        await this.prismaService.roomMembers.deleteMany({
+            where:{
+                userId: userId
+            },
+        })
+    }
+    async getUserJoinedRooms(userId: number) {
+        const joinedRooms = await this.prismaService.user.findUnique({
+            where: {
+                id: userId
+            },
+            select: {
+                memberRooms: {
+                    select: {
+                        room: { select: { name: true } }
+                    }
+                }
+            }
+        })
+        return (joinedRooms.memberRooms)
+    }
     // async getUserRooms(userID: number) {
     //     const rooms = await this.prismaService.user.findUnique({
     //         where: {

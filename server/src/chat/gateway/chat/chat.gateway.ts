@@ -47,18 +47,31 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect{
       this.connectionSuccess(socket)
 
     }catch (error) {
+      console.log(error)
       this.UnauthorizedDisconnect(socket)
     }
   }
 
-  handleDisconnect(socket: Socket) {
-    console.log("Log on disconnect") 
-    //const user = socket.data.user
-    //this.deleteConnection(socket)
+  private async leaveAllRoomsOnDisconnect(socket: Socket, user: any){
+    const all_rooms = await this.roomService.getUserJoinedRooms(user.id)
+    console.log(all_rooms)
+    await this.roomService.deleteMemberFromRooms(user.id)
+    // log to all prev rooms 
+    for (let chat_room of all_rooms ) {
+      let name = chat_room.room.name
+      socket.to(name).emit("message", `${user.username} left Ch4t!`)
+      socket.leave(name)
+    }
   }
 
+  async handleDisconnect(socket: Socket) {
+    const user = socket.data.user
+    await this.leaveAllRoomsOnDisconnect(socket, user)
+  }
+  
   @SubscribeMessage('newRoom')
   async handleRoomCreate(socket: Socket, payload: any): Promise<any> { 
+    // create and add owner to room
     const newRoom = await this.roomService.createChatRoom(socket.data.user, payload);
     if (!newRoom)
     {
@@ -83,7 +96,17 @@ export class ChatGateway implements OnGatewayConnection , OnGatewayDisconnect{
      const roomMembers = await this.roomService.joinUserToRoom(user, roomName)
      // join socket  chanel
      socket.join(payload.roomName)
-     socket.to(roomName).emit("message", `${user.username} Joined Room ${roomName}`)
+     socket.emit("message", "Welcome to Ch4t!")
+     socket.to(roomName).emit("message", `${user.username} Joined Ch4t!`)
      socket.emit("users", roomMembers)
+   }
+
+   @SubscribeMessage('leaveRoom')
+   async leaveRoom(socket: Socket, payload: any) {
+    const user = socket.data.user;
+    const roomName = payload.roomName
+    await this.roomService.removeUserFromRoom(user.id, roomName)
+    socket.broadcast.to(roomName).emit("message", `${user.username} left Ch4t!`)
+    socket.leave(roomName)
    }
 }
