@@ -11,3 +11,20 @@ export const profile = async (username: string) => {
 	console.log("profile : ", response)
 	return response.data
 }
+
+	
+export const addFriend = async (username: string) => {
+	const response = await api.post(`${API_URL}/user/friends/add`, {
+		username: username
+	});
+	console.log("add friend response : ", response);
+	return response.data;
+}
+
+export const acceptFriend = async (username: string) => {
+	const response = await api.post(`${API_URL}/user/friends/accept`, {
+		username: username
+	});
+	console.log("accept friend response : ", response);
+	return response.data;
+}

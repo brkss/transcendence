@@ -231,4 +231,19 @@ export class UserService {
 
 		return users;
 	}
+
+	async getFriendRequests(username: string){
+		const userId = await this.getUserId(username);
+		const requests = await this.prismaService.friendship.findMany({
+			where: { status: "accepted", OR: [ {user_id: userId}, {friend_id: userId} ]},
+			select: {
+				friend: {
+					select: { id: true, username: true, email: true}
+				},
+				user: {
+					select: { id: true, username: true, email: true}
+				}
+			},
+		})
+	}
 }

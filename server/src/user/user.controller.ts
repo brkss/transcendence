@@ -38,6 +38,12 @@ export class UserController {
         return (await this.userService.acceptFriend(current_username, username))
     }
 
+	@Get("friends/requests")
+	async getFriendRequests(@Req() req: any){
+		const username : string = req.user.username;
+		return (await this.userService.getFriendRequests(username));
+	}
+
     @Get('friends/all')
     async getAllFriends(@Req() req: any) {
         const current_username: string = req.user.username;

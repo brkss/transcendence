@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Box, Text, Button, Grid, GridItem, } from '@chakra-ui/react';
 import { Avatar } from '../Avatar'; 
+import { AiOutlineUserAdd } from 'react-icons/ai'
 
 interface Props {
 	username: string;
@@ -11,6 +12,7 @@ interface Props {
 
 
 export const PersonalInfo : React.FC<Props> = ({username, name, image}) => {
+
 
 	return (
 		<Box mb={'80px'}>
@@ -25,7 +27,7 @@ export const PersonalInfo : React.FC<Props> = ({username, name, image}) => {
 					<GridItem colSpan={6} textAlign={'right'} alignItems={'center'} >
 
 						<Button variant={'unstyled'} bg={'black'} color={'white'} size={'sm'} p={'50x 20px'}>
-							Send Message
+							<AiOutlineUserAdd style={{display: "inline-block", marginRight: '5px', marginBottom: "3px" }} size={17} /> Add Friend
 						</Button>
 					</GridItem>
 				</Grid>	
