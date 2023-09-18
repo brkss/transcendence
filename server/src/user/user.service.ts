@@ -33,7 +33,11 @@ export class UserService {
                     fullName: user.usual_full_name,
                     login: user.login,
                     username: user.login,
-                    lastSeen: Date()
+                    lastSeen: Date(),
+					/*
+					 * need to download and save image locally !
+					 */
+					avatar: user.image
                 },
             })
             return (db_user)
