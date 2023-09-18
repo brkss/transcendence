@@ -8,6 +8,11 @@ datasource db {
   provider = "postgresql"
   url      = env("db_url")
 }
+enum RoomType {
+  PUBLIC
+  PROTECTED
+  PRIVATE
+}
 
 model user {
   id        Int      @id @default(autoincrement())
@@ -23,18 +28,49 @@ model user {
   lastSeen       String
   avatar		 String?
 
+  ownedRooms  ChatRoom[]
+  memberRooms RoomMembers[]
+  bannedRooms RoomBan[]
+
   sent_friendship     Friendship[] @relation("SentFriendShip")
   recieved_friendship Friendship[] @relation("RecievedFriendShip")
-  chat_rooms          ChatRoom[] // implicit m-n relation 
 }
 
 model ChatRoom {
   id         Int      @id @unique @default(autoincrement())
   name       String   @unique()
+  owner      Int
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  password   String?
+  roomType   RoomType @default(PUBLIC)
 
-  users user[] // implicit m-n 
+  ownerRef       user          @relation(fields: [owner], references: [id])
+  membersRef     RoomMembers[]
+  bannedUsersRef RoomBan[]
+}
+
+model RoomMembers {
+  id      Int     @id @unique @default(autoincrement())
+  userId  Int
+  roomId  Int
+  userBanned Boolean @default(false)
+  isAdmin Boolean @default(false)
+
+  user user     @relation(fields: [userId], references: [id])
+  room ChatRoom @relation(fields: [roomId], references: [id])
+  @@unique([userId, roomId])
+}
+
+model RoomBan {
+  id     Int @id @unique @default(autoincrement())
+  userID Int
+  roomID Int
+
+  userFK user     @relation(fields: [userID], references: [id])
+  roomFK ChatRoom @relation(fields: [roomID], references: [id])
+  @@unique([userID, roomID])
+
 }
 
 model Friendship {
@@ -42,8 +78,9 @@ model Friendship {
   user_id       Int
   friend_id     Int
   status        String @default("pending")
-  connection    String @unique
 
   friend user @relation("RecievedFriendShip", fields: [friend_id], references: [id])
   user   user @relation("SentFriendShip", fields: [user_id], references: [id])
+
+  @@unique([user_id, friend_id])
 }

@@ -1,44 +1,45 @@
 import { Injectable } from '@nestjs/common';
+import { use } from 'passport';
+import { retryWhen } from 'rxjs';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
-	constructor( private prismaService: PrismaService) {
+    constructor(private prismaService: PrismaService) {
 
 	}
 
-	findUserUnique(query: any) {
-		try {
-			const user_exits =  this.prismaService.user.findUnique(query)
-			return user_exits;
-		}
-		catch {
-			return undefined;
-		}
-	}
+    findUserUnique(query: any) {
+        try {
+            const user_exits = this.prismaService.user.findUnique(query)
+            return user_exits;
+        }
+        catch {
+            return undefined;
+        }
+    }
 
-	async createUser(user: any): Promise<any> {
-		const query = {
-			where: {
-				login: user.login
-			},
-		}
-		const  userExists = await this.findUserUnique(query)
-		if (!userExists) {
-			const db_user = await this.prismaService.user.create({
-				data: {
-					email: user.email,
-					fullName: user.usual_full_name,
-					login: user.login,
-					username: user.login,
-					lastSeen: Date(),
-					avatar: user.image
-				},
-			})
-			return (db_user)
-		}
-		return (userExists)
-	}
+    async createUser(user: any): Promise<any> {
+        const query = {
+            where: {
+                login: user.login
+            },
+        }
+        const userExists = await this.findUserUnique(query)
+        if (!userExists) {
+            const db_user = await this.prismaService.user.create({
+                data: {
+                    email: user.email,
+                    fullName: user.usual_full_name,
+                    login: user.login,
+                    username: user.login,
+                    lastSeen: Date()
+                },
+            })
+            return (db_user)
+        }
+        return (userExists)
+    }
 
 	async updateField(data: any) {
 		const user = await this.prismaService.user.update(data)
@@ -52,79 +53,96 @@ export class UserService {
 		return (auth2fa_secret.auth2faSercret)
 	}
 
-	async is2faActivated(user_login: string) {
-		const isActivated = await this.prismaService.user.findUnique({
-			where: { login: user_login },
-			select: { auth2faOn : true }
-		})
-		return (isActivated.auth2faOn)
-	}
+    async is2faActivated(user_login: string) {
+        const isActivated = await this.prismaService.user.findUnique({
+            where: { login: user_login },
+            select: { auth2faOn: true }
+        })
+        return (isActivated.auth2faOn)
+    }
+    async getUserId(username: string) {
+        const userId = await this.prismaService.user.findUnique({
+            where: { username: username },
+            select: { id: true }
+        })
+        if (!userId)
+            return (undefined)
+        return (userId.id)
+    }
+    async alreadyFriend(user_id: number, friend_id: number) {
+        const found = await this.prismaService.friendship.findMany({
+            where: {
+                status: "accepted",
+                OR: [
+                    { user_id: user_id },
+                    { friend_id: friend_id }
+                ]
+            },
+            select: {
+                friendship_id: true
+            }
+        })
+        console.log(found)
+        if (found.length)
+            return (true)
+        return (false)
+    }
 
-	// get user by its id 
-	async getUserByID(userID: number) {
-		const user = await this.prismaService.user.findUnique({
-			where: { id: userID }
-		})
-		return user;
-	}
+    async addFriend(current_user: string, friend_user: string) {
+        const userId = await this.getUserId(current_user)
+        const friendId = await this.getUserId(friend_user)
+        if (userId == friendId) {
+            return ({ error: `Failed to send request to '${friend_user}'` })
+        }
+        if (!friendId) {
+            return ({ error: `User '${friend_user}' Does not exits` })
+        }
+        const isFriend = await this.alreadyFriend(userId, friendId)
+        if (isFriend) {
+            return ({ error: `User '${friend_user}' Already a Friend :)` })
+        }
+        try {
+            await this.prismaService.friendship.create({
+                data: {
+                    user_id: userId,
+                    friend_id: friendId,
+                } as any,
+            })
+            return ({ success: `Friend request sent to ${friend_user}` })
+        }
+        catch {
+            return ({ error: `Friend request Already sent to ${friend_user}` })
+        }
+    }
+    async friendRequestExists(userId: number, friendId: number): Promise<boolean> {
+        const friendship = await this.prismaService.friendship.findMany({
+            where: { user_id: friendId, friend_id: userId, status: "pending" },
+            select: { status: true }
+        })
+        if (friendship.length) // this crap should be updated 
+            return (true)
+        return (false)
+    }
 
-	async getUserId(username: string) {
-		const userId = await this.prismaService.user.findUnique({
-			where: { username: username },
-			select: {id: true} 
-		})
-		if (!userId)
-		return (undefined)
-		return (userId.id)
-	}
-	async alreadyFriend(user_id: number, friend_id: number) {
-		const connection : string = `${friend_id}|${user_id}`
-		const found = await this.prismaService.friendship.findUnique({
-			where: {
-				status: "accepted",
-				connection: connection
-			},
-			select: {
-				friendship_id: true
-			}
-		})
-		if (found?.friendship_id)
-		return (true)
-		return (false)
-	}
-	async addFriend(current_user: string, friend_user: string) {
-		const userId = await  this.getUserId(current_user) 
-		const friendId = await  this.getUserId(friend_user)
-		if (!friendId){ 
-			return ({error: `User ${friend_user} Does not exits`})
-		}
-		const isFriend = await this.alreadyFriend(userId, friendId)
-		if (isFriend) {
-			return ({error: `User ${friend_user} Already a Friend :)`})
-		}
-		try { 
-			await this.prismaService.friendship.create({
-				data: {
-					user_id: userId,
-					friend_id: friendId,
-					connection: `${userId}|${friendId}`
-				},
-			})
-			return ({success: `Friend request sent to ${friend_user}`})
-		}
-		catch {
-			return ({error: `Friend request Already sent to ${friend_user}`})
-		}   
-	}
-	async friendRequestExists(userId: number, friendId: number) : Promise<boolean> {
-		const friendship =  await this.prismaService.friendship.findMany({
-			where: {user_id: friendId, friend_id: userId, status: "pending"},
-			select: {status: true}
-		})
-		if (friendship.length) // this crap should be updated 
-		return (true)
-		return (false)
-	}
+
+    async getAllRequests(username: string) {
+        const userId = await this.getUserId(username)
+        const requests = await this.prismaService.friendship.findMany({
+            where:{ 
+                friend_id: userId,
+                status: "pending"
+            },
+            select: {
+                friend: {
+                    select: {
+                        username: true,
+                        email: true
+                    }
+                }
+            }
+        })
+        return (requests)
+    }
 
 	async acceptFriend(current_user: string, friend_username: string) {
 		const userId = await  this.getUserId(current_user) 
