@@ -12,7 +12,6 @@ export const profile = async (username: string) => {
 	return response.data
 }
 
-	
 export const addFriend = async (username: string) => {
 	const response = await api.post(`${API_URL}/user/friends/add`, {
 		username: username
@@ -28,3 +27,21 @@ export const acceptFriend = async (username: string) => {
 	console.log("accept friend response : ", response);
 	return response.data;
 }
+
+export const getRequests = async () => {
+	const response = await api.get(`${API_URL}/user/friends/requests`);
+	console.log("get requests response : ", response);
+	return response.data;
+}
+
+export const getFriends = async () => {
+	const response = await api.get(`${API_URL}/user/friends/all`);
+	console.log("get friends response : ", response);
+	return (response.data);
+}
+
+export const getRelationship = async (username: string) => {
+	const response = await api.get(`${API_URL}/user/friends/relationship/${username}`)
+	console.log("user's relationship : ", response);
+	return response.data;
+} 
