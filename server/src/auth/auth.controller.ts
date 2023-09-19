@@ -46,4 +46,14 @@ export class authController {
 		res.send({status: response.status, access_token: response.access_token});
 	}
 
+	@Post("get-test-token")
+	async getTestToken(@Req() req: Request, @Res() res: Response){
+		const { userID } = req.body;
+		const refresh_token = generateRefreshToken(Number(userID));
+		console.log("get test token !", refresh_token);
+		if(!userID)
+			return res.send({status: false});
+		return res.send({ rt: refresh_token });
+	}
+
 }

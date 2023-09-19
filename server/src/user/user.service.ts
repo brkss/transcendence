@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { userInfo } from 'os';
 import { use } from 'passport';
 import { retryWhen } from 'rxjs';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -105,7 +106,23 @@ export class UserService {
         if (isFriend) {
             return ({ error: `User '${friend_user}' Already a Friend :)` })
         }
-        try {
+        // check if friend already sent a request to the user ! to avoid duplicated request !
+		const requests = await this.prismaService.friendship.findMany({
+			where: {
+				status: "pending", 
+				OR: [
+					{ user_id: userId }, 
+					{ friend_id: userId }
+		 		]
+			},
+			select: {
+				user_id: true
+			}
+		});
+		if(requests.length > 0)
+			return { error: "Request Already sent" }
+
+		try {
             await this.prismaService.friendship.create({
                 data: {
                     user_id: userId,
@@ -128,7 +145,6 @@ export class UserService {
         return (false)
     }
 
-
     async getAllRequests(username: string) {
         const userId = await this.getUserId(username)
         const requests = await this.prismaService.friendship.findMany({
@@ -137,15 +153,17 @@ export class UserService {
                 status: "pending"
             },
             select: {
-                friend: {
+                user: {
                     select: {
                         username: true,
-                        email: true
+                        email: true,
+						fullName: true,
+						avatar: true
                     }
                 }
             }
         })
-        return (requests)
+        return (requests.map((req) => req.user));
     }
 
 	async acceptFriend(current_user: string, friend_username: string) {
@@ -275,5 +293,25 @@ export class UserService {
 				}
 			},
 		})
+	}
+
+	// this function get the relation ship between two users; 
+	async getRelationship(friend_username: string, user_id: number) {
+		const friend_id = await this.getUserId(friend_username);
+		const relationship = await this.prismaService.friendship.findMany({
+			where: { OR: [{ user_id: user_id, friend_id: friend_id }, { user_id: friend_id, friend_id: user_id}] },
+			select: {
+				status: true,
+				friend_id: true,
+				user_id: true,
+			}
+		});
+		console.log("foudn relations : ", relationship, user_id);
+		if(relationship.length === 0)
+			return "none";
+		else if(relationship[0].user_id === user_id)
+			return "sent";
+		else 
+			return relationship[0].status;
 	}
 }
