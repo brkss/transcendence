@@ -309,7 +309,7 @@ export class UserService {
 		console.log("foudn relations : ", relationship, user_id);
 		if(relationship.length === 0)
 			return "none";
-		else if(relationship[0].user_id === user_id)
+		else if(relationship[0].user_id === user_id && relationship[0].status !== "accepted")
 			return "sent";
 		else 
 			return relationship[0].status;
