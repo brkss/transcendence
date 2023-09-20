@@ -124,6 +124,28 @@ export class RoomService {
         })
         return (joinedRooms.memberRooms)
     }
+    async selectUserRoom(userId: number, roomName: string) {
+        const roomId  = await this.getRoomByName(roomName)
+        if (roomId === undefined){
+            return (false)
+        }
+        const userRoom = await this.prismaService.roomMembers.findMany({
+            where: {
+                userId: userId,
+                roomId: roomId,
+                userBanned: false
+            },
+            select: {
+                room: {
+                    select: { name: true }
+                }
+            }
+        })
+        if (roomName === userRoom[0].room.name) {
+            return (true)
+        }
+        return (false)
+    }
     // async getUserRooms(userID: number) {
     //     const rooms = await this.prismaService.user.findUnique({
     //         where: {
