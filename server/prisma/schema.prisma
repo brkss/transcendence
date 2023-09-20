@@ -6,7 +6,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("db_url")
 }
 enum RoomType {
   PUBLIC
@@ -26,6 +26,7 @@ model user {
   auth2faOn      Boolean? @default(false)
   auth2faSercret String?
   lastSeen       String
+  avatar		 String?
 
   ownedRooms  ChatRoom[]
   memberRooms RoomMembers[]

@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "RoomType" AS ENUM ('PUBLIC', 'PROTECTED', 'PRIVATE');
+
 -- CreateTable
 CREATE TABLE "user" (
     "id" SERIAL NOT NULL,
@@ -10,6 +13,7 @@ CREATE TABLE "user" (
     "auth2faOn" BOOLEAN DEFAULT false,
     "auth2faSercret" TEXT,
     "lastSeen" TEXT NOT NULL,
+    "avatar" TEXT,
 
     CONSTRAINT "user_pkey" PRIMARY KEY ("id")
 );
@@ -22,6 +26,7 @@ CREATE TABLE "ChatRoom" (
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "password" TEXT,
+    "roomType" "RoomType" NOT NULL DEFAULT 'PUBLIC',
 
     CONSTRAINT "ChatRoom_pkey" PRIMARY KEY ("id")
 );
@@ -31,6 +36,7 @@ CREATE TABLE "RoomMembers" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
     "roomId" INTEGER NOT NULL,
+    "userBanned" BOOLEAN NOT NULL DEFAULT false,
     "isAdmin" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "RoomMembers_pkey" PRIMARY KEY ("id")
@@ -50,8 +56,7 @@ CREATE TABLE "Friendship" (
     "friendship_id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
     "friend_id" INTEGER NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'pending',
-    "connection" TEXT NOT NULL
+    "status" TEXT NOT NULL DEFAULT 'pending'
 );
 
 -- CreateIndex
@@ -85,7 +90,7 @@ CREATE UNIQUE INDEX "RoomBan_userID_roomID_key" ON "RoomBan"("userID", "roomID")
 CREATE UNIQUE INDEX "Friendship_friendship_id_key" ON "Friendship"("friendship_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Friendship_connection_key" ON "Friendship"("connection");
+CREATE UNIQUE INDEX "Friendship_user_id_friend_id_key" ON "Friendship"("user_id", "friend_id");
 
 -- AddForeignKey
 ALTER TABLE "ChatRoom" ADD CONSTRAINT "ChatRoom_owner_fkey" FOREIGN KEY ("owner") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

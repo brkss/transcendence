@@ -3,18 +3,20 @@ import { Menu, MenuItem, MenuList, MenuButton, Box, GridItem, Stack, Text, Butto
 import { Avatar } from '../Avatar';
 
 
+interface Props {
+	name: string;
+	username: string;
+	image: string
+}
 
-
-export const FriendBox: React.FC = () => {
-
-
+export const FriendBox: React.FC<Props> = ({name, username, image}) => {
 
 	return (
-		<Box mt={'40px'}>
+		<Box mt={'30px'}>
 			<Stack direction={['column', 'row']} spacing={'10px'}>
-				<Avatar d={'50px'} />
+				<Avatar d={'50px'} src={image} />
 				<Box>
-					<Text fontWeight={'bold'}>@Avocado</Text>
+					<Text fontWeight={'bold'}>@{username}</Text>
 					<Text bg={'green.100'} rounded={'4px'} fontWeight={'bold'} fontSize={'13px'} p={'1px 6px'} display={'inline-block'}>online</Text>
 				</Box>
 				<Box ml={'auto'}>

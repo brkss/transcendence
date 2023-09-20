@@ -41,7 +41,7 @@ interface Props {
 export const SideBar : React.FC<Props> = ({signal}) => {
 
 	return (
-		<Box display={'flex'} flexDir={'column'} alignItems={'center'}>
+		<Box display={'flex'} flexDir={'column'} alignItems={'center'} pos="relative" zIndex={999}>
 			{
 				_items.map(({name, Icon}, key) => (
 					<Box onClick={() => signal(name.toLowerCase())} textAlign={'center'} key={key} mb={'20px'} transition={'.3s'} cursor={'pointer'} _hover={{transform: 'scale(.95)', transition: '.3s'}}>

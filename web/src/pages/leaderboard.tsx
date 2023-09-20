@@ -7,9 +7,10 @@ import {
 	Box,
 	Text
 } from '@chakra-ui/react'
-import { Layout, Avatar } from '../components'
+import { Layout, Avatar, withAuth } from '../components'
 
-export default function(){
+
+function Leaderboard(){
 
 
 
@@ -18,7 +19,7 @@ export default function(){
 		<Box>
 				<Text mb={'20px'} fontSize={'25px'} fontWeight={'bold'}>Leaderboard</Text>
 				<TableContainer>
-					<Table variant='simple'>
+					<Table variant='striped' size={'sm'}>
 						<Tbody>
 							<Tr>
 								<Td>
@@ -44,3 +45,4 @@ export default function(){
 		</Layout>
 	)
 }
+export default withAuth(Leaderboard);
