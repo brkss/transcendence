@@ -1,8 +1,9 @@
-import { UseGuards, Controller, Get,Req, Res, Post } from '@nestjs/common'
+import { UseGuards, Controller, Get,Req, Res, Post, UsePipes } from '@nestjs/common'
 import { AuthService } from './auth.service';
 import { auth42Guard } from './guards/auth.guard';
 import { Response, Request } from 'express';
 import { generateAccessToken, generateRefreshToken } from './token';
+import { createRoomDTO } from 'src/chat/dtos/creatRoom.dto';
 
 @Controller('auth')
 export class authController {
@@ -11,6 +12,7 @@ export class authController {
     }
 
     @Get('login')
+    @UsePipes(createRoomDTO)
     loginpage() {
         console.log(typeof(Date.now()))
         return this.auth_service.loginpage()
@@ -30,7 +32,7 @@ export class authController {
         }
         else {
             resp.cookie('refresh_token', refresh_token, {maxAge: 7 * 24 * 3600 * 1000, httpOnly: true});
-            resp.redirect("http://localhost:3000")
+            resp.redirect("http://localhost:8000")
         }
         
     }

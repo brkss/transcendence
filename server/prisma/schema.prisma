@@ -15,7 +15,7 @@ enum RoomType {
 }
 
 model user {
-  id        Int      @id @default(autoincrement())
+  id        Int      @id @unique @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

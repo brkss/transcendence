@@ -1,14 +1,21 @@
-import { UnauthorizedException, UseGuards } from '@nestjs/common';
+import { UnauthorizedException, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Socket } from 'socket.io'
 import { RoomService } from 'src/chat/room/room.service';
 import { ConnectionService } from './connnection.service';
+import { createRoomDTO } from 'src/chat/dtos/creatRoom.dto';
+import { ValidationExceptionFilter } from 'src/chat/dtos/chatvalidation.filer';
+import { updateRoomDTO } from 'src/chat/dtos/updateRoom.dto';
 
 @WebSocketGateway()
+@UseFilters(ValidationExceptionFilter)
+@UsePipes(new ValidationPipe({
+  //disableErrorMessages: true,
+  whitelist: true,
+  forbidNonWhitelisted:true
+}))
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  @WebSocketServer()
-  private server;
 
   constructor(private jwtService: JwtService,
     private roomService: RoomService,
@@ -31,7 +38,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const payload = this.jwtService.verify(access_token) // use canactivate with
       socket.data.user = payload;
       this.connectionSuccess(socket)
-
     } catch (error) {
       console.log(error)
       this.UnauthorizedDisconnect(socket)
@@ -55,9 +61,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.leaveAllRoomsOnDisconnect(socket, user)
   }
 
+  // chat message routes
   @SubscribeMessage('newRoom')
-  async handleRoomCreate(socket: Socket, payload: any): Promise<any> {
-    // create and add owner to room
+  async handleRoomCreate(socket: Socket, payload: createRoomDTO): Promise<any> {
     const newRoom = await this.roomService.createChatRoom(socket.data.user, payload);
     if (!newRoom) {
       const error = { Error: "Room With Same Name Already exits" }
@@ -68,8 +74,29 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket.join(newRoom.name)
     return (newRoom)
   }
-
-  @SubscribeMessage('joinRoom')
+  @SubscribeMessage('updateRoom')
+  async handleRoomUpdate(socket: Socket, payload: updateRoomDTO) {
+      const room = await this.roomService.getRoomByName(payload.roomName)
+      const user = socket.data.user
+      if (room === undefined) {
+        socket.emit("Error", "Ch4t Room Not Found!") 
+        return 
+      }
+      if (room.owner != user.id) {
+        socket.emit("Error", "Only Room Owner can update") 
+        return 
+      }
+      const data = {
+        roomType: payload.roomType,
+        password: (payload.roomType === "PROTECTED") ? payload.password : null
+      }
+      console.log(data)
+      const updatedRoom = await this.roomService.updateRoom(room.id, data)
+      console.log(updatedRoom)
+      socket.emit("message", "Room Updated")
+      console.log(payload)
+  }
+@SubscribeMessage('joinRoom')
   async joinRoom(socket: Socket, payload: any) {
     const user = socket.data.user
     const roomName = payload.roomName
