@@ -3,11 +3,14 @@ import { Box, Grid, GridItem, Text, Input, Button } from '@chakra-ui/react';
 import { Avatar } from '../Avatar';
 import { useRouter } from 'next/router';
 import { SearchSug } from './SearchSug';
+import { getPayload } from '@/utils/helpers';
 
 export const TopBar : React.FC = () => {
 
 	const [query, setQuery] = React.useState<string>("");
 	const router = useRouter();
+
+	const payload : any= getPayload();
 
 	const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault()
@@ -26,7 +29,7 @@ export const TopBar : React.FC = () => {
 							{ query.length >= 3 && <SearchSug query={query} clearEntry={() => setQuery("")} /> }
 						</GridItem>
 						<GridItem colSpan={4}>
-							<Button float={'right'} variant={'unstyled'} onClick={() => router.push("/user/profile")}>
+							<Button float={'right'} variant={'unstyled'} onClick={() => router.push(`/user/${payload?.username || ""}`)}>
 								<Avatar d={'40px'} />
 							</Button>						
 						</GridItem>
