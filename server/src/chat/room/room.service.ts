@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
@@ -12,7 +12,6 @@ export class RoomService {
                 roomId: room_id,
                 isAdmin: is_admin
             }
-        console.log(data)
         await this.prismaService.roomMembers.create({
             data: {
                 userId: user_id,
@@ -53,9 +52,6 @@ export class RoomService {
                 where: {
                     name: roomName
                 },
-                //select: {
-                //    id: true
-                //}
             })
             return room;
         }
@@ -67,6 +63,7 @@ export class RoomService {
     }
     async updateRoom(roomId: number, data: any) {
         // data should be sanitzed from other fields
+        // really ? yes 
         const updatedRoom = await  this.prismaService.chatRoom.update({
             where: {
                 id: roomId
@@ -81,11 +78,7 @@ export class RoomService {
                 roomId: roomId
             },
             select: {
-                user: {
-                    select: {
-                        username:true
-                    }
-                }
+                user: { select: { username:true} }
             }
         })
         return (roomMembers)
@@ -117,13 +110,12 @@ export class RoomService {
         const roomUser = await this.prismaService.roomMembers.deleteMany({
             where: {
                 userId: userId,
-                room: { 
-                    name: room_name
-                }
+                room: { name: room_name }
             }
         })
         return (roomUser)
     }
+
     async deleteMemberFromRooms(userId: number) {
         await this.prismaService.roomMembers.deleteMany({
             where:{
@@ -164,5 +156,33 @@ export class RoomService {
             return (true)
         }
         return (false)
+    }
+    async getRoomsOfUser(userId: number) {
+        const all_rooms = await this.prismaService.roomMembers.findMany({
+            where:{
+                userId: userId
+            },
+            select: {
+                room: { select: { name: true } }
+            }
+        })
+        return (all_rooms)
+
+    }
+    async IsRoomAdmin(userId: number, roomId: number) {
+        const isadmin = await this.prismaService.roomMembers.findUnique({
+            where: {
+                    userId_roomId: {
+                        userId: userId,
+                        roomId: roomId
+                    }
+            },
+            select: {
+                isAdmin: true
+            }
+        })
+        console.log("userId:" ,userId, "roomId", roomId)
+        console.log("is_admin:", isadmin)
+        return (isadmin?.isAdmin)
     }
 }

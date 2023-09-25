@@ -4,11 +4,15 @@ import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RoomService } from './room/room.service';
-import { ConnectedSocket } from '@nestjs/websockets';
-import { ConnectionService } from './gateway/chat/connnection.service';
+import { ChatService } from './chat.service';
+import { GatewayService } from './gateway/chat/gateway.service';
 
 @Module({
   imports: [AuthModule, UserModule],
-  providers: [ChatGateway, PrismaService, RoomService, ConnectionService]
+  providers: [ChatGateway,
+    PrismaService,
+    RoomService,
+    ChatService,
+    GatewayService]
 })
 export class ChatModule {}
