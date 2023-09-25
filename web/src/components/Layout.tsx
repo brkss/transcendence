@@ -68,10 +68,10 @@ export const Layout : React.FC<any> = ({children}) => {
 		<Box>
 			<TopBar />
 			<Grid templateColumns={'repeat(12, 1fr)'}>
-				<GridItem colSpan={1}>
+				<GridItem colSpan={{md: 1, base: 12}}>
 					<SideBar signal={(sig: string) => handleSig(sig) } />
 				</GridItem>
-				<GridItem colSpan={11}>
+				<GridItem colSpan={{md: 11, base: 12}} p={{md: '40px', base: '15px'}}>
 					{children}
 				</GridItem>
 			</Grid>

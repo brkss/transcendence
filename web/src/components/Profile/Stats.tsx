@@ -17,8 +17,8 @@ export const Stats: React.FC = () => {
 
 	return (
 		<Box mt={'20px'}>
-					<Grid templateColumns={'repeat(12, 1fr)'} gap={10}>
-						<GridItem colSpan={6} pos={"relative"}>
+					<Grid templateColumns={'repeat(12, 1fr)'} gap={{md: 10, base: 0}}>
+						<GridItem colSpan={{md: 6, base: 12}} pos={"relative"}>
 							<Box mb={'20px'} fontWeight={'bold'} fontSize={'30px'} display={'flex'} justifyContent={'space-between'} alignItems={'baseline'}>
 								Stats
 								<Text float={"right"} fontSize={'sm'} display={'inline-block'} p={'5px 20px'} bg={'black'} fontWeight={'bold'} color={'white'} rounded={"15px"} >Ranked #12</Text>
@@ -35,9 +35,9 @@ export const Stats: React.FC = () => {
 									<Box w={'60%'} bg={'red.100'} h={'20px'} rounded={'5px'} />
 								</Box>
 							</Box>
-							<Text pos={"absolute"} bottom={"10px"} fontSize={"14px"} opacity={.8}>This statistics are based on the games you played.</Text>
+							<Text  bottom={"10px"} fontSize={"14px"} opacity={.8}>This statistics are based on the games you played.</Text>
 						</GridItem>
-						<GridItem colSpan={6}>
+						<GridItem colSpan={{md: 6, base: 12}} mt={{base: '20px', md: '10px'}}>
 							<Badges />
 						</GridItem>
 					</Grid>

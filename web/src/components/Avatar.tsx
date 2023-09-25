@@ -9,6 +9,13 @@ interface Props {
 export const Avatar : React.FC<Props> = ({d, src}) => {
 
 	return (
-			<Image objectFit={'cover'} w={d ? d : "100px"} h={d ? d : "100px"} src={src ? src : "/images/default.jpeg"} rounded={'100%'} />
+			<Image 
+				aspectRatio={'1 / 1'} 
+				objectFit={'cover'} 
+				w={{md: d ? d : "100px", base: "100%"}} 
+				h={{md: d ? d : "100px", base: "100%"}} 
+				src={src ? src : "/images/default.jpeg"} 
+				rounded={'100%'} 
+			/>
 	)
 }
