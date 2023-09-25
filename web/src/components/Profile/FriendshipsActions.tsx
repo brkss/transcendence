@@ -6,9 +6,10 @@ import { BiUserCheck } from 'react-icons/bi'
 interface Props {
 	relationship: string;
 	addFriend: () => void;
+	acceptFriend: () => void;
 }
 
-export const FriendshipActions : React.FC<Props> = ({relationship, addFriend}) => {
+export const FriendshipActions : React.FC<Props> = ({relationship, addFriend, acceptFriend}) => {
 
 
 	return (
@@ -17,7 +18,7 @@ export const FriendshipActions : React.FC<Props> = ({relationship, addFriend}) =
 				{
 					'pending': (
 						<Box>
-							<Button variant={'unstyled'} bg={'blue.50'} color={'black'} size={'sm'} p={'50x 20px'} onClick={addFriend}>
+							<Button variant={'unstyled'} bg={'blue.50'} color={'black'} size={'sm'} p={'50x 20px'} onClick={() => acceptFriend()}>
 								<AiOutlineUserSwitch style={{display: "inline-block", marginRight: '5px', marginBottom: "3px" }} size={17} /> Accept
 							</Button>
 						</Box>
@@ -27,21 +28,21 @@ export const FriendshipActions : React.FC<Props> = ({relationship, addFriend}) =
 							</Button>,
 					'accepted': (
 						<Box>	
-							<Button variant={'unstyled'} bg={'black'} color={'white'} size={'sm'} p={'50x 20px'} onClick={addFriend}>
+							<Button variant={'unstyled'} bg={'black'} color={'white'} size={'sm'} p={'50x 20px'} cursor={'unset'} >
 								<BiUserCheck style={{display: "inline-block", marginRight: '5px', marginBottom: "3px" }} size={17} /> Friends
 							</Button>
 						</Box>
 					),
 					'sent': (
 						<Box>
-							<Button variant={'unstyled'} bg={'black'} color={'white'} size={'sm'} p={'50x 20px'} onClick={addFriend}>
+							<Button variant={'unstyled'} bg={'black'} color={'white'} size={'sm'} p={'50x 20px'} cursor={'unset'}>
 								<AiOutlineUserAdd style={{display: "inline-block", marginRight: '5px', marginBottom: "3px" }} size={17} /> Pending
 							</Button>
 						</Box>
 					),
 					'me': (
 						<Box>
-							<Button variant={'unstyled'} bg={'black'} color={'white'} size={'sm'} p={'50x 20px'} onClick={addFriend}>
+							<Button variant={'unstyled'} bg={'black'} color={'white'} size={'sm'} p={'50x 20px'} onClick={() => {}}>
 								<AiOutlineEdit style={{display: "inline-block", marginRight: '5px', marginBottom: "3px" }} size={17} /> Edit profile
 							</Button>
 						</Box>

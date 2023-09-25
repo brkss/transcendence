@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { ChatBox } from './Item';
 import { RoomPasswordModal } from './RoomPasswordModal';
+import { Chat } from './Chat'
 
 interface Props {
 	isOpen: boolean;
@@ -33,12 +34,17 @@ const _tmp = [
 export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 
 	const [openModal, setOpenModal] = React.useState(false);
+	const [openChat, setOpenChat] = React.useState(false);
 	const _passDisclosure = useDisclosure(); 
+	const _chat = useDisclosure();
 
 	const handleEntringRoom = (isProtected: boolean) => {
 		if(isProtected){
 			setOpenModal(true);
 			_passDisclosure.onOpen();
+		}else {
+			setOpenChat(true);
+			_chat.onOpen();
 		}
 	}
 
@@ -47,7 +53,7 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 			isOpen={isOpen}
 			placement='right'
 			onClose={onClose}
-			size={'md'}
+			size={'lg'}
 		>
 			<DrawerOverlay />
 			<DrawerContent>
@@ -69,6 +75,7 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 				</DrawerFooter>
 			</DrawerContent>
 			{ openModal && <RoomPasswordModal isOpen={_passDisclosure.isOpen} onClose={_passDisclosure.onClose} onOpen={_passDisclosure.onOpen} /> }
+			{ openChat && <Chat isOpen={_chat.isOpen} onClose={_chat.onClose} /> }
 		</Drawer>
 	)
 }

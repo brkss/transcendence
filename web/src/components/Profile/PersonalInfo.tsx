@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Text, Button, Grid, GridItem, useToast } from '@chakra-ui/react';
 import { Avatar } from '../Avatar'; 
 import { AiOutlineUserAdd } from 'react-icons/ai'
-import { addFriend } from '@/utils/services/user.axios';
+import { acceptFriend, addFriend } from '@/utils/services/user.axios';
 import { FriendshipActions } from './FriendshipsActions';
 
 interface Props {
@@ -37,6 +37,26 @@ export const PersonalInfo : React.FC<Props> = ({username, name, image, relations
 		//console.log("add friend : ", response);
 	}
 
+	const handleAcceptFriend = async () => {
+		const response = await acceptFriend(username);
+		if(response.error){
+			toast({
+				title : response.error,
+				status: 'warning',
+				duration: 9000,
+				isClosable: true,
+			})
+		}else if(response.success){
+			toast({
+				title: response.success,
+				status: 'success',
+				duration: 9000,
+				isClosable: true,
+			})
+		}
+		//console.log("add friend : ", response);
+	}
+
 	return (
 		<Box mb={'80px'}>
 			<Grid templateColumns={'repeat(12, 1fr)'}>
@@ -48,7 +68,7 @@ export const PersonalInfo : React.FC<Props> = ({username, name, image, relations
 					<Text fontSize={'30px'} fontWeight={'bold'}>@{username}</Text>
 				</GridItem>
 				<GridItem colSpan={6} textAlign={'right'} alignItems={'center'} >
-					<FriendshipActions addFriend={handleAddFriend} relationship={relationship} />	
+					<FriendshipActions addFriend={handleAddFriend} relationship={relationship} acceptFriend={handleAcceptFriend} />	
 				</GridItem>
 			</Grid>	
 		</Box>
