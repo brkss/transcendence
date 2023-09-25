@@ -1,6 +1,7 @@
 import React from 'react';
-import { Menu, MenuItem, MenuList, MenuButton, Box, GridItem, Stack, Text, Button, IconButton} from '@chakra-ui/react';
+import { useToast, Menu, MenuItem, MenuList, MenuButton, Box, GridItem, Stack, Text, Button, IconButton} from '@chakra-ui/react';
 import { Avatar } from '../Avatar';
+import { acceptFriend } from '@/utils/services'
 
 interface Props {
 	name: string;
@@ -10,6 +11,28 @@ interface Props {
 }
 
 export const RequestItem: React.FC<Props> = ({name, username, image, accept}) => {
+
+	const toast = useToast();
+
+	const handleAcceptFriend = async () => {
+		const response = await acceptFriend(username);
+		if(response.error){
+			toast({
+				title : response.error,
+				status: 'warning',
+				duration: 9000,
+				isClosable: true,
+			})
+		}else if(response.success){
+			toast({
+				title: response.success,
+				status: 'success',
+				duration: 9000,
+				isClosable: true,
+			})
+		}
+		//console.log("add friend : ", response);
+	}
 
 	return (
 		<Box mt={'30px'}>
@@ -29,15 +52,13 @@ export const RequestItem: React.FC<Props> = ({name, username, image, accept}) =>
 							options
 						</MenuButton>
 						<MenuList>
-							<MenuItem >
+							<MenuItem onClick={handleAcceptFriend} >
 								Accept	
 							</MenuItem>
 							<MenuItem >
-								Cancel	
+								Reject	
 							</MenuItem>
-							<MenuItem  >
-								Block
-							</MenuItem>
+							
 						</MenuList>
 					</Menu>
 				</Box>
