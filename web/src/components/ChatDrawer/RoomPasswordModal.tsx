@@ -10,7 +10,8 @@ import {
 	Button,
 	FormLabel,
 	FormControl,
-	Input
+	Input,
+	Box
 } from '@chakra-ui/react'
 
 interface Props {
@@ -24,10 +25,10 @@ export const RoomPasswordModal : React.FC<Props> = ({isOpen, onClose, onOpen}) =
 
 
 	return (
-		<>
+		<Box m={'20px'}>
 			<Modal onClose={onClose} isOpen={isOpen} isCentered>
 				<ModalOverlay />
-				<ModalContent>
+				<ModalContent m={'20px'}>
 					<ModalHeader>Password Required</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
@@ -43,6 +44,6 @@ export const RoomPasswordModal : React.FC<Props> = ({isOpen, onClose, onOpen}) =
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
-		</>
+		</Box>
 	)
 }

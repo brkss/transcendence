@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flex, Avatar, AvatarBadge, Text } from "@chakra-ui/react";
+import { DrawerCloseButton, Flex, Avatar, AvatarBadge, Text } from "@chakra-ui/react";
 
 
 
@@ -10,6 +10,7 @@ export const ChatHeader : React.FC = () => {
 
 	return (
 		<Flex p={'20px'} w="100%">
+			<DrawerCloseButton />
 			<Avatar size="md" name="Dan Abrahmov" src="https://bit.ly/dan-abramov">
 				<AvatarBadge boxSize="20px" bg="green.500" />
 			</Avatar>

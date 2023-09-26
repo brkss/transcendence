@@ -60,14 +60,14 @@ export const PersonalInfo : React.FC<Props> = ({username, name, image, relations
 	return (
 		<Box mb={'80px'}>
 			<Grid templateColumns={'repeat(12, 1fr)'}>
-				<GridItem mr={'10px'} colSpan={3}>
-				<Avatar src={image} />
+				<GridItem mr={'10px'} colSpan={{md: 2, base: 3}}>
+					<Avatar src={image} />
 				</GridItem>
-				<GridItem colSpan={5} flexDir={'column'} display={'flex'} justifyContent={'center'}>
+				<GridItem colSpan={{md: 4, base: 4}} flexDir={'column'} display={'flex'} justifyContent={'center'}>
 					<Text fontSize={{md: '17px', base: '15px'}} fontWeight={'bold'} opacity={.7}>{name}</Text>
 					<Text fontSize={{md: '30px', base: '12px'}} fontWeight={'bold'}>@{username}</Text>
 				</GridItem>
-				<GridItem colSpan={4} textAlign={'right'} alignItems={'center'} >
+				<GridItem colSpan={{md: 6, base: 5}} textAlign={'right'} display={'flex'} justifyContent={'end'} alignItems={'center'} >
 					<FriendshipActions addFriend={handleAddFriend} relationship={relationship} acceptFriend={handleAcceptFriend} />	
 				</GridItem>
 			</Grid>	

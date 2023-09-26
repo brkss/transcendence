@@ -1,5 +1,5 @@
 import React from 'react';
-import { Drawer, DrawerOverlay, DrawerContent, Flex, Box, Text, Button, Input } from '@chakra-ui/react';
+import { Drawer, DrawerOverlay, DrawerContent, Flex, Box, Text, Button, Input, DrawerCloseButton } from '@chakra-ui/react';
 import { ChatFooter } from './Footer';
 import { ChatHeader } from './Header';
 import { ChatMessages } from './Messages'
@@ -46,7 +46,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose}) => {
 		>
 			<DrawerOverlay />
 			<DrawerContent className='afr'	>
-				<Flex w="100%" h="100%" justify="center" align="center" zIndex={9999}>
+				<Flex w="100%" h={{base: "calc(100% - 81px)", md: "100%"}} justify="center" align="center" zIndex={9999}>
 					<Flex w="100%" h="100%" flexDir="column">
 						<ChatHeader />
 						<ChatMessages messages={messages} />

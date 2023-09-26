@@ -13,7 +13,7 @@ export const ChatBox: React.FC<Props> = ({isProctected, name, enter}) => {
 
 	return (
 		<Box mt={'20px'} onClick={enter}>
-			<Stack direction={['column', 'row']} spacing={'10px'} cursor={'pointer'} transition={'.3s'} _hover={{bg: 'blackAlpha.100', transition: '.3s'}} p={'10px'} rounded={'10px'}>
+			<Stack flexDir={'row'} direction={['column', 'row']} spacing={'10px'} cursor={'pointer'} transition={'.3s'} _hover={{bg: 'blackAlpha.100', transition: '.3s'}} p={'10px'} rounded={'10px'}>
 				<Center h={'50px'} w={'50px'} bg={'black'} color={'white'} rounded={'100%'}>
 					<BsChatDots color={'white'} size={'14px'} /> 
 				</Center>

@@ -191,10 +191,10 @@ export class UserService {
 			where: { status: "accepted", OR: [ {user_id: userId}, {friend_id: userId} ]},
 			select: {
 				friend: {
-					select: { id: true, username: true, email: true}
+					select: { id: true, username: true, email: true, avatar: true}
 				},
 				user: {
-					select: { id: true, username: true, email: true}
+					select: { id: true, username: true, email: true, avatar: true}
 				}
 			},
 		})

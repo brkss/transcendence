@@ -22,7 +22,7 @@ export const TopBar : React.FC = () => {
 				<Box bg={'black'}  rounded={''} p={'10px 20px'} color={'white'} mb={'40px'} pos={"fixed"} w={"100%"} zIndex="99" >
 					<Grid templateColumns={'repeat(12, 1fr)'}>
 						<GridItem colSpan={4} display={{md: 'flex', base: 'none'}} flexDir={'column'} justifyContent={'center'} >
-							<Text fontSize={'15px'} fontWeight={'bold'}>TRANSADANCE!</Text>
+							<Text fontSize={'15px'} fontWeight={'bold'}>🦀</Text>
 						</GridItem>
 						<GridItem colSpan={{md: 4, base: 9}} pos={'relative'}>
 							<Input onChange={(e) => handleSearchInput(e)} size={'sm'} w={'100%'} p={'7px 20px'} rounded={'5px'} variant={'unstyled'} bg={'#262626'} color={'white'} placeholder={'search...'} fontWeight={'bold'}  />

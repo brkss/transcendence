@@ -41,17 +41,17 @@ interface Props {
 export const SideBar : React.FC<Props> = ({signal}) => {
 
 	return (
-		<Box display={'flex'} flexDir={'column'} alignItems={'center'} pos="relative" zIndex={999} flexDirection={{md: 'column', base: 'row'}} position={{md: 'inherit', base: 'fixed'}} w={'100%'} justifyContent={{md: 'inherit', base: 'space-between'}} p={'10px 20px'} bg={'white'} bottom={0}>
-			{
-				_items.map(({name, Icon}, key) => (
-					<Box onClick={() => signal(name.toLowerCase())} textAlign={'center'} key={key} mb={{md: '20px', base: '0'}} transition={'.3s'} cursor={'pointer'} _hover={{transform: 'scale(.95)', transition: '.3s'}}>
-						<Center h={'45px'} w={'45px'} rounded={'16px'} bg={'black'} m={'auto'}>
-							<Icon color={'white'} size={'15px'} />	
-						</Center>
-						<Text fontWeight={'bold'} fontSize={'13px'}>{name}</Text>
-					</Box>
-				))
-			}
+		<Box display={'flex'} flexDir={'column'} alignItems={'center'} pos="relative" zIndex={9999} flexDirection={{md: 'column', base: 'row'}} position={{md: 'relative', base: 'fixed'}} w={'100%'} justifyContent={{md: 'inherit', base: 'space-between'}} p={'10px 20px'} bg={{md: "transparent", base: 'white'}} bottom={0}>
+				{
+					_items.map(({name, Icon}, key) => (
+						<Box onClick={() => signal(name.toLowerCase())} textAlign={'center'} key={key} mb={{md: '20px', base: '0'}} transition={'.3s'} cursor={'pointer'} _hover={{transform: 'scale(.95)', transition: '.3s'}}>
+							<Center h={'45px'} w={'45px'} rounded={'16px'} bg={{md: 'black', base: "white"}} m={'auto'} color={{md: 'white', base: "black"}} >
+								<Icon  size={'15px'} />	
+							</Center>
+							<Text fontWeight={'bold'} fontSize={{md: '13px', base: "11px"}}>{name}</Text>
+						</Box>
+					))
+				}
 		</Box>
 	)
 }
