@@ -78,7 +78,9 @@ export class AuthService {
 		if(!user)
 			return { status: false, access_token: "", refresh_token: "" }
 		const access_token_payload = {
+            id: user.id,
 			userID: user.id,
+            // TODO: sync token names
 			username: user.username,
 			is2faToken: user.auth2faOn
         }

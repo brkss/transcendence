@@ -9,7 +9,7 @@ export class JwtAuth implements CanActivate {
     constructor(
         private jwtService: JwtService,
         private userService: UserService,
-        private configService: ConfigService) {
+        private  configService: ConfigService) {
     }
 
     async canActivate(context: ExecutionContext): Promise<boolean>  {

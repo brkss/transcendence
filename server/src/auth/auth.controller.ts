@@ -1,8 +1,8 @@
-import { UseGuards, Controller, Get,Req, Res, Post } from '@nestjs/common'
+import { UseGuards, Controller, Get,Req, Res, Post, UsePipes } from '@nestjs/common'
 import { AuthService } from './auth.service';
 import { auth42Guard } from './guards/auth.guard';
 import { Response, Request } from 'express';
-import { generateAccessToken, generateRefreshToken } from './token';
+import { generateRefreshToken } from './token';
 
 @Controller('auth')
 export class authController {
@@ -30,18 +30,15 @@ export class authController {
         }
         else {
             resp.cookie('refresh_token', refresh_token, {maxAge: 7 * 24 * 3600 * 1000, httpOnly: true});
-            resp.redirect("http://localhost:3000")
+            resp.redirect("http://localhost:8000")
         }
-        
     }
 
 	@Post("refresh-token")
 	async refreshToken(@Req() req: Request, @Res() res: Response) {
 		const refresh_token = req.cookies["refresh_token"];
 		console.log("refresh token : ", refresh_token);
-
 		const response = await this.auth_service.refreshToken(refresh_token);
-
         res.cookie('refresh_token', response.refresh_token, {maxAge: 7 * 24 * 3600 * 1000, httpOnly: true});
 		res.send({status: response.status, access_token: response.access_token});
 	}
