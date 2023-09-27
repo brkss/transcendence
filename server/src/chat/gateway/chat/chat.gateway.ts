@@ -42,7 +42,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     /*
       Deleting all member entrys should be at leaveRoom
     */
-    this.gatewayService.leavAllSocketRooms(socket, user)
+    //this.gatewayService.leavAllSocketRooms(socket, user)
   }
 
   async handleDisconnect(socket: Socket) {
@@ -98,6 +98,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage("setAdmin")
   async setRoomAdmin(socket: Socket, payload: setAdminDTO) {
     await this.chatService.setAdmin(socket, payload)
+  }
+
+  @SubscribeMessage("bannedUsers")
+  async getBannedUsers(socket: Socket, payload: RoomDTO) {
+    await this.chatService.getBannedUsers(socket, payload)
   }
 
 }

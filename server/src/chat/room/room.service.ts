@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { constrainedMemory } from "process";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
@@ -146,6 +147,14 @@ export class RoomService {
                 roomID: roomId
             }
         })
+        const member = await this.prismaService.roomMembers.delete({
+            where:{
+                userId_roomId: {
+                    userId: userId,
+                    roomId: roomId
+                }
+            }
+        })
     }
 
     async deleteMemberFromRooms(userId: number) {
@@ -243,5 +252,30 @@ export class RoomService {
         })
         console.log(ban_id)
         return (ban_id != null ? true: false)
+    }
+    async getAllBannedUsers(roomId: number) {
+        const banned_users = await this.prismaService.roomBan.findMany({
+            where: {
+                roomID: roomId
+            },
+            select: {
+                userFK: {
+                   select: {
+                        id: true,
+                        username: true,
+                        avatar: true
+                   } 
+                }
+            }
+        })
+        const BannedUsers = banned_users.map( object => ({
+            user: object.userFK
+        }))
+        const res_payload = { 
+            BannedUsers: {
+                BannedUsers
+            }
+        }
+        return(res_payload)
     }
 }

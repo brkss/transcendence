@@ -44,10 +44,13 @@ export class chatMessageDTO extends RoomDTO{
     message: string
 }
 
-export class JoinRoomDTO  extends createRoomDTO{
-    /* 
-        Properties may be added later
-    */
+
+export class JoinRoomDTO  extends RoomDTO {
+    @IsIn(["PUBLIC", "PRIVATE", "PROTECTED"])
+    roomType: String
+
+    @ValidateIf(object => object.roomType === 'PROTECTED')
+    password?: string
 }
 
 export class LeaveRoomDTO extends RoomDTO {

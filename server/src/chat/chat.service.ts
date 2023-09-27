@@ -137,10 +137,16 @@ export class ChatService {
         const room = await this.roomService.getRoomByName(payload.roomName)
 
         // Delete user from member table
-        await this.roomService.removeUserFromRoom(user.id, room.id)
-        socket.to(roomName).emit("message", `${user.username} left Ch4t!`)
-        socket.emit("success", { status: 1 })
-        socket.leave(roomName)
+        try  {
+            await this.roomService.removeUserFromRoom(user.id, room.id)
+            socket.to(roomName).emit("message", `${user.username} left Ch4t!`)
+            socket.emit("success", "Success")
+            socket.leave(roomName)
+        }
+        catch (error) {
+            console.log(error)
+            this.gatewayService.emitError(socket, "Error")
+        }
     }
     /*
     */
@@ -219,7 +225,7 @@ export class ChatService {
             const member_is_admin = await this.roomService.IsRoomAdmin(payload.userId, room.id)
             if (!member_is_admin) {
                 await this.roomService.banUserFromRoom(payload.userId, room.id)
-                socket.to(payload.roomName).emit("message", `${payload.user} kicked from room`)
+                socket.to(payload.roomName).emit("message", `${payload.user} banned from room`)
             } else {
                 this.gatewayService.emitError(socket, "Unauthorized")
             }
@@ -256,6 +262,28 @@ export class ChatService {
         catch (error) {
             console.log(error)
             socket.emit("Error", "Error")
+        }
+    }
+    /*
+        Get all banned users of a room
+        only admin can get  banned users
+    */
+    async getBannedUsers(socket: Socket, payload: RoomDTO) {
+        try {
+            const room = await this.roomService.getRoomByName(payload.roomName)
+            const user = socket.data.user
+            const user_is_admin = await this.roomService.IsRoomAdmin(user.id, room.id)
+            console.log("user is admin", user_is_admin)
+            if (!user_is_admin) {
+                this.gatewayService.emitError(socket, "Unauthorized")
+                return
+            }
+            const banned_users  = await this.roomService.getAllBannedUsers(room.id)
+            socket.emit("bannedUsers", banned_users)
+        }
+        catch(error) {
+            console.log(error)
+            this.gatewayService.emitError(socket, "Error")
         }
     }
 }
