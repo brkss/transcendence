@@ -42,7 +42,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     /*
       Deleting all member entrys should be at leaveRoom
     */
-    //this.gatewayService.leavAllSocketRooms(socket, user)
+    this.gatewayService.leavAllSocketRooms(socket, user)
   }
 
   async handleDisconnect(socket: Socket) {

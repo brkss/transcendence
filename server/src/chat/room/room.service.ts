@@ -93,29 +93,35 @@ export class RoomService {
                 roomId: roomId
             },
             select: {
-                user: { select: { username: true } }
+                isAdmin: true,
+                user: { 
+                    select: { 
+                        id: true,
+                        username: true,
+                        avatar: true,
+                    }
+                }
             }
         })
         return (roomMembers)
     }
-    async UserRoomExists(user: any, room_name: string) {
-        const room = await this.getRoomByName(room_name)
-        if (room === undefined) {
-            return ({ Error: `Room ${room_name} Not found!` })
-        }
-        try {
-            await this.addMemberTORoom(user.id, room.id, false)
-        } catch (error) {
-            //console.log(error)
-            return ({ Error: `${user.username} Already joined!` })
-        }
-        return (undefined)
-    }
-    async joinUserToRoom(user: any, room_name: string) {
-        const room = await this.getRoomByName(room_name)
+    // async UserRoomExists(user: any, room_name: string) {
+    //     const room = await this.getRoomByName(room_name)
+    //     if (room === undefined) {
+    //         return ({ Error: `Room ${room_name} Not found!` })
+    //     }
+    //     try {
+    //         await this.addMemberTORoom(user.id, room.id, false)
+    //     } catch (error) {
+    //         //console.log(error)
+    //         return ({ Error: `${user.username} Already joined!` })
+    //     }
+    //     return (undefined)
+    // }
+    async getRoomMembers(room: any) {
         const roomMembers = await this.getRoomUsers(room.id)
         const payload = {
-            room_name: room_name,
+            room_name: room.name,
             room_users: roomMembers
         }
         return (payload)
@@ -222,5 +228,20 @@ export class RoomService {
                 isAdmin: true
             }
         })
+    }
+    async isBannedFromRoom(userId: number, roomId: number){ 
+        const ban_id = await this.prismaService.roomBan.findUnique({
+            where: {
+                userID_roomID:{
+                    roomID: roomId,
+                    userID: userId
+                },
+            },
+            select: {
+                id: true
+            }
+        })
+        console.log(ban_id)
+        return (ban_id != null ? true: false)
     }
 }

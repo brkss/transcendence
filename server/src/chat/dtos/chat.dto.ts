@@ -44,13 +44,13 @@ export class chatMessageDTO extends RoomDTO{
     message: string
 }
 
-export class JoinRoomDTO  extends RoomDTO{
+export class JoinRoomDTO  extends createRoomDTO{
     /* 
         Properties may be added later
     */
 }
 
-export class LeaveRoomDTO extends JoinRoomDTO {
+export class LeaveRoomDTO extends RoomDTO {
     /* 
         Properties may be added later
     */
