@@ -3,7 +3,10 @@ import  {createRoomDTO,
         LeaveRoomDTO,
         chatMessageDTO,
         updateRoomDTO,
-        kickDTO} from "./dtos/chat.dto"
+        kickDTO,
+        BanDTO,
+        setAdminDTO,
+        RoomDTO} from "./dtos/chat.dto"
 
 import { Socket } from "socket.io";
 import { Injectable } from "@nestjs/common";
@@ -26,6 +29,28 @@ export class ChatService {
         }
         socket.emit("RoomCreated", newRoom)
         socket.join(newRoom.name)
+    }
+    /*
+        deletes room
+        PS: relies on prisma to verify that room exitss
+        TODO: change use roomid instead of room name
+    */
+    async DeleteChatRoom(socket:Socket, payload: RoomDTO) {
+        try {
+            const user =  socket.data.user
+            const room  = await this.roomService.getRoomByName(payload.roomName)
+            const user_is_admin = await this.roomService.IsRoomAdmin(user.id, room.id)
+            if (!user_is_admin) {
+                this.gatewayService.emitError(socket, "Unauthorized")
+                return
+            }
+            const deleted_room =  await this.roomService.deleteRoom(payload.roomName);
+            socket.emit("Success", "Room Deleted")
+        }
+        catch( error) {
+            console.log(error)
+            socket.emit("Error", "Error Deleting room")
+        }
     }
     /*
     */
@@ -79,9 +104,10 @@ export class ChatService {
     async leaveChatRoom(socket: Socket, payload: LeaveRoomDTO) {
         const user = socket.data.user;
         const roomName = payload.roomName // payload Guarded by DTO
+        const room = await this.roomService.getRoomByName(payload.roomName)
 
         // Delete user from member table
-        await this.roomService.removeUserFromRoom(user.id, roomName)
+        await this.roomService.removeUserFromRoom(user.id, room.id)
         socket.to(roomName).emit("message", `${user.username} left Ch4t!`)
         socket.emit("success", { status: 1})
         socket.leave(roomName)
@@ -121,27 +147,85 @@ export class ChatService {
 
     /*
         kick user from chat room
-        removes user from room 
+        checks if user is admin and banned user is not
+        removes user from room
         (will manly be used in private rooms)
+        Yelds Error otherwise 
     */
     async kickUserFromRoom(socket: Socket, payload: kickDTO) {
+
         const room = await this.roomService.getRoomByName(payload.roomName)
         const user = socket.data.user
-        console.log(room)
-        if (room === undefined) {
-            this.gatewayService.emitError(socket, "Ch4t Room Not Found!")
-            return
-        }
-        const is_admin = await this.roomService.IsRoomAdmin(user.id, room.id)
-        console.log("id_admin", is_admin)
-        if (!is_admin) {
-            if (is_admin === undefined)
-                this.gatewayService.emitError(socket, "User Not in room")
-            else
+        try {
+            const user_is_admin = await this.roomService.IsRoomAdmin(user.id, room.id)
+            if (!user_is_admin) {
                 this.gatewayService.emitError(socket, "Unauthorized")
-            return
+                return
+            }
+            const member_is_admin = await this.roomService.IsRoomAdmin(payload.userId, room.id)
+            if (!member_is_admin){
+                await this.roomService.removeUserFromRoom(payload.userId, room.id)
+                socket.to(payload.roomName).emit("message", `${payload.user} kicked from room`)
+            }else {
+                this.gatewayService.emitError(socket, "Unauthorized")
+            }
         }
-        await this.roomService.removeUserFromRoom(payload.userId, payload.roomName)
-        socket.to(payload.roomName).emit("message", `${payload.user} kicked from room`)
+        catch (error) {
+            console.log(error)
+            socket.emit("Error", "Error")
+        }
+    }
+
+    async banUserFromRoom(socket: Socket, payload: BanDTO) {
+
+        const room = await this.roomService.getRoomByName(payload.roomName)
+        const user = socket.data.user
+        try {
+            const user_is_admin = await this.roomService.IsRoomAdmin(user.id, room.id)
+            if (!user_is_admin) {
+                this.gatewayService.emitError(socket, "Unauthorized")
+                return
+            }
+            const member_is_admin = await this.roomService.IsRoomAdmin(payload.userId, room.id)
+            if (!member_is_admin){
+                await this.roomService.banUserFromRoom(payload.userId, room.id)
+                socket.to(payload.roomName).emit("message", `${payload.user} kicked from room`)
+            } else {
+                this.gatewayService.emitError(socket, "Unauthorized")
+            }
+        }
+        catch (error) {
+            console.log(error)
+            socket.emit("Error", "Error")
+        }
+    }
+
+    /* 
+        checks authorization(user is admin) then:
+        updates is_admin on db
+        user has to be a member on room
+    */
+    async setAdmin(socket: Socket, payload: setAdminDTO) {
+        const room = await this.roomService.getRoomByName(payload.roomName)
+        const user = socket.data.user
+        try { 
+            const user_is_admin = await this.roomService.IsRoomAdmin(user.id, room.id)
+            if (!user_is_admin) {
+                this.gatewayService.emitError(socket, "Unauthorized")
+                return
+            }
+            const already_admin = await this.roomService.IsRoomAdmin(payload.userId, room.id)
+            if (already_admin) {
+                socket.emit("Error", "User already admin")
+                return 
+            }
+            await this.roomService.addRoomAdmin(payload.userId, room.id)
+            socket.emit("Success", "Admin set")
+            console.log("sucess adding admin")
+        }
+        catch (error) {
+            console.log(error)
+            socket.emit("Error", "Error")
+        }
     }
 }

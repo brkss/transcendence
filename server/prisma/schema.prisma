@@ -58,7 +58,7 @@ model RoomMembers {
   isAdmin Boolean @default(false)
 
   user user     @relation(fields: [userId], references: [id])
-  room ChatRoom @relation(fields: [roomId], references: [id])
+  room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
   @@unique([userId, roomId])
 }
 
@@ -68,7 +68,7 @@ model RoomBan {
   roomID Int
 
   userFK user     @relation(fields: [userID], references: [id])
-  roomFK ChatRoom @relation(fields: [roomID], references: [id])
+  roomFK ChatRoom @relation(fields: [roomID], references: [id], onDelete: Cascade)
   @@unique([userID, roomID])
 
 }

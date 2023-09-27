@@ -33,7 +33,12 @@ export class kickDTO extends RoomDTO{
     @IsNumber()
     userId: number
 }
+export class BanDTO extends kickDTO {
 
+}
+export class setAdminDTO extends kickDTO {
+
+}
 export class chatMessageDTO extends RoomDTO{
     @IsNotEmpty()
     message: string

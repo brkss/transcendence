@@ -9,7 +9,9 @@ import  {createRoomDTO,
         LeaveRoomDTO,
         chatMessageDTO,
         updateRoomDTO,
-        kickDTO} from "src/chat/dtos/chat.dto"
+        kickDTO,
+        setAdminDTO,
+        RoomDTO} from "src/chat/dtos/chat.dto"
     
 import { Socket } from 'socket.io'
 import { ValidationExceptionFilter } from "src/chat/dtos/chatvalidation.filer";
@@ -63,6 +65,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.chatService.UpdateChatRoom(socket, payload)
   }
 
+  @SubscribeMessage('deleteRoom')
+  async handleDeleteRoom(socket: Socket, payload: RoomDTO) {
+    await this.chatService.DeleteChatRoom(socket, payload)
+  }
+
   @SubscribeMessage('joinRoom')
   async joinRoom(socket: Socket, payload: JoinRoomDTO) {
     await this.chatService.joinChatRoom(socket, payload)
@@ -81,6 +88,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage("kickUser")
   async kickUserFromRoom(socket: Socket, payload: kickDTO) {
     await this.chatService.kickUserFromRoom(socket, payload)
+  }
+
+  @SubscribeMessage("banUser")
+  async banUserFromRoom(socket: Socket, payload: kickDTO) {
+    await this.chatService.banUserFromRoom(socket, payload)
+  }
+
+  @SubscribeMessage("setAdmin")
+  async setRoomAdmin(socket: Socket, payload: setAdminDTO) {
+    await this.chatService.setAdmin(socket, payload)
   }
 
 }
