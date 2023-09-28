@@ -8,6 +8,7 @@ datasource db {
   provider = "postgresql"
   url      = env("db_url")
 }
+
 enum RoomType {
   PUBLIC
   PROTECTED
@@ -26,11 +27,11 @@ model user {
   auth2faOn      Boolean? @default(false)
   auth2faSercret String?
   lastSeen       String
-  avatar		 String?
+  avatar         String?
 
-  ownedRooms  ChatRoom[]
-  memberRooms RoomMembers[]
-  bannedRooms RoomBan[]
+  ownedRooms   ChatRoom[]
+  memberRooms  RoomMembers[]
+  mutedInRooms RoomMute[]
 
   sent_friendship     Friendship[] @relation("SentFriendShip")
   recieved_friendship Friendship[] @relation("RecievedFriendShip")
@@ -47,30 +48,32 @@ model ChatRoom {
 
   ownerRef       user          @relation(fields: [owner], references: [id])
   membersRef     RoomMembers[]
-  bannedUsersRef RoomBan[]
+  mutedUserRef   RoomMute[]
 }
 
 model RoomMembers {
-  id      Int     @id @unique @default(autoincrement())
-  userId  Int
-  roomId  Int
-  userBanned Boolean @default(false)
-  isAdmin Boolean @default(false)
+  id           Int     @id @unique @default(autoincrement())
+  userId       Int
+  roomId       Int
+  userBanned   Boolean @default(false)
+  isAdmin      Boolean @default(false)
 
   user user     @relation(fields: [userId], references: [id])
   room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
   @@unique([userId, roomId])
 }
 
-model RoomBan {
-  id     Int @id @unique @default(autoincrement())
-  userID Int
-  roomID Int
+model RoomMute {
+  id           Int      @id @unique @default(autoincrement())
+  muted_at     DateTime @default(now())
+  muteDuration BigInt   // mute duration on minutes
+  userId       Int
+  roomId       Int
+  user         user     @relation(fields: [userId], references: [id])
+  room         ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
-  userFK user     @relation(fields: [userID], references: [id])
-  roomFK ChatRoom @relation(fields: [roomID], references: [id], onDelete: Cascade)
-  @@unique([userID, roomID])
-
+  @@unique([userId, roomId])
 }
 
 model Friendship {

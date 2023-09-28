@@ -141,18 +141,31 @@ export class RoomService {
     }
     async banUserFromRoom(userId: number, roomId: number) {
         // may throw on duplicate entries 
-        const user = await this.prismaService.roomBan.create({
-            data: {
-                userID: userId,
-                roomID: roomId
-            }
-        })
-        const member = await this.prismaService.roomMembers.delete({
-            where:{
+        const user = await this.prismaService.roomMembers.update({
+            where: {
+                userBanned: false,
                 userId_roomId: {
                     userId: userId,
                     roomId: roomId
                 }
+            },
+            data: {
+                userBanned: true
+            }
+        })
+    }
+    async UnbanUserFromRoom(userId: number, roomId: number) {
+        // may throw on duplicate entries 
+        const user = await this.prismaService.roomMembers.update({
+            where: {
+                userBanned: true,
+                userId_roomId: {
+                    userId: userId,
+                    roomId: roomId
+                }
+            },
+            data: {
+               userBanned: false 
             }
         })
     }
@@ -239,11 +252,12 @@ export class RoomService {
         })
     }
     async isBannedFromRoom(userId: number, roomId: number){ 
-        const ban_id = await this.prismaService.roomBan.findUnique({
+        const ban_id = await this.prismaService.roomMembers.findUnique({
             where: {
-                userID_roomID:{
-                    roomID: roomId,
-                    userID: userId
+                userBanned: true,
+                userId_roomId:{
+                    roomId: roomId,
+                    userId: userId
                 },
             },
             select: {
@@ -254,12 +268,13 @@ export class RoomService {
         return (ban_id != null ? true: false)
     }
     async getAllBannedUsers(roomId: number) {
-        const banned_users = await this.prismaService.roomBan.findMany({
+        const banned_users = await this.prismaService.roomMembers.findMany({
             where: {
-                roomID: roomId
+                roomId: roomId,
+                userBanned: true
             },
             select: {
-                userFK: {
+                user: {
                    select: {
                         id: true,
                         username: true,
@@ -268,14 +283,45 @@ export class RoomService {
                 }
             }
         })
-        const BannedUsers = banned_users.map( object => ({
-            user: object.userFK
-        }))
         const res_payload = { 
             BannedUsers: {
-                BannedUsers
+                banned_users
             }
         }
         return(res_payload)
+    }
+
+    async muteUserFor(userId:number, roomId: number, muteDuration:number) {
+        const entry = await this.prismaService.roomMute.create({
+            data: {
+                userId: userId,
+                roomId: roomId,
+                muteDuration: muteDuration
+            }
+        })
+        return (entry)
+    }
+    async UnmuteUser(userId:number, roomId: number) {
+        const entry = await this.prismaService.roomMute.delete({
+            where: {
+                userId_roomId: {
+                    userId: userId,
+                    roomId: roomId,
+                }
+            }
+        })
+        return (entry)
+    }
+
+    async getMuteEntry(userId:number, roomId: number): Promise<any> {
+        const entry = await this.prismaService.roomMute.findUnique({
+            where: {
+                userId_roomId: {
+                    userId: userId,
+                    roomId: roomId
+                }
+            }
+        });
+        return (entry)
     }
 }

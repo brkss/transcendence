@@ -7,7 +7,8 @@ import {
     kickDTO,
     BanDTO,
     setAdminDTO,
-    RoomDTO
+    RoomDTO,
+    MuteUserDTO
 } from "./dtos/chat.dto"
 
 import { Socket } from "socket.io";
@@ -20,6 +21,28 @@ export class ChatService {
     constructor(private roomService: RoomService,
         private gatewayService: GatewayService) {
 
+    }
+    /*
+        Checks if User has admin access
+        before administrating chanel
+    */
+    private async canAdminstrate(socket: Socket, payload: any): Promise<boolean> {
+        const userId = payload.userId
+        const roomId = payload.roomId
+        const memberId = payload.memberId
+        const user_is_admin = await this.roomService.IsRoomAdmin(userId, roomId)
+        if (!user_is_admin) {
+            this.gatewayService.emitError(socket, "Unauthorized")
+            return false
+        }
+        const member_is_admin = await this.roomService.IsRoomAdmin(memberId, roomId)
+        if (!member_is_admin) {
+            return (true)
+        } else {
+            this.gatewayService.emitError(socket, "Unauthorized")
+            console.log("member is admin", member_is_admin)
+            return (false)
+        }
     }
 
     /*
@@ -47,7 +70,7 @@ export class ChatService {
                 return
             }
             const deleted_room = await this.roomService.deleteRoom(payload.roomName);
-            socket.emit("Success", "Room Deleted")
+            socket.emit("success", "Room Deleted")
         }
         catch (error) {
             console.log(error)
@@ -92,7 +115,7 @@ export class ChatService {
                 return (false)
             }
         }
-        //either passwor correct or room is public
+        //either password correct or room is public
         return (true)
     }
 
@@ -156,6 +179,14 @@ export class ChatService {
         const user = socket.data.user;
         // check user is in room 
         const userIsMember = await this.roomService.selectUserRoom(user.id, roomName)
+
+        const room = await this.roomService.getRoomByName(roomName)
+        // check if user is muted in chanel
+        const is_muted = await this.IsUserMuted(user.id, room.id)
+        if (is_muted) {
+            socket.emit("Error", "Muted :C")
+            return 
+        }
         if (userIsMember) {
             const message = {
                 user: user.username,
@@ -193,18 +224,27 @@ export class ChatService {
         const room = await this.roomService.getRoomByName(payload.roomName)
         const user = socket.data.user
         try {
-            const user_is_admin = await this.roomService.IsRoomAdmin(user.id, room.id)
-            if (!user_is_admin) {
-                this.gatewayService.emitError(socket, "Unauthorized")
-                return
+            // const user_is_admin = await this.roomService.IsRoomAdmin(user.id, room.id)
+            // if (!user_is_admin) {
+            //     this.gatewayService.emitError(socket, "Unauthorized")
+            //     return
+            // }
+            const payload_administer = { 
+                userId: user.id,
+                roomId: room.id,
+                memberId: payload.userId
             }
-            const member_is_admin = await this.roomService.IsRoomAdmin(payload.userId, room.id)
-            if (!member_is_admin) {
+            if (await this.canAdminstrate(socket, payload_administer)) {
                 await this.roomService.removeUserFromRoom(payload.userId, room.id)
                 socket.to(payload.roomName).emit("message", `${payload.user} kicked from room`)
-            } else {
-                this.gatewayService.emitError(socket, "Unauthorized")
             }
+            // const member_is_admin = await this.roomService.IsRoomAdmin(payload.userId, room.id)
+            // if (!member_is_admin) {
+            //     await this.roomService.removeUserFromRoom(payload.userId, room.id)
+            //     socket.to(payload.roomName).emit("message", `${payload.user} kicked from room`)
+            // } else {
+            //     this.gatewayService.emitError(socket, "Unauthorized")
+            // }
         }
         catch (error) {
             console.log(error)
@@ -217,23 +257,41 @@ export class ChatService {
         const room = await this.roomService.getRoomByName(payload.roomName)
         const user = socket.data.user
         try {
-            const user_is_admin = await this.roomService.IsRoomAdmin(user.id, room.id)
-            if (!user_is_admin) {
-                this.gatewayService.emitError(socket, "Unauthorized")
-                return
+            const administrate_payload = { 
+                userId: user.id,
+                roomId: room.id,
+                memberId: payload.userId 
             }
-            const member_is_admin = await this.roomService.IsRoomAdmin(payload.userId, room.id)
-            if (!member_is_admin) {
+            if (await this.canAdminstrate(socket, administrate_payload)) {
                 await this.roomService.banUserFromRoom(payload.userId, room.id)
-                socket.to(payload.roomName).emit("message", `${payload.user} banned from room`)
-            } else {
-                this.gatewayService.emitError(socket, "Unauthorized")
+                socket.to(payload.roomName).emit("success", `${payload.user} banned from room`)
             }
         }
         catch (error) {
             console.log(error)
-            socket.emit("Error", "Error")
+            socket.emit("Error", "Error Baning User")
         }
+    }
+
+    async UnbanUserFromRoom(socket: Socket, payload: BanDTO) {
+        const room = await this.roomService.getRoomByName(payload.roomName)
+        const user = socket.data.user
+        try {
+            const administrate_payload = { 
+                userId: user.id,
+                roomId: room.id,
+                memberId: payload.userId 
+            }
+            if (await this.canAdminstrate(socket, administrate_payload)) {
+                await this.roomService.UnbanUserFromRoom(payload.userId, room.id)
+                socket.emit("success", `${payload.user} Unbanned from room`)
+            }
+        }
+        catch (error) {
+            console.log(error)
+            socket.emit("Error", "Error Unbaning User")
+        }
+
     }
 
     /* 
@@ -245,19 +303,16 @@ export class ChatService {
         const room = await this.roomService.getRoomByName(payload.roomName)
         const user = socket.data.user
         try {
-            const user_is_admin = await this.roomService.IsRoomAdmin(user.id, room.id)
-            if (!user_is_admin) {
-                this.gatewayService.emitError(socket, "Unauthorized")
-                return
+            const administrate_payload = { 
+                userId: user.id,
+                roomId: room.id,
+                memberId: payload.userId 
             }
-            const already_admin = await this.roomService.IsRoomAdmin(payload.userId, room.id)
-            if (already_admin) {
-                socket.emit("Error", "User already admin")
-                return
+            if (await this.canAdminstrate(socket, administrate_payload)) {
+                await this.roomService.addRoomAdmin(payload.userId, room.id)
+                socket.emit("success", "Admin set")
+                console.log("sucess adding admin")
             }
-            await this.roomService.addRoomAdmin(payload.userId, room.id)
-            socket.emit("Success", "Admin set")
-            console.log("sucess adding admin")
         }
         catch (error) {
             console.log(error)
@@ -268,6 +323,7 @@ export class ChatService {
         Get all banned users of a room
         only admin can get  banned users
     */
+
     async getBannedUsers(socket: Socket, payload: RoomDTO) {
         try {
             const room = await this.roomService.getRoomByName(payload.roomName)
@@ -286,4 +342,53 @@ export class ChatService {
             this.gatewayService.emitError(socket, "Error")
         }
     }
+    /*
+        Mute user for a  limited time
+
+    */
+    async muteUser(socket:Socket, payload: MuteUserDTO) {
+        try {
+            const user = socket.data.user;
+            const room = await this.roomService.getRoomByName(payload.roomName)
+            const operation_data = {
+                userId: user.id,
+                roomId: room.id,
+                memberId: payload.userId
+            }
+            if (await this.canAdminstrate(socket, operation_data)) {
+                await this.roomService.muteUserFor(payload.userId, room.id, payload.muteDuration)
+                socket.emit("success", "User Muted")
+            }
+        }catch (error) {
+            console.log(error)
+            this.gatewayService.emitError(socket, "Error Muting User")
+        }
+    }
+    async UnmuteUser(socket: Socket, payload: MuteUserDTO) {
+        try {
+            const user = socket.data.user;
+            const room = await this.roomService.getRoomByName(payload.roomName)
+            const operation_data = {
+                userId: user.id,
+                roomId: room.id,
+                memberId: payload.userId
+            }
+            if (await this.canAdminstrate(socket, operation_data)) {
+                await this.roomService.UnmuteUser(payload.userId, room.id)
+                socket.emit("success", "User Unmuted")
+            }
+        }catch (error) {
+            console.log(error)
+            this.gatewayService.emitError(socket, "Error UnMuting User")
+        }
+    }
+    async IsUserMuted(userId: number, roomId: number) :Promise<boolean> { 
+        const mute_entry = await this.roomService.getMuteEntry(userId, roomId)
+        if (mute_entry) { // an entry exists on table
+            return (true)
+            console.log(mute_entry)
+        }
+        return (false)
+    }
+
 }
