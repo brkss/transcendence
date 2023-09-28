@@ -106,19 +106,7 @@ export class RoomService {
         })
         return (roomMembers)
     }
-    // async UserRoomExists(user: any, room_name: string) {
-    //     const room = await this.getRoomByName(room_name)
-    //     if (room === undefined) {
-    //         return ({ Error: `Room ${room_name} Not found!` })
-    //     }
-    //     try {
-    //         await this.addMemberTORoom(user.id, room.id, false)
-    //     } catch (error) {
-    //         //console.log(error)
-    //         return ({ Error: `${user.username} Already joined!` })
-    //     }
-    //     return (undefined)
-    // }
+
     async getRoomMembers(room: any) {
         const roomMembers = await this.getRoomUsers(room.id)
         const payload = {
@@ -292,29 +280,37 @@ export class RoomService {
     }
 
     async muteUserFor(userId:number, roomId: number, muteDuration:number) {
-        const entry = await this.prismaService.roomMute.create({
+        const mute_duration = Date.now() + muteDuration
+        const entry = await this.prismaService.roomMembers.update({
+            where: {
+                userId_roomId: {
+                    userId: userId,
+                    roomId: roomId
+                }
+            },
             data: {
-                userId: userId,
-                roomId: roomId,
-                muteDuration: muteDuration
+                mutedUntile: mute_duration
             }
         })
         return (entry)
     }
     async UnmuteUser(userId:number, roomId: number) {
-        const entry = await this.prismaService.roomMute.delete({
+        const entry = await this.prismaService.roomMembers.update({
             where: {
                 userId_roomId: {
                     userId: userId,
                     roomId: roomId,
                 }
+            },
+            data: {
+                mutedUntile: null
             }
         })
         return (entry)
     }
 
     async getMuteEntry(userId:number, roomId: number): Promise<any> {
-        const entry = await this.prismaService.roomMute.findUnique({
+        const entry = await this.prismaService.roomMembers.findUnique({
             where: {
                 userId_roomId: {
                     userId: userId,

@@ -31,7 +31,7 @@ model user {
 
   ownedRooms   ChatRoom[]
   memberRooms  RoomMembers[]
-  mutedInRooms RoomMute[]
+  //mutedInRooms RoomMute[]
 
   sent_friendship     Friendship[] @relation("SentFriendShip")
   recieved_friendship Friendship[] @relation("RecievedFriendShip")
@@ -48,7 +48,7 @@ model ChatRoom {
 
   ownerRef       user          @relation(fields: [owner], references: [id])
   membersRef     RoomMembers[]
-  mutedUserRef   RoomMute[]
+  //mutedUserRef   RoomMute[]
 }
 
 model RoomMembers {
@@ -57,6 +57,7 @@ model RoomMembers {
   roomId       Int
   userBanned   Boolean @default(false)
   isAdmin      Boolean @default(false)
+  mutedUntile  BigInt?
 
   user user     @relation(fields: [userId], references: [id])
   room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
@@ -64,17 +65,17 @@ model RoomMembers {
   @@unique([userId, roomId])
 }
 
-model RoomMute {
-  id           Int      @id @unique @default(autoincrement())
-  muted_at     DateTime @default(now())
-  muteDuration BigInt   // mute duration on minutes
-  userId       Int
-  roomId       Int
-  user         user     @relation(fields: [userId], references: [id])
-  room         ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+// model RoomMute {
+//   id           Int      @id @unique @default(autoincrement())
+//   muted_at     DateTime @default(now())
+//   muteDuration BigInt   // mute duration on minutes
+//   userId       Int
+//   roomId       Int
+//   user         user     @relation(fields: [userId], references: [id])
+//   room         ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, roomId])
-}
+//   @@unique([userId, roomId])
+// }
 
 model Friendship {
   friendship_id Int    @unique @default(autoincrement())

@@ -385,8 +385,12 @@ export class ChatService {
     async IsUserMuted(userId: number, roomId: number) :Promise<boolean> { 
         const mute_entry = await this.roomService.getMuteEntry(userId, roomId)
         if (mute_entry) { // an entry exists on table
-            return (true)
+            const mute_time = mute_entry.mutedUntile
+            if (mute_time > Date.now())
+                return (true)
+            await this.roomService.UnmuteUser(userId, roomId)
             console.log(mute_entry)
+            return (false)
         }
         return (false)
     }
