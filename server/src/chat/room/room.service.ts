@@ -206,10 +206,10 @@ export class RoomService {
                 userId: userId
             },
             select: {
-                room: { select: { name: true } }
+                room: { select: { name: true, roomType: true } }
             }
         })
-        return (all_rooms)
+        return (all_rooms.map((room) => (room.room)))
 
     }
     async IsRoomAdmin(userId: number, roomId: number) {
