@@ -18,6 +18,9 @@ import { Chat } from './Chat'
 import { SearchChat } from './Search';
 import {  AiOutlinePlusCircle } from 'react-icons/ai';
 import { CreateRoom } from './CreateRoom'
+import { API_URL } from '@/utils/constants';
+import { getAccessToken } from '@/utils/token';
+import { io } from 'socket.io-client';
 
 interface Props {
 	isOpen: boolean;
@@ -36,7 +39,12 @@ const _tmp = [
 ]
 
 export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
-
+	
+	let socket = io(API_URL, {
+		extraHeaders: {
+			Authorization: getAccessToken()
+		}
+	})
 	const [openCreateModal, setOpenCreateModal] = React.useState(false);
 	const [openModal, setOpenModal] = React.useState(false);
 	const [openChat, setOpenChat] = React.useState(false);
@@ -53,6 +61,27 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 			_chat.onOpen();
 		}
 	}
+
+	React.useEffect(() => {
+
+		socket.connect()
+		
+		socket.on('connect', () => {
+			console.log("socket connected ! chats")
+		})
+
+		socket.on("rooms", (data) => {
+			console.log("data : ", data);
+		})
+
+		socket.emit("allRooms")
+
+		return () => {
+			socket.disconnect()
+			console.log("socket disconnect!")
+		}
+
+	})
 
 	return (
 		<Drawer
