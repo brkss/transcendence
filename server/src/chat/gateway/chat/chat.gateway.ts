@@ -20,7 +20,7 @@ import { GatewayService } from "./gateway.service";
 import { ChatService } from "src/chat/chat.service";
 import { UseFilters, UsePipes, ValidationPipe } from "@nestjs/common"
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: true })
 @UseFilters(ValidationExceptionFilter)
 @UsePipes(new ValidationPipe({
   //disableErrorMessages: true,
