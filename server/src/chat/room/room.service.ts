@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { constrainedMemory } from "process";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
@@ -7,11 +8,11 @@ export class RoomService {
     }
     // should have a unique entry 
     async addMemberTORoom(user_id: number, room_id: number, is_admin: boolean) {
-        const data =  {
-                userId: user_id,
-                roomId: room_id,
-                isAdmin: is_admin
-            }
+        const data = {
+            userId: user_id,
+            roomId: room_id,
+            isAdmin: is_admin
+        }
         await this.prismaService.roomMembers.create({
             data: {
                 userId: user_id,
@@ -46,6 +47,21 @@ export class RoomService {
             return (undefined)
         }
     }
+    /*
+        Throw if room record does not exits
+    */
+    async deleteRoom(roomName: string) {
+        try {
+            const room = await this.prismaService.chatRoom.delete({
+                where: {
+                    name: roomName
+                }
+            })
+            return (room)
+        } catch (error) {
+            console.log(error)
+        }
+    }
     async getRoomByName(roomName: string): Promise<any> {
         try {
             const room = await this.prismaService.chatRoom.findUniqueOrThrow({
@@ -64,7 +80,7 @@ export class RoomService {
     async updateRoom(roomId: number, data: any) {
         // data should be sanitzed from other fields
         // really ? yes 
-        const updatedRoom = await  this.prismaService.chatRoom.update({
+        const updatedRoom = await this.prismaService.chatRoom.update({
             where: {
                 id: roomId
             },
@@ -78,47 +94,73 @@ export class RoomService {
                 roomId: roomId
             },
             select: {
-                user: { select: { username:true} }
+                isAdmin: true,
+                user: { 
+                    select: { 
+                        id: true,
+                        username: true,
+                        avatar: true,
+                    }
+                }
             }
         })
         return (roomMembers)
     }
-    async UserRoomExists(user: any, room_name: string) {
-        const room = await this.getRoomByName(room_name)
-        if(room === undefined){ 
-            return ({Error: `Room ${room_name} Not found!`})
-        }
-        try {
-            await this.addMemberTORoom(user.id, room.id, false)
-        } catch (error){
-            //console.log(error)
-            return ({Error: `${user.username} Already joined!`})
-        }
-        return(undefined)
-    }
-    async joinUserToRoom(user: any, room_name: string) {
-        const room = await this.getRoomByName(room_name)
+
+    async getRoomMembers(room: any) {
         const roomMembers = await this.getRoomUsers(room.id)
         const payload = {
-            room_name: room_name,
+            room_name: room.name,
             room_users: roomMembers
         }
         return (payload)
     }
 
-    async removeUserFromRoom(userId: number, room_name: string) {
-        const roomUser = await this.prismaService.roomMembers.deleteMany({
+    async removeUserFromRoom(userId: number, roomId: number) {
+        const roomUser = await this.prismaService.roomMembers.delete({
             where: {
-                userId: userId,
-                room: { name: room_name }
+                userId_roomId: {
+                    userId: userId,
+                    roomId: roomId,
+                }
             }
         })
         return (roomUser)
     }
+    async banUserFromRoom(userId: number, roomId: number) {
+        // may throw on duplicate entries 
+        const user = await this.prismaService.roomMembers.update({
+            where: {
+                userBanned: false,
+                userId_roomId: {
+                    userId: userId,
+                    roomId: roomId
+                }
+            },
+            data: {
+                userBanned: true
+            }
+        })
+    }
+    async UnbanUserFromRoom(userId: number, roomId: number) {
+        // may throw on duplicate entries 
+        const user = await this.prismaService.roomMembers.update({
+            where: {
+                userBanned: true,
+                userId_roomId: {
+                    userId: userId,
+                    roomId: roomId
+                }
+            },
+            data: {
+               userBanned: false 
+            }
+        })
+    }
 
     async deleteMemberFromRooms(userId: number) {
         await this.prismaService.roomMembers.deleteMany({
-            where:{
+            where: {
                 userId: userId
             },
         })
@@ -139,8 +181,8 @@ export class RoomService {
         return (joinedRooms.memberRooms)
     }
     async selectUserRoom(userId: number, roomName: string) {
-        const room  = await this.getRoomByName(roomName)
-        if (room === undefined){
+        const room = await this.getRoomByName(roomName)
+        if (room === undefined) {
             return (false)
         }
         const userRoom = await this.prismaService.roomMembers.findMany({
@@ -149,7 +191,8 @@ export class RoomService {
                 roomId: room.id,
                 userBanned: false
             },
-            select: { room: { select: { name: true }}
+            select: {
+                room: { select: { name: true } }
             }
         })
         if (roomName === userRoom[0]?.room.name) {
@@ -159,7 +202,7 @@ export class RoomService {
     }
     async getRoomsOfUser(userId: number) {
         const all_rooms = await this.prismaService.roomMembers.findMany({
-            where:{
+            where: {
                 userId: userId
             },
             select: {
@@ -172,17 +215,109 @@ export class RoomService {
     async IsRoomAdmin(userId: number, roomId: number) {
         const isadmin = await this.prismaService.roomMembers.findUnique({
             where: {
-                    userId_roomId: {
-                        userId: userId,
-                        roomId: roomId
-                    }
+                userId_roomId: {
+                    userId: userId,
+                    roomId: roomId
+                }
             },
             select: {
                 isAdmin: true
             }
         })
-        console.log("userId:" ,userId, "roomId", roomId)
-        console.log("is_admin:", isadmin)
         return (isadmin?.isAdmin)
+    }
+    async addRoomAdmin(userId: number, roomId: number) {
+        await this.prismaService.roomMembers.update({
+            where: {
+                userId_roomId: {
+                    userId: userId,
+                    roomId: roomId
+                }
+            },
+            data: {
+                isAdmin: true
+            }
+        })
+    }
+    async isBannedFromRoom(userId: number, roomId: number){ 
+        const ban_id = await this.prismaService.roomMembers.findUnique({
+            where: {
+                userBanned: true,
+                userId_roomId:{
+                    roomId: roomId,
+                    userId: userId
+                },
+            },
+            select: {
+                id: true
+            }
+        })
+        console.log(ban_id)
+        return (ban_id != null ? true: false)
+    }
+    async getAllBannedUsers(roomId: number) {
+        const banned_users = await this.prismaService.roomMembers.findMany({
+            where: {
+                roomId: roomId,
+                userBanned: true
+            },
+            select: {
+                user: {
+                   select: {
+                        id: true,
+                        username: true,
+                        avatar: true
+                   } 
+                }
+            }
+        })
+        const res_payload = { 
+            BannedUsers: {
+                banned_users
+            }
+        }
+        return(res_payload)
+    }
+
+    async muteUserFor(userId:number, roomId: number, muteDuration:number) {
+        const mute_duration = Date.now() + muteDuration
+        const entry = await this.prismaService.roomMembers.update({
+            where: {
+                userId_roomId: {
+                    userId: userId,
+                    roomId: roomId
+                }
+            },
+            data: {
+                mutedUntile: mute_duration
+            }
+        })
+        return (entry)
+    }
+    async UnmuteUser(userId:number, roomId: number) {
+        const entry = await this.prismaService.roomMembers.update({
+            where: {
+                userId_roomId: {
+                    userId: userId,
+                    roomId: roomId,
+                }
+            },
+            data: {
+                mutedUntile: null
+            }
+        })
+        return (entry)
+    }
+
+    async getMuteEntry(userId:number, roomId: number): Promise<any> {
+        const entry = await this.prismaService.roomMembers.findUnique({
+            where: {
+                userId_roomId: {
+                    userId: userId,
+                    roomId: roomId
+                }
+            }
+        });
+        return (entry)
     }
 }

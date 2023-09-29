@@ -9,6 +9,7 @@ export class GatewayService {
         private roomService: RoomService) {
 
     }
+
     UnauthorizedDisconnect(socket: Socket) {
         socket.emit("Error", new UnauthorizedException())
         socket.disconnect()
@@ -17,6 +18,7 @@ export class GatewayService {
     connectionSuccess(socket: Socket) {
         socket.emit("message", { Connection: "success" })
     }
+
     emitError(socket: Socket, error: string) {
         const response = {
             Error: error,
@@ -46,6 +48,7 @@ export class GatewayService {
             return 
         }
     }
+
     async leavAllSocketRooms(socket: Socket, user: any) {
         const all_rooms = await this.roomService.getUserJoinedRooms(user.id)
         await this.roomService.deleteMemberFromRooms(user.id)

@@ -5,7 +5,8 @@ import {
     IsNotEmpty,
     IsNumber,
     IsString,
-    ValidateIf
+    ValidateIf,
+    isNumber
 
 } from 'class-validator'
 
@@ -33,19 +34,40 @@ export class kickDTO extends RoomDTO{
     @IsNumber()
     userId: number
 }
+export class MuteUserDTO extends RoomDTO {
+    @IsAscii()
+    @IsNotEmpty()
+    user: string // not necessary! 
 
+    @IsNumber()
+    userId: number
+
+    // mute duration in seconds 
+    @IsNumber()
+    muteDuration: number
+
+}
+export class BanDTO extends kickDTO {
+
+}
+export class setAdminDTO extends kickDTO {
+
+}
 export class chatMessageDTO extends RoomDTO{
     @IsNotEmpty()
     message: string
 }
 
-export class JoinRoomDTO  extends RoomDTO{
-    /* 
-        Properties may be added later
-    */
+
+export class JoinRoomDTO  extends RoomDTO {
+    @IsIn(["PUBLIC", "PRIVATE", "PROTECTED"])
+    roomType: String
+
+    @ValidateIf(object => object.roomType === 'PROTECTED')
+    password?: string
 }
 
-export class LeaveRoomDTO extends JoinRoomDTO {
+export class LeaveRoomDTO extends RoomDTO {
     /* 
         Properties may be added later
     */
