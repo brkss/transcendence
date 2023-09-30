@@ -29,9 +29,10 @@ const types = [
 interface Props {
 	isOpen: boolean;
 	onClose: () => void;
+	updateRooms: (room: { name: string, roomType: string }) => void;
 }
 
-export const CreateRoom : React.FC<Props> = ({isOpen, onClose}) => {
+export const CreateRoom : React.FC<Props> = ({isOpen, onClose, updateRooms}) => {
 
 	let socket = io(API_URL, {
 		extraHeaders: {
@@ -41,7 +42,7 @@ export const CreateRoom : React.FC<Props> = ({isOpen, onClose}) => {
 	const [form, setForm] = React.useState<any>({});
 	const [error, setError] = React.useState("");
 	const [roomType, setRoomType] = React.useState(types[0]);
-	const [loading, setLoading] = React.useState(false);
+	//const [loading, setLoading] = React.useState(false);
 
 	React.useEffect(() => {
 		//const socket = io(API_URL);
@@ -58,6 +59,7 @@ export const CreateRoom : React.FC<Props> = ({isOpen, onClose}) => {
 		socket.on("RoomCreated", (msg) => {
 			onClose();
 			console.log("success : ", msg);
+			updateRooms({name: msg.name, roomType: msg.roomType});
 		});
 
 		return () => {

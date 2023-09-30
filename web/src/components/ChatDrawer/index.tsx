@@ -39,7 +39,8 @@ const _tmp = [
 ]
 
 export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
-	
+
+	const [rooms, setRooms] = React.useState<any[]>([]);
 	let socket = io(API_URL, {
 		extraHeaders: {
 			Authorization: getAccessToken()
@@ -71,6 +72,7 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 		})
 
 		socket.on("rooms", (data) => {
+			setRooms(data);
 			console.log("data : ", data);
 		})
 
@@ -81,7 +83,7 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 			console.log("socket disconnect!")
 		}
 
-	})
+	}, [isOpen])
 
 	return (
 		<Drawer
@@ -106,8 +108,11 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 					<SearchChat change={(v) => {}} />
 					<Box>
 						{
-							_tmp.map((item, key) => (
-								<ChatBox key={key} name={item.name} isProctected={item.isProtected}  enter={() => handleEntringRoom(item.isProtected)} />
+							rooms.map((item, key) => (
+								<>	
+									<ChatBox key={key} name={item.name} type={item.roomType}  enter={() => handleEntringRoom(item.roomType === "PROTECTED")} />
+									<hr style={{marginTop: '10px', display: 'none'}} />	
+								</>
 							))
 						}
 					</Box>
@@ -118,7 +123,7 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 			</DrawerContent>
 			{ openModal && <RoomPasswordModal isOpen={_passDisclosure.isOpen} onClose={_passDisclosure.onClose} onOpen={_passDisclosure.onOpen} /> }
 			{ openChat && <Chat isOpen={_chat.isOpen} onClose={_chat.onClose} /> }
-			{ _createRoomModal.isOpen && <CreateRoom isOpen={_createRoomModal.isOpen} onClose={_createRoomModal.onClose} /> }
+			{ _createRoomModal.isOpen && <CreateRoom updateRooms={(room: {name: string, roomType: string}) => setRooms([room, ...rooms])} isOpen={_createRoomModal.isOpen} onClose={_createRoomModal.onClose} /> }
 		</Drawer>
 	)
 }
