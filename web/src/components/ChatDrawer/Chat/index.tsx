@@ -1,8 +1,9 @@
 import React from 'react';
-import { Drawer, DrawerOverlay, DrawerContent, Flex, Box, Text, Button, Input, DrawerCloseButton } from '@chakra-ui/react';
+import { Drawer, DrawerOverlay, DrawerContent, Flex, Box, Text, Button, Input, DrawerCloseButton, useDisclosure } from '@chakra-ui/react';
 import { ChatFooter } from './Footer';
 import { ChatHeader } from './Header';
 import { ChatMessages } from './Messages'
+import { ChatSettings } from './Settings';
 
 interface Props {
 	isOpen: boolean;
@@ -11,6 +12,7 @@ interface Props {
 
 export const Chat : React.FC<Props> = ({isOpen, onClose}) => {
 
+	const _settings = useDisclosure();
 	const [messages, setMessages] = React.useState([
 		{ from: "computer", text: "Hi, My Name is HoneyChat" },
 		{ from: "me", text: "Hey there" },
@@ -37,7 +39,6 @@ export const Chat : React.FC<Props> = ({isOpen, onClose}) => {
 	};
 
 	return (
-
 		<Drawer
 			isOpen={isOpen}
 			placement='right'
@@ -48,7 +49,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose}) => {
 			<DrawerContent className='afr'	>
 				<Flex w="100%" h={{base: "calc(100% - 81px)", md: "100%"}} justify="center" align="center" zIndex={9999}>
 					<Flex w="100%" h="100%" flexDir="column">
-						<ChatHeader />
+						<ChatHeader openSettings={_settings.onOpen} />
 						<ChatMessages messages={messages} />
 						<ChatFooter
 							inputMessage={inputMessage}
@@ -58,6 +59,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose}) => {
 					</Flex>
 				</Flex>
 			</DrawerContent>
+			{ _settings.isOpen && <ChatSettings isOpen={_settings.isOpen} onClose={_settings.onClose} /> }
 		</Drawer>
 
 	)
