@@ -8,33 +8,33 @@ import { ChatSettings } from './Settings';
 interface Props {
 	isOpen: boolean;
 	onClose: () => void;
+	chatId: number;
 }
 
-export const Chat : React.FC<Props> = ({isOpen, onClose}) => {
+export const Chat : React.FC<Props> = ({isOpen, onClose, chatId}) => {
 
 	const _settings = useDisclosure();
-	const [messages, setMessages] = React.useState([
-		{ from: "computer", text: "Hi, My Name is HoneyChat" },
+	const [messages, setMessages] = React.useState<any>([
+		/*{ from: "computer", text: "Hi, My Name is HoneyChat" },
 		{ from: "me", text: "Hey there" },
 		{ from: "me", text: "Myself Ferin Patel" },
 		{
 			from: "computer",
 			text: "Nice to meet you. You can send me message and i'll reply you with same message.",
-		},
+		},*/
 	]);
 	const [inputMessage, setInputMessage] = React.useState("");
-
 	const handleSendMessage = () => {
 		if (!inputMessage.trim().length) {
 			return;
 		}
 		const data = inputMessage;
 
-		setMessages((old) => [...old, { from: "me", text: data }]);
+		setMessages((old: any) => [...old, { from: "me", text: data }]);
 		setInputMessage("");
 
 		setTimeout(() => {
-			setMessages((old) => [...old, { from: "computer", text: data }]);
+			setMessages((old: any) => [...old, { from: "computer", text: data }]);
 		}, 1000);
 	};
 
@@ -59,8 +59,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose}) => {
 					</Flex>
 				</Flex>
 			</DrawerContent>
-			{ _settings.isOpen && <ChatSettings isOpen={_settings.isOpen} onClose={_settings.onClose} /> }
+			{ _settings.isOpen && <ChatSettings roomId={chatId} isOpen={_settings.isOpen} onClose={_settings.onClose} /> }
 		</Drawer>
-
 	)
 }

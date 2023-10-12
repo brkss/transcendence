@@ -206,7 +206,7 @@ export class RoomService {
                 userId: userId
             },
             select: {
-                room: { select: { name: true, roomType: true } }
+                room: { select: { name: true, roomType: true, id: true } }
             }
         })
         return (all_rooms.map((room) => (room.room)))

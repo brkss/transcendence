@@ -14,14 +14,66 @@ import {
 } from '@chakra-ui/react';
 import { Avatar } from '../../Avatar'
 import { AiOutlineUserAdd, AiOutlineUserDelete, AiOutlineClockCircle } from 'react-icons/ai';
+import { API_URL } from '@/utils/constants';
+import { getAccessToken } from '@/utils/token';
+import { io } from 'socket.io-client';
 
 interface Props {
 	isOpen: boolean;
 	onClose: () => void;
+	roomId: number 
 }
 
-export const ChatSettings : React.FC<Props> = ({isOpen, onClose}) => {
+export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId}) => {
+	
+	const [members, setMembers] = React.useState([]);
 
+	let socket = io(API_URL, {
+		extraHeaders: {
+			Authorization: getAccessToken()
+		}
+	})
+
+	React.useEffect(() => {
+
+		socket.on('connect', () => {
+			console.log("socket connected");
+		})
+		
+		socket.connect()
+		socket.on("", () => {
+
+		});
+		socket.on("", () => {
+
+		})
+		socket.on("", () => {
+
+		})
+
+		return () => {
+			socket.disconnect()
+			socket.off("connect")
+		}
+
+	}, [socket])
+
+
+	const handleDeleteRoom = () => {
+
+	}
+
+	const handleLeaveRoom = () => {
+
+	}
+
+	const handleBanUser = () => {
+
+	}
+
+	const handleMuteUser = () => {
+
+	}
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose}>

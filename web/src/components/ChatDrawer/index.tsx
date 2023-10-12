@@ -46,22 +46,13 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 			Authorization: getAccessToken()
 		}
 	})
+	const [selectedRoomID, setSelectedRoomID] = React.useState<number | null>(null);
 	const [openCreateModal, setOpenCreateModal] = React.useState(false);
 	const [openModal, setOpenModal] = React.useState(false);
 	const [openChat, setOpenChat] = React.useState(false);
 	const _passDisclosure = useDisclosure(); 
 	const _createRoomModal = useDisclosure();
 	const _chat = useDisclosure();
-
-	const handleEntringRoom = (isProtected: boolean) => {
-		if(isProtected){
-			setOpenModal(true);
-			_passDisclosure.onOpen();
-		}else {
-			setOpenChat(true);
-			_chat.onOpen();
-		}
-	}
 
 	React.useEffect(() => {
 
@@ -84,6 +75,22 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 		}
 
 	}, [isOpen])
+
+
+	const handleEntringRoom = (id: number, isProtected: boolean) => {
+		console.log("id : ", id, isProtected)
+		if(isProtected){
+			setOpenModal(true);
+			_passDisclosure.onOpen();
+			setSelectedRoomID(id)
+		}else {
+			setOpenChat(true);
+			_chat.onOpen();
+			setSelectedRoomID(id)
+		}
+	}
+
+	
 
 	return (
 		<Drawer
@@ -110,7 +117,7 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 						{
 							rooms.map((item, key) => (
 								<>	
-									<ChatBox key={key} name={item.name} type={item.roomType}  enter={() => handleEntringRoom(item.roomType === "PROTECTED")} />
+									<ChatBox key={key} name={item.name} type={item.roomType}  enter={() => handleEntringRoom(item.id, item.roomType === "PROTECTED")} />
 									<hr style={{marginTop: '10px', display: 'none'}} />	
 								</>
 							))
@@ -122,7 +129,7 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 				</DrawerFooter>
 			</DrawerContent>
 			{ openModal && <RoomPasswordModal isOpen={_passDisclosure.isOpen} onClose={_passDisclosure.onClose} onOpen={_passDisclosure.onOpen} /> }
-			{ openChat && <Chat isOpen={_chat.isOpen} onClose={_chat.onClose} /> }
+			{ selectedRoomID && openChat && <Chat chatId={selectedRoomID} isOpen={_chat.isOpen} onClose={_chat.onClose} /> }
 			{ _createRoomModal.isOpen && <CreateRoom updateRooms={(room: {name: string, roomType: string}) => setRooms([room, ...rooms])} isOpen={_createRoomModal.isOpen} onClose={_createRoomModal.onClose} /> }
 		</Drawer>
 	)
