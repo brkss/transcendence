@@ -13,6 +13,7 @@ export class RoomService {
             roomId: room_id,
             isAdmin: is_admin
         }
+        console.log(data)
         await this.prismaService.roomMembers.create({
             data: {
                 userId: user_id,
@@ -43,7 +44,7 @@ export class RoomService {
             return (newRoom)
 
         } catch (error) {
-            //console.log(error)
+            console.log(error)
             return (undefined)
         }
     }
@@ -178,7 +179,7 @@ export class RoomService {
                 }
             }
         })
-        return (joinedRooms.memberRooms)
+        return (joinedRooms?.memberRooms)
     }
     async selectUserRoom(userId: number, roomName: string) {
         const room = await this.getRoomByName(roomName)

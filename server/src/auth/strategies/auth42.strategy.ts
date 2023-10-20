@@ -7,6 +7,8 @@ import axios from 'axios'
 @Injectable()
 export class auth42Strategy extends PassportStrategy(Strategy, '42-auth2') {
     constructor(private configService: ConfigService) {
+        console.log(configService.get('CALLBACK_URL'))
+        console.log("see call back")
         super({
             authorizationURL: configService.get('AUTHORIZATION_URL'),
             tokenURL: configService.get('TOKEN_URL'),
@@ -17,6 +19,7 @@ export class auth42Strategy extends PassportStrategy(Strategy, '42-auth2') {
     }
     async userProfile(accessToken: string, done: VerifyCallback): Promise<void> {
         try {
+            console.log("getting user profile")
             const response = await axios.get(this.configService.get('USER_INFO_URL'), {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -39,5 +42,5 @@ export class auth42Strategy extends PassportStrategy(Strategy, '42-auth2') {
         }
         console.log(user)
         done(null, user);
-    }
+     }
 }

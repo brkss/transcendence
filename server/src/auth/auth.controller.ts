@@ -12,7 +12,6 @@ export class authController {
 
     @Get('login')
     loginpage() {
-        console.log(typeof(Date.now()))
         return this.auth_service.loginpage()
     }
 
@@ -30,14 +29,14 @@ export class authController {
         }
         else {
             resp.cookie('refresh_token', refresh_token, {maxAge: 7 * 24 * 3600 * 1000, httpOnly: true});
-            resp.redirect("http://localhost:8000")
+            resp.redirect("http://localhost:8000/")
         }
     }
 
 	@Post("refresh-token")
 	async refreshToken(@Req() req: Request, @Res() res: Response) {
 		const refresh_token = req.cookies["refresh_token"];
-		console.log("refresh token : ", refresh_token);
+		//console.log("refresh token : ", refresh_token);
 		const response = await this.auth_service.refreshToken(refresh_token);
         res.cookie('refresh_token', response.refresh_token, {maxAge: 7 * 24 * 3600 * 1000, httpOnly: true});
 		res.send({status: response.status, access_token: response.access_token});
@@ -47,7 +46,7 @@ export class authController {
 	async getTestToken(@Req() req: Request, @Res() res: Response){
 		const { userID } = req.body;
 		const refresh_token = generateRefreshToken(Number(userID));
-		console.log("get test token !", refresh_token);
+		//console.log("get test token !", refresh_token);
 		if(!userID)
 			return res.send({status: false});
 		return res.send({ rt: refresh_token });

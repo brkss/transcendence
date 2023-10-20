@@ -28,6 +28,8 @@ export class GatewayService {
 
     private async joinPrevRooms(socket: Socket, userId:number) {
         const all_rooms = await this.roomService.getUserJoinedRooms(userId)   
+        if (all_rooms === undefined)
+            return ;
         for (let chat_room of all_rooms) {
             let name = chat_room.room.name
             socket.join(name)
