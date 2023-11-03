@@ -13,10 +13,8 @@ export class AuthService {
                 private userService: UserService ) {
     }
 
-    async login(req: any): Promise<string> {
-        // retunrs (user === req.user) if user exits
-        const user = await this.userService.createUser(req.user)
-        console.log("req : ", req.user);
+    async login_2fa(user_data: any): Promise<string> {
+        const user = await this.userService.createUser(user_data)
 		const payload = {
             id: user.id,
             email: user.email,
@@ -27,8 +25,9 @@ export class AuthService {
         const jwToken = this.jwtService.sign(payload, { expiresIn: '15m' })
         return (jwToken)
     }
-    async auth2faActive(user_login: string) {
-        return (await this.userService.is2faActivated(user_login))
+    async auth2faActive(user_id: number) {
+        const auth2faSettings = await this.userService.get2fasettings(user_id)
+        return (auth2faSettings.auth2faOn)
     }
 
     async login2fa(req_user: any): Promise<string> {
@@ -42,19 +41,13 @@ export class AuthService {
         const jwt2fa_token = this.jwtService.sign(payload, { expiresIn: '15m' })
         return (jwt2fa_token)
     }
-    loginpage() {
-        const htm: string  = '<a href="http://localhost:8000/auth/sync"> Login with 42 </a>'
-        return htm
-    }
-
 
 	/*
 	*	GET USER'S ID 
 	*/
 
-	async getUserID(req: any): Promise<number> {
-        // retunrs (user === req.user) if user exits
-        const user = await this.userService.createUser(req.user)
+	async getUserID(req_user: any): Promise<number> {
+        const user = await this.userService.createUser(req_user)
        	if(user)
 			return user.id;
 		return null;

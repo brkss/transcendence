@@ -16,42 +16,37 @@ export class TwofactorauController {
     @UseGuards(JwtAuth)
     @Get('generate')
     async generate2fa(@Req() req: any) {
-        const current_user: string  = req.user.login // should be read from jwt token
-        return (await this.twofaservice.generate2fa(current_user))
+        const user_id: number  = req.user.userID 
+        return (await this.twofaservice.generate2FaCode(user_id))
     }
 
     @UseGuards(JwtAuth)
     @Post('activate')
     @UsePipes(OnetimePasswordDTO)
     async activate2fa(@Body() body: OnetimePasswordDTO, @Req() req: any) {
-        const token  = req.body.token
-        const current_user = req.user.login
-        return (await this.twofaservice.activate2fa(current_user, token))        
-    }
-
-    @UseGuards(Jwt2faAuth)
-    @Get('otp')
-    otp_page() {
-        return (this.twofaservice.getOptPage())
+        const req_body = req.body
+        const response = await this.twofaservice.activate2fa(req.user.userID, req.body.code_2fa);
+        return (response)
     }
 
     @UseGuards(Jwt2faAuth)
     @UsePipes(OnetimePasswordDTO)
-    @Post('otp')
+    @Post('verify')
     async verify_OTP(@Req() req: any,
                     @Body() body: OnetimePasswordDTO,
                     @Res({passthrough: true}) resp: any) {
 
         const token: string = req.body.token
-        const isValidCode = await this.twofaservice.isValidOTP(token, req.user.login)
+        const user = req.user
+        const isValidCode = await this.twofaservice.isValidOTP(token, user.userID)
         if (isValidCode) {
-            const access_token = await this.authService.login(req)             
+            const access_token = await this.authService.login_2fa(user.userID)             
             resp.cookie('access_token', access_token)
             resp.cookie('auth2fa_token', '') // clear temp token
             resp.redirect("/") 
         }
         else {
-            resp.redirect("/2fa/otp") 
+            resp.redirect("/2fa/verify") 
         }
     }
 }

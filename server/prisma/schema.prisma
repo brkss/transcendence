@@ -59,7 +59,7 @@ model RoomMembers {
   isAdmin      Boolean @default(false)
   mutedUntile  BigInt?
 
-  user user     @relation(fields: [userId], references: [id])
+  user user     @relation(fields: [userId], references: [id], onDelete: Cascade)
   room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   @@unique([userId, roomId])

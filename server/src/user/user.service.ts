@@ -1,7 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { userInfo } from 'os';
-import { use } from 'passport';
-import { retryWhen } from 'rxjs';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -46,25 +43,40 @@ export class UserService {
         return (userExists)
     }
 
-	async updateField(data: any) {
+	async updateField(data: any): Promise<any> {
 		const user = await this.prismaService.user.update(data)
+		return user
 	}
 
-	async get2faSecret(user_login: string) {
+	async get2faSecret(user_id: number) {
 		const auth2fa_secret = await this.prismaService.user.findUnique({
-			where: { login: user_login },
+			where: { id: user_id },
 			select: { auth2faSercret: true }
 		})
-		return (auth2fa_secret.auth2faSercret)
+		return (auth2fa_secret?.auth2faSercret)
 	}
 
-    async is2faActivated(user_login: string) {
+    async is2faActivated(user_id: number) {
         const isActivated = await this.prismaService.user.findUnique({
-            where: { login: user_login },
+            where: { id: user_id },
             select: { auth2faOn: true }
         })
+		console.log("is activated: ", isActivated)
         return (isActivated.auth2faOn)
     }
+	async get2fasettings(user_id: number) : Promise<any> { 
+		const settings  = await this.prismaService.user.findUnique({
+			where: {
+				id: user_id
+			},
+			select: {
+				auth2faOn: true,
+				auth2faSercret: true
+			}
+		})		
+		return (settings)
+	}
+
     async getUserId(username: string) {
         const userId = await this.prismaService.user.findUnique({
             where: { username: username },

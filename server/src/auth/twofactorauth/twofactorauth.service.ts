@@ -9,91 +9,70 @@ export class TwofactorauthService {
     constructor(private userService: UserService) {
 
     }
-  
-    validate2fatoken(token: string, secret: string) {
+    private validate2fatoken(token: string, secret: string) {
         try {
             const isValid = authenticator.check(token, secret)
             return (isValid)
         }
         catch (err){
             console.log(err)
+            return (false)
         }
     }
-    async generate2fa(current_user: string) {
-        const isActivated: boolean = await this.userService.is2faActivated(current_user)
-        if (isActivated) {
-            return "<h3> 2fa is already activated </h3>"
+    private setResponse(response_status: boolean, message: string) {
+        const response = {
+            success: response_status,
+            message: message
         }
-        
+        return (response)
+    }
+    private async generateQR(user_name:string, secret:string): Promise<any> {
+        const optauth_url = authenticator.keyuri(user_name, "42 ft_PongGame", secret)
+        const qr_code = await qrcode.toDataURL(optauth_url)
+        return (qr_code)
+    }
+
+    async generate2FaCode(current_user_id: number) {
+        const isActivated: boolean = await this.userService.is2faActivated(current_user_id)
+        if (isActivated) {
+            return (this.setResponse(false, "2fa is already activated" ))
+        }
         const secret = authenticator.generateSecret();
         const query = {
-            where: { login: current_user },   
-            data: { auth2faSercret: secret } // should be sanitized? 🤔
+            where: { id: current_user_id },   
+            data: { auth2faSercret: secret }, // should be sanitized? 🤔
+            select: {fullName: true}
         }
-        await this.userService.updateField(query)
-
-        const optauth_url = authenticator.keyuri(current_user, "42 ft_PongGame", secret)
-        const qr_code = await qrcode.toDataURL(optauth_url)
-        //console.log(qr_code)
-        const temp = `<!DOCTYPE html>
-        <html>
-          <head>
-            <title>2FA generate</title>
-          </head>
-          <body>
-            <div>
-              <p>Scan QR code with googlAuthenticator app</p>
-              <img src="${qr_code}" alt="Red dot" />
-            </div>
-          </body>
-        </html>`
-        return (temp)
+        const user = await this.userService.updateField(query)
+        const qr_code = await this.generateQR(user.fullName, secret);
+        
+        const payload = {
+            success: true, 
+            message: "QR code generated!",
+            code: qr_code
+        }
+        // render qr code in front end
+        return (payload)
     }
 
-    async activate2fa(current_user: string, token: string) {
-        const isActivated: boolean = await this.userService.is2faActivated(current_user)
-        if (isActivated) {
-            return "<h3> 2fa is already activated</h3>"
+    async activate2fa(user_id: number, token: string) {
+        const settings_2fa = await this.userService.get2fasettings(user_id);
+        const is2faActivated = settings_2fa.auth2faOn ;
+        if (is2faActivated) {
+            return (this.setResponse(false, "2fa Already Activated"))
         }
-        const  secret = await this.userService.get2faSecret(current_user)
-        const isValid = this.validate2fatoken(token, secret)
-
-        if (isValid) {
-            await this.userService.updateField({
-                where: {login: current_user},
-                data: {auth2faOn : true}
-            })
-            return  "<h3> 2FA activated successfully!!</h3>"
+        const isValid = this.validate2fatoken(token, settings_2fa.auth2faSercret)
+        if (isValid === false) { 
+            return (this.setResponse(false, "One Time Password invalid!"))
         }
-        else {
-            return "<h3> Time Based One Time Password invalid!!</h3>"
-        }
+        await this.userService.updateField({
+            where: {id: user_id},
+            data: {auth2faOn : true} })
+        return (this.setResponse(true, "2fa activated!") )
     }
-    async isValidOTP(otp_code:string, user_login: string) {
-        const  secret = await this.userService.get2faSecret(user_login)
+
+    async isValidOTP(otp_code:string, user_id: number) {
+        const  secret = await this.userService.get2faSecret(user_id)
         return (this.validate2fatoken(otp_code, secret))
-    }
-
-    getOptPage() {
-      const page_html = `<!DOCTYPE html>
-      <html>
-      <head>
-          <title>POST Form Example</title>
-      </head>
-      <body>
-      
-      <h2>Submit Data to Server</h2>
-      
-      <form action="/2fa/otp" method="post">
-          <label for="data">Enter OTP code:</label>
-          <input type="application/json" id="data" name="token" required>
-          <br>
-          <input type="submit" value="Submit">
-      </form>
-      
-      </body>
-      </html>
-      `
-      return (page_html)
     }
 }
