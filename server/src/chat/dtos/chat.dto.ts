@@ -1,3 +1,4 @@
+import { isAscii } from 'buffer'
 import {
     IsAscii,
     IsByteLength,
@@ -6,9 +7,11 @@ import {
     IsNumber,
     IsString,
     ValidateIf,
-    isNumber
+    isNumber,
+    isString
 
 } from 'class-validator'
+import { isAbsolute } from 'path'
 
 export class RoomDTO {
      @IsString()
@@ -18,7 +21,7 @@ export class RoomDTO {
 
 export class createRoomDTO  extends RoomDTO {
     @IsIn(["PUBLIC", "PRIVATE", "PROTECTED"])
-    roomType: String
+    roomType: string
 
     @ValidateIf(object => object.roomType === 'PROTECTED')
     @IsAscii()
@@ -58,10 +61,18 @@ export class chatMessageDTO extends RoomDTO{
     message: string
 }
 
+export class PrivateMessageDTO {
+    @IsNumber()
+    userId: number
+
+    @IsAscii()
+    message: string
+}
+
 
 export class JoinRoomDTO  extends RoomDTO {
     @IsIn(["PUBLIC", "PRIVATE", "PROTECTED"])
-    roomType: String
+    roomType: string
 
     @ValidateIf(object => object.roomType === 'PROTECTED')
     password?: string

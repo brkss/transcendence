@@ -12,7 +12,8 @@ import  {createRoomDTO,
         kickDTO,
         setAdminDTO,
         RoomDTO,
-        MuteUserDTO} from "src/chat/dtos/chat.dto"
+        MuteUserDTO,
+        PrivateMessageDTO} from "src/chat/dtos/chat.dto"
     
 import { Socket } from 'socket.io'
 import { ValidationExceptionFilter } from "src/chat/dtos/chatvalidation.filer";
@@ -48,6 +49,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect(socket: Socket) {
     const user = socket.data.user
+    socket.leave(String(user.id))
     await this.leaveAllRoomsOnDisconnect(socket, user)
   }
 
@@ -84,6 +86,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('chatMessage')
   async handleChatMessage(socket: Socket, payload: chatMessageDTO) {
     await this.chatService.SendChatMessage(socket, payload)
+  }
+
+  @SubscribeMessage('PrivateMessage')
+  async handlePrivateMessage(socket: Socket, payload: PrivateMessageDTO) {
+    await this.chatService.SendPrivateChatMessage(socket, payload)
   }
 
   @SubscribeMessage("kickUser")

@@ -8,18 +8,22 @@ import {
     BanDTO,
     setAdminDTO,
     RoomDTO,
-    MuteUserDTO
+    MuteUserDTO,
+    PrivateMessageDTO
 } from "./dtos/chat.dto"
 
 import { Socket } from "socket.io";
 import { Injectable } from "@nestjs/common";
 import { RoomService } from "./room/room.service";
 import { GatewayService } from "./gateway/chat/gateway.service";
+import { PrismaService } from "src/prisma/prisma.service";
+import { UserService } from "src/user/user.service";
 
 @Injectable()
 export class ChatService {
     constructor(private roomService: RoomService,
-        private gatewayService: GatewayService) {
+        private gatewayService: GatewayService,
+        private userService: UserService) {
 
     }
     /*
@@ -199,11 +203,43 @@ export class ChatService {
                 time: Date()
             }
             socket.to(roomName).emit("message", message)
-            this.roomService.saveMessageInDB(user.id, room.id, payload.message)
+            const  data =  {
+                userId : user.id,
+                roomId: room.id,
+                recepient_id: null,
+                message: payload.message
+            }
+            this.roomService.saveMessageInDB(data)
         }
         else {
             this.gatewayService.emitError(socket, "Error for Now")
         }
+
+    }
+
+    async SendPrivateChatMessage(socket: Socket, payload: PrivateMessageDTO) {
+        const recepient_id = payload.userId
+        const recepient  = await this.userService.getUserByID(payload.userId)
+        const user = socket.data.user;
+
+        if (recepient?.id == recepient_id) { // user exists 
+            const message = {
+                user: user.username,
+                message: payload.message,
+                time: Date()
+            }
+            socket.to(String(recepient_id)).emit("PrivateMessage", message)
+            const  data =  {
+                userId : user.id,
+                roomId: null,
+                recepient_id: recepient_id,
+                message: payload.message
+            }
+            this.roomService.saveMessageInDB(data) // this should be in chat.service.ts
+        }else {
+            socket.emit("Error", "User Not found")
+        }
+
 
     }
     /*

@@ -322,12 +322,14 @@ export class RoomService {
         return (entry)
     }
     // assosiate user message with room 
-    async saveMessageInDB(userId:number , roomId: number, message: string) { 
+    //async saveMessageInDB(userId:number , roomId: number, message: string) { 
+    async saveMessageInDB(data: any) { 
         const messageId = await this.prismaService.messages.create({
             data: {
-                sender_id: userId,
-                chatRom_id: roomId,
-                message: message
+                sender_id: data.userId,
+                chatRom_id: data.roomId,
+                recepient_id: data.recepient_id,
+                message: data.message
             },
             select: {
                 id: true
