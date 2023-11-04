@@ -318,22 +318,22 @@ export class UserService {
 	
 
 	// this function get the relation ship between two users; 
-	// async getRelationship(friend_username: string, user_id: number) {
-	// 	const friend_id = await this.getUserId(friend_username);
-	// 	const relationship = await this.prismaService.friendship.findMany({
-	// 		where: { OR: [{ user_id: user_id, friend_id: friend_id }, { user_id: friend_id, friend_id: user_id}] },
-	// 		select: {
-	// 			status: true,
-	// 			friend_id: true,
-	// 			user_id: true,
-	// 		}
-	// 	});
-	// 	console.log("found relations : ", relationship, user_id);
-	// 	if(relationship.length === 0)
-	// 		return "none";
-	// 	else if(relationship[0].user_id === user_id && relationship[0].status !== "accepted")
-	// 		return "sent";
-	// 	else 
-	// 		return relationship[0].status;
-	// }
+	async getRelationship(friend_username: string, user_id: number) {
+		const friend_id = await this.getUserId(friend_username);
+		const relationship = await this.prismaService.friendship.findMany({
+			where: { OR: [{ user_id: user_id, friend_id: friend_id }, { user_id: friend_id, friend_id: user_id}] },
+			select: {
+				status: true,
+				friend_id: true,
+				user_id: true,
+			}
+		});
+		console.log("found relations : ", relationship, user_id);
+		if(relationship.length === 0)
+			return "none";
+		else if(relationship[0].user_id === user_id && relationship[0].status !== "accepted")
+			return "sent";
+		else 
+			return relationship[0].status;
+	}
 }

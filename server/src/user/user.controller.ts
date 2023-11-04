@@ -54,10 +54,10 @@ export class UserController {
         return (profile)
     }
 
-	// @Get("friends/relationship/:username")
-	// async getRelationship(@Req() req: any, @Param("username") username: string) {
-	// 	const relationship = await this.userService.getRelationship(username, req.user.userID);
-	// 	console.log("rel response : ", req.user);
-	// 	return ({relationship: relationship});
-	// }
+	@Get("friends/relationship/:username")
+	async getRelationship(@Req() req: any, @Param("username") username: string) {
+		const relationship = await this.userService.getRelationship(username, req.user.userID);
+		console.log("rel response : ", req.user);
+		return ({relationship: relationship});
+	}
 }
