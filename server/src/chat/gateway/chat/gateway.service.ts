@@ -45,7 +45,6 @@ export class GatewayService {
             await this.joinPrevRooms(socket, payload.id)
 
         } catch (error) {
-            console.log(error)
             this.UnauthorizedDisconnect(socket)
             return 
         }

@@ -48,11 +48,12 @@ export class ChatService {
     /*
     */
     async CreateNewChatRoom(socket: Socket, payload: createRoomDTO) {
-        const newRoom = await this.roomService.createChatRoom(socket.data.user, payload);
-        if (!newRoom) {
+        const duplicate_name = await this.roomService.getRoomByName(payload.roomName)
+        if (duplicate_name) {
             this.gatewayService.emitError(socket, "Room With Same Name Already exits")
-            return undefined;
+            return 
         }
+        const newRoom = await this.roomService.createChatRoom(socket.data.user, payload);
         socket.emit("RoomCreated", newRoom)
         socket.join(newRoom.name)
     }
@@ -179,6 +180,10 @@ export class ChatService {
         const user = socket.data.user;
         // check user is in room 
         const userIsMember = await this.roomService.selectUserRoom(user.id, roomName)
+        if (!userIsMember) {
+            socket.emit("Error", "Room Not found")
+            return;
+        }
 
         const room = await this.roomService.getRoomByName(roomName)
         // check if user is muted in chanel
@@ -194,6 +199,7 @@ export class ChatService {
                 time: Date()
             }
             socket.to(roomName).emit("message", message)
+            this.roomService.saveMessageInDB(user.id, room.id, payload.message)
         }
         else {
             this.gatewayService.emitError(socket, "Error for Now")
@@ -224,11 +230,6 @@ export class ChatService {
         const room = await this.roomService.getRoomByName(payload.roomName)
         const user = socket.data.user
         try {
-            // const user_is_admin = await this.roomService.IsRoomAdmin(user.id, room.id)
-            // if (!user_is_admin) {
-            //     this.gatewayService.emitError(socket, "Unauthorized")
-            //     return
-            // }
             const payload_administer = { 
                 userId: user.id,
                 roomId: room.id,
@@ -238,13 +239,6 @@ export class ChatService {
                 await this.roomService.removeUserFromRoom(payload.userId, room.id)
                 socket.to(payload.roomName).emit("message", `${payload.user} kicked from room`)
             }
-            // const member_is_admin = await this.roomService.IsRoomAdmin(payload.userId, room.id)
-            // if (!member_is_admin) {
-            //     await this.roomService.removeUserFromRoom(payload.userId, room.id)
-            //     socket.to(payload.roomName).emit("message", `${payload.user} kicked from room`)
-            // } else {
-            //     this.gatewayService.emitError(socket, "Unauthorized")
-            // }
         }
         catch (error) {
             console.log(error)

@@ -29,8 +29,9 @@ model user {
   lastSeen       String
   avatar         String?
 
-  ownedRooms   ChatRoom[]
-  memberRooms  RoomMembers[]
+  ownedRooms  ChatRoom[]
+  memberRooms RoomMembers[]
+  messages    Messages[]
   //mutedInRooms RoomMute[]
 
   sent_friendship     Friendship[] @relation("SentFriendShip")
@@ -46,36 +47,39 @@ model ChatRoom {
   password   String?
   roomType   RoomType @default(PUBLIC)
 
-  ownerRef       user          @relation(fields: [owner], references: [id])
-  membersRef     RoomMembers[]
+  ownerRef   user          @relation(fields: [owner], references: [id])
+  membersRef RoomMembers[]
+  messages   Messages[]
   //mutedUserRef   RoomMute[]
 }
 
+model Messages {
+  id         Int      @id @unique @default(autoincrement())
+  sender_id  Int
+  created_at DateTime @default(now())
+  message    String
+
+  // message is either sent to user or a room
+  recepient_id Int?
+  chatRom_id   Int?
+
+  recepient user?     @relation(fields: [recepient_id], references: [id])
+  chatroom  ChatRoom? @relation(fields: [chatRom_id], references: [id])
+}
+
 model RoomMembers {
-  id           Int     @id @unique @default(autoincrement())
-  userId       Int
-  roomId       Int
-  userBanned   Boolean @default(false)
-  isAdmin      Boolean @default(false)
-  mutedUntile  BigInt?
+  id          Int     @id @unique @default(autoincrement())
+  userId      Int
+  roomId      Int
+  userBanned  Boolean @default(false)
+  isAdmin     Boolean @default(false)
+  mutedUntile BigInt?
 
   user user     @relation(fields: [userId], references: [id], onDelete: Cascade)
   room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   @@unique([userId, roomId])
 }
-
-// model RoomMute {
-//   id           Int      @id @unique @default(autoincrement())
-//   muted_at     DateTime @default(now())
-//   muteDuration BigInt   // mute duration on minutes
-//   userId       Int
-//   roomId       Int
-//   user         user     @relation(fields: [userId], references: [id])
-//   room         ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
-
-//   @@unique([userId, roomId])
-// }
 
 model Friendship {
   friendship_id Int    @unique @default(autoincrement())

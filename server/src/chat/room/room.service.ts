@@ -44,7 +44,7 @@ export class RoomService {
             return (newRoom)
 
         } catch (error) {
-            console.log(error)
+            //console.log(error)
             return (undefined)
         }
     }
@@ -320,5 +320,19 @@ export class RoomService {
             }
         });
         return (entry)
+    }
+    // assosiate user message with room 
+    async saveMessageInDB(userId:number , roomId: number, message: string) { 
+        const messageId = await this.prismaService.messages.create({
+            data: {
+                sender_id: userId,
+                chatRom_id: roomId,
+                message: message
+            },
+            select: {
+                id: true
+            }
+        })
+        return (messageId)
     }
 }
