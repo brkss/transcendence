@@ -6,6 +6,13 @@ export class UserService {
     constructor(private prismaService: PrismaService) {
 
 	}
+	private make_error(error: string) { 
+		const response = {
+			success: false,
+			error: error, 
+		}
+		return (response)
+	}
 
     findUserUnique(query: any) {
         try {
@@ -105,18 +112,18 @@ export class UserService {
         return (false)
     }
 
-    async addFriend(current_user: string, friend_user: string) {
-        const userId = await this.getUserId(current_user)
+    async addFriend(userId: number, friend_user: string) {
+        //const userId = await this.getUserId(current_user)
         const friendId = await this.getUserId(friend_user)
-        if (userId == friendId) {
-            return ({ error: `Failed to send request to '${friend_user}'` })
-        }
         if (!friendId) {
-            return ({ error: `User '${friend_user}' Does not exits` })
+            return (this.make_error(`User '${friend_user}' Does not exits`))
+        }
+		if (userId == friendId) {
+			return (this.make_error(`Failed to send request to '${friend_user}'` ))
         }
         const isFriend = await this.alreadyFriend(userId, friendId)
         if (isFriend) {
-            return ({ error: `User '${friend_user}' Already a Friend :)` })
+            return (this.make_error(`User '${friend_user}' Already a Friend :)` ))
         }
         // check if friend already sent a request to the user ! to avoid duplicated request !
 		const requests = await this.prismaService.friendship.findMany({
@@ -132,7 +139,7 @@ export class UserService {
 			}
 		});
 		if(requests.length > 0)
-			return { error: "Request Already sent" }
+			return (this.make_error("Request Already sent"))
 
 		try {
             await this.prismaService.friendship.create({
@@ -144,7 +151,7 @@ export class UserService {
             return ({ success: `Friend request sent to ${friend_user}` })
         }
         catch {
-            return ({ error: `Friend request Already sent to ${friend_user}` })
+            return (this.make_error(`Friend request Already sent to ${friend_user}`))
         }
     }
     async friendRequestExists(userId: number, friendId: number): Promise<boolean> {
@@ -236,7 +243,8 @@ export class UserService {
 		})
 		//const lastSeen: bigint = BigInt(Date.now()) - profile.lastSeen
 		if (profile == null)
-		return ({error: `User ${username} Not found`})
+			return (this.make_error(`User ${username} Not found`))
+
 		let user_profile : UserProfile = profile;
 		const ms_passed = Date.parse(Date()) - Date.parse(profile.lastSeen)
 		user_profile.online = (ms_passed * 6000 < 3) // offline if mins_passed  3
@@ -244,10 +252,10 @@ export class UserService {
 		return (profile) // profile is const WTF!
 	}
 
-	async updateLastLogin(username: string) {
+	async updateLastLogin(user_id: number) {
 		await this.prismaService.user.update({
 			where: {
-				username: username
+				id: user_id
 			},
 			data: {
 				lastSeen: Date()
@@ -292,38 +300,40 @@ export class UserService {
 		return users;
 	}
 
-	async getFriendRequests(username: string){
-		const userId = await this.getUserId(username);
-		const requests = await this.prismaService.friendship.findMany({
-			where: { status: "accepted", OR: [ {user_id: userId}, {friend_id: userId} ]},
-			select: {
-				friend: {
-					select: { id: true, username: true, email: true}
-				},
-				user: {
-					select: { id: true, username: true, email: true}
-				}
-			},
-		})
-	}
+	// TODO: emit this data over a socket connection on every request !!!
+	// async getFriendRequests(username: string){
+	// 	const userId = await this.getUserId(username);
+	// 	const requests = await this.prismaService.friendship.findMany({
+	// 		where: { status: "accepted", OR: [ {user_id: userId}, {friend_id: userId} ]},
+	// 		select: {
+	// 			friend: {
+	// 				select: { id: true, username: true, email: true}
+	// 			},
+	// 			user: {
+	// 				select: { id: true, username: true, email: true}
+	// 			}
+	// 		},
+	// 	})
+	// }
+	
 
 	// this function get the relation ship between two users; 
-	async getRelationship(friend_username: string, user_id: number) {
-		const friend_id = await this.getUserId(friend_username);
-		const relationship = await this.prismaService.friendship.findMany({
-			where: { OR: [{ user_id: user_id, friend_id: friend_id }, { user_id: friend_id, friend_id: user_id}] },
-			select: {
-				status: true,
-				friend_id: true,
-				user_id: true,
-			}
-		});
-		console.log("foudn relations : ", relationship, user_id);
-		if(relationship.length === 0)
-			return "none";
-		else if(relationship[0].user_id === user_id && relationship[0].status !== "accepted")
-			return "sent";
-		else 
-			return relationship[0].status;
-	}
+	// async getRelationship(friend_username: string, user_id: number) {
+	// 	const friend_id = await this.getUserId(friend_username);
+	// 	const relationship = await this.prismaService.friendship.findMany({
+	// 		where: { OR: [{ user_id: user_id, friend_id: friend_id }, { user_id: friend_id, friend_id: user_id}] },
+	// 		select: {
+	// 			status: true,
+	// 			friend_id: true,
+	// 			user_id: true,
+	// 		}
+	// 	});
+	// 	console.log("found relations : ", relationship, user_id);
+	// 	if(relationship.length === 0)
+	// 		return "none";
+	// 	else if(relationship[0].user_id === user_id && relationship[0].status !== "accepted")
+	// 		return "sent";
+	// 	else 
+	// 		return relationship[0].status;
+	// }
 }

@@ -1,7 +1,8 @@
 import { UserService } from "./user.service";
-import {Controller, Get, Param, Req, UseGuards, Post} from "@nestjs/common"
+import {Controller, Get, Param, Req, UseGuards, Post, Body} from "@nestjs/common"
 import { JwtAuth } from "src/auth/guards/jwtauth.guard";
 import { Request } from 'express'
+import { addFriendDTO } from "./user.dto";
 
 @Controller('user')
 @UseGuards(JwtAuth)
@@ -20,12 +21,9 @@ export class UserController {
 	}
 
 	@Post('friends/add')
-    async addFriend(@Req() req: any) {
-		const { username } = req.body;
-		if(!username)
-			return { error: "Invalid username" }
-        const current_username: string = req.user.username;
-        const status = await this.userService.addFriend(current_username, username)
+    async addFriend(@Req() req, @Body() body: addFriendDTO) {
+        const user_id: number = req.user.userID
+        const status = await this.userService.addFriend(user_id, req.body.username)
         return status
     }
 
@@ -37,11 +35,13 @@ export class UserController {
         const current_username: string = req.user.username;
         return (await this.userService.acceptFriend(current_username, username))
     }
+
     @Get('friends/requests')
     async getAllRequests(@Req() req: any) {
         const current_username: string = req.user.username
         return (await this.userService.getAllRequests(current_username))
     }
+
     @Get('friends/all')
     async getAllFriends(@Req() req: any) {
         const current_username: string = req.user.username;
@@ -54,10 +54,10 @@ export class UserController {
         return (profile)
     }
 
-	@Get("friends/relationship/:username")
-	async getRelationship(@Req() req: any, @Param("username") username: string) {
-		const relationship = await this.userService.getRelationship(username, req.user.userID);
-		console.log("rel response : ", req.user);
-		return ({relationship: relationship});
-	}
+	// @Get("friends/relationship/:username")
+	// async getRelationship(@Req() req: any, @Param("username") username: string) {
+	// 	const relationship = await this.userService.getRelationship(username, req.user.userID);
+	// 	console.log("rel response : ", req.user);
+	// 	return ({relationship: relationship});
+	// }
 }

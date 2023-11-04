@@ -28,7 +28,7 @@ export class JwtAuth implements CanActivate {
             ) 
             if (payload.is2faToken === false) {
                 request.user = payload
-                await this.userService.updateLastLogin(payload.username)
+                await this.userService.updateLastLogin(payload.userID)
                 return (true)
             }
             return (true)
