@@ -98,8 +98,8 @@ export class UserService {
             where: {
                 status: "accepted",
                 OR: [
-                    { user_id: user_id },
-                    { friend_id: friend_id }
+                    { user_id: user_id, friend_id: friend_id },
+                    { friend_id: user_id, user_id: friend_id }
                 ]
             },
             select: {
@@ -155,11 +155,16 @@ export class UserService {
         }
     }
     async friendRequestExists(userId: number, friendId: number): Promise<boolean> {
-        const friendship = await this.prismaService.friendship.findMany({
-            where: { user_id: friendId, friend_id: userId, status: "pending" },
+        const friendship = await this.prismaService.friendship.findUnique({
+            where: { 
+				user_id_friend_id: {
+					user_id: friendId, friend_id: userId
+				}
+				, status: "pending" },
             select: { status: true }
         })
-        if (friendship.length) // this crap should be updated 
+		console.log(friendship)
+        if (friendship)
             return (true)
         return (false)
     }
@@ -203,6 +208,30 @@ export class UserService {
 			return ({error: "Friend Requst Not Found"})
 		}
 	}
+	async regectFriend(current_user: string, friend_username: string) {
+		const userId = await  this.getUserId(current_user) 
+		const friendId = await  this.getUserId(friend_username)
+		if (!friendId){ 
+			return ({error: `User ${friend_username} Does not exits`})
+		}
+		const exists: boolean = await this.friendRequestExists(userId, friendId)
+		if (exists) {
+			await this.prismaService.friendship.delete({
+				where : {
+					status: "pending",
+					user_id_friend_id: {
+						user_id: friendId, friend_id: userId
+					}
+				}
+			})
+			return ({success: "Request Rejected"})
+		}
+		else {
+			return ({error: "Friend Requst Not Found"})
+		}
+	}
+
+
 
 	async getAllFriends(username: string) {
 		const userId = await this.getUserId(username)

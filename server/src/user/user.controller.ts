@@ -35,6 +35,14 @@ export class UserController {
         const current_username: string = req.user.username;
         return (await this.userService.acceptFriend(current_username, username))
     }
+    @Post('friends/reject')
+    async rejectFriend(@Req() req: any) {
+		const { username } = req.body;
+		if(!username)
+			return { error: "Invalid username"} 
+        const current_username: string = req.user.username;
+        return (await this.userService.regectFriend(current_username, username))
+    }
 
     @Get('friends/requests')
     async getAllRequests(@Req() req: any) {
