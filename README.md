@@ -7,5 +7,3 @@
 | ------------- | ------------- |
 | Server  | Backend  |
 | Web  | Frontend  |
-
-
