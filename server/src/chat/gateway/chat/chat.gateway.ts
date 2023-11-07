@@ -78,6 +78,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.chatService.joinChatRoom(socket, payload)
   }
 
+  @SubscribeMessage('connectRoom')
+  async joinChat(socket: Socket, payload: JoinRoomDTO) {
+    await this.chatService.connectToChat(socket, payload)
+  }
+
   @SubscribeMessage('leaveRoom')
   async leaveRoom(socket: Socket, payload: LeaveRoomDTO) {
     await this.chatService.leaveChatRoom(socket, payload)

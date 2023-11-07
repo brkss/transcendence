@@ -1,7 +1,10 @@
-
  #-----------------------------------------------------------------------------------
-CLIENT_SECRET="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"
-CLIENT_ID="u-s4t2ud-fcbe44334ede5a9192e0a95fe7322e3444763a87293b5ece6ca8d1ed5b0893f0"
+#CLIENT_SECRET="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"
+#CLIENT_ID="u-s4t2ud-fcbe44334ede5a9192e0a95fe7322e3444763a87293b5ece6ca8d1ed5b0893f0"
+
+CLIENT_SECRET="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"
+CLIENT_ID="u-s4t2ud-bb033512a8bc34291f8e328c59761989db6407e723b3b7e2ff5b4cdb7073314d"
+
 CALLBACK_URL="http://localhost:8000/auth/sync"
 AUTHORIZATION_URL="https://api.intra.42.fr/oauth/authorize"
 TOKEN_URL="https://api.intra.42.fr/oauth/token"
@@ -14,4 +17,3 @@ JWT_REFRESH_SECRET="asdfljldskfjsdlakfajlsdkfjldskjglasdsadkfhaksdjfhdsaf"
 
 #show change to prisma/.env
 db_url="postgres://admin:supersecurepassword@localhost:5432/postgres-db"
-

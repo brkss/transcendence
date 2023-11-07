@@ -13,14 +13,22 @@ export class RoomService {
             roomId: room_id,
             isAdmin: is_admin
         }
-        console.log(data)
-        await this.prismaService.roomMembers.create({
+        try {
+            const roomId = await this.prismaService.roomMembers.create({
             data: {
                 userId: user_id,
                 roomId: room_id,
                 isAdmin: is_admin
             },
-        })
+            select: {
+                id: true
+            }
+            })
+            return (roomId)
+
+        }catch (error) {
+            return null
+        }
     }
     async createChatRoom(user: any, roominfo: any) {
         try {
@@ -44,7 +52,7 @@ export class RoomService {
             return (newRoom)
 
         } catch (error) {
-            //console.log(error)
+            console.log(error)
             return (undefined)
         }
     }
@@ -326,7 +334,7 @@ export class RoomService {
     async saveMessageInDB(data: any) { 
         const messageId = await this.prismaService.messages.create({
             data: {
-                sender_id: data.userId,
+                sender_username : data.username,
                 chatRom_id: data.roomId,
                 recepient_id: data.recepient_id,
                 message: data.message
@@ -336,5 +344,17 @@ export class RoomService {
             }
         })
         return (messageId)
+    }
+    async fetch_room_messages(roomId: number) {
+        const chat_messages = await this.prismaService.messages.findMany({
+            where:{
+                chatRom_id: roomId
+            },
+            select: {
+                sender_username: true,
+                message: true,
+                created_at: true
+            }
+        })
     }
 }

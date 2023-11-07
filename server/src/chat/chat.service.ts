@@ -143,14 +143,38 @@ export class ChatService {
                 return
             }
             // adding user to RoomMember table
-            await this.roomService.addMemberTORoom(user.id, room.id, false)
-            socket.emit("message", "Welcome to Ch4t!")
-
+            const roomId = await this.roomService.addMemberTORoom(user.id, room.id, false)
+            if (roomId == null) {
+                this.gatewayService.emitError(socket, "Already Joined !!")
+                return
+            }
+            socket.emit("message", "Welcome to Room!")
+            // join chat 
+            this.connectToChat(socket, payload)
             // getting all room members
+        }
+        catch (error) {
+            console.log(error)
+            this.gatewayService.emitError(socket, "Error Cant't join Room")
+        }
+    }
+    async connectToChat(socket: Socket, payload: JoinRoomDTO) {
+        const user = socket.data.user
+        const roomName = payload.roomName
+        try { 
+            const room = await this.roomService.getRoomByName(roomName)
+            const is_banned = await this.roomService.isBannedFromRoom(user.id, room.id)
+            if (is_banned) {
+                this.gatewayService.emitError(socket, "Unauthorized")
+                return
+            }
+            socket.emit("message", "Welcome to Ch4t!")
             const roomMembers = await this.roomService.getRoomMembers(room)
             socket.emit("users", roomMembers)
             socket.to(roomName).emit("message", `${user.username} Joined Ch4t!`)
-            socket.join(payload.roomName)
+            // load chat messages
+            const chat_messages = await this.roomService.fetch_room_messages(room.id)
+            socket.join(roomName)
         }
         catch (error) {
             console.log(error)
