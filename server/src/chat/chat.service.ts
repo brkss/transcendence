@@ -136,6 +136,10 @@ export class ChatService {
         const roomName = payload.roomName
         try {
             const room = await this.roomService.getRoomByName(roomName)
+            if (room == undefined) {
+                this.gatewayService.emitError(socket, "Error Cant't join Room")
+                return 
+            }
             const authorized = this.verifyAccess(room, payload)
             const is_banned = await this.roomService.isBannedFromRoom(user.id, room.id)
             if (!authorized || is_banned) {
@@ -158,6 +162,22 @@ export class ChatService {
             this.gatewayService.emitError(socket, "Error Cant't join Room")
         }
     }
+    /*
+        this is different from leaving the room 
+        leave room deletes the user entry in roomMember table
+    */
+    async leaveChat(socket: Socket, payload: JoinRoomDTO) {
+        const roomName = payload.roomName
+        const room = await this.roomService.getRoomByName(roomName); 
+        if (room == undefined) {
+            this.gatewayService.emitError(socket, "Error Room not found!")
+            return
+        }
+        // leave socket room
+        // get no more messages
+        socket.leave(roomName)
+    }
+
     async connectToChat(socket: Socket, payload: JoinRoomDTO) {
         const user = socket.data.user
         const roomName = payload.roomName
@@ -174,6 +194,7 @@ export class ChatService {
             socket.to(roomName).emit("message", `${user.username} Joined Ch4t!`)
             // load chat messages
             const chat_messages = await this.roomService.fetch_room_messages(room.id)
+            socket.emit("history", chat_messages)
             socket.join(roomName)
         }
         catch (error) {
@@ -228,7 +249,8 @@ export class ChatService {
             }
             socket.to(roomName).emit("message", message)
             const  data =  {
-                userId : user.id,
+                userId : user.id, // this no longer needed!
+                sender_username: user.username,
                 roomId: room.id,
                 recepient_id: null,
                 message: payload.message

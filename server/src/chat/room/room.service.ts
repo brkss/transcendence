@@ -334,7 +334,7 @@ export class RoomService {
     async saveMessageInDB(data: any) { 
         const messageId = await this.prismaService.messages.create({
             data: {
-                sender_username : data.username,
+                sender_username : data.sender_username,
                 chatRom_id: data.roomId,
                 recepient_id: data.recepient_id,
                 message: data.message
@@ -356,5 +356,6 @@ export class RoomService {
                 created_at: true
             }
         })
+        return (chat_messages)
     }
 }
