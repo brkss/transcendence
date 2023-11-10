@@ -221,6 +221,23 @@ export class RoomService {
         return (all_rooms.map((room) => (room.room)))
 
     }
+    async getAllUserChats(userId: number) {
+        const all_chats = await this.prismaService.userChats.findMany({
+            where: {
+              user_id: userId  
+            },
+            select: {
+                dest: {
+                    select: {
+                        id: true,
+                        username: true,
+                        avatar: true,
+                    }
+                }
+            }
+        })
+        return (all_chats)
+    }
     async IsRoomAdmin(userId: number, roomId: number) {
         const isadmin = await this.prismaService.roomMembers.findUnique({
             where: {
@@ -334,6 +351,7 @@ export class RoomService {
     async saveMessageInDB(data: any) { 
         const messageId = await this.prismaService.messages.create({
             data: {
+                sender_id: data.userId,
                 sender_username : data.sender_username,
                 chatRom_id: data.roomId,
                 recepient_id: data.recepient_id,
@@ -344,6 +362,24 @@ export class RoomService {
             }
         })
         return (messageId)
+    }
+    /*
+        Intended to work on first time chat
+        Not the best Practice ask (web-devs)
+    */
+    async saveUserInChats(userId: number, recepient_id: number) {
+        try {
+            // log should appear in both ends
+            // create two entries for better fetching 
+            await this.prismaService.userChats.createMany({
+                data: [
+                {   user_id: userId, recepient_id: recepient_id },
+                {   user_id: recepient_id, recepient_id: userId }
+            ]
+            })
+        }catch(error) {
+            // not first time?. ignore it
+        }
     }
     async fetch_room_messages(roomId: number) {
         const chat_messages = await this.prismaService.messages.findMany({

@@ -274,7 +274,9 @@ export class ChatService {
                 message: payload.message,
                 time: Date()
             }
+            socket.join(String(recepient_id))
             socket.to(String(recepient_id)).emit("PrivateMessage", message)
+            socket.leave(String(recepient_id))
             const  data =  {
                 userId : user.id,
                 roomId: null,
@@ -282,6 +284,8 @@ export class ChatService {
                 message: payload.message
             }
             this.roomService.saveMessageInDB(data) // this should be in chat.service.ts
+            // this saves user in chat history
+            this.roomService.saveUserInChats(user.id, recepient_id)
         }else {
             socket.emit("Error", "User Not found")
         }
@@ -298,6 +302,12 @@ export class ChatService {
         const user = socket.data.user
         const all_rooms = await this.roomService.getRoomsOfUser(user.id)
         socket.emit("rooms", all_rooms)
+    }
+
+    async getMyChats(socket: Socket) {
+        const user = socket.data.user
+        const all_chats = await this.roomService.getAllUserChats(user.id)
+
     }
 
     /*
