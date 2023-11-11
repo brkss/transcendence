@@ -18,10 +18,11 @@ import { UseFilters, UsePipes, ValidationPipe } from "@nestjs/common"
 @WebSocketGateway({ cors: true })
 @UseFilters(ValidationExceptionFilter)
 @UsePipes(new ValidationPipe({
-  //disableErrorMessages: true,
+  disableErrorMessages: false,
   whitelist: true,
   forbidNonWhitelisted: true
 }))
+
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(
