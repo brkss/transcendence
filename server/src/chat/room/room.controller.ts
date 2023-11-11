@@ -47,7 +47,7 @@ export class RoomController {
   
     @Post("users/setadmin")
     async setRoomAdmin(@Req() request: any, @Body() body: setAdminDTO) {
-      await this.roomService.setAdmin(request.user, body)
+      return (await this.roomService.setAdmin(request.user, body))
     }
 
     @Post("/users/mute")

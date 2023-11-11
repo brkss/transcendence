@@ -333,7 +333,10 @@ export class RoomService {
                 isAdmin: true
             }
         })
-        return (isadmin?.isAdmin)
+        console.log("is admin ? ",isadmin)
+        if (isadmin == null)
+            return (false)
+        return (isadmin.isAdmin)
     }
     async isRoomMember(roomId: number, userId: number) {
         const is_member = await this.prismaService.roomMembers.findUnique({
@@ -674,6 +677,9 @@ export class RoomService {
     */
     async setAdmin(user: any, payload: setAdminDTO) {
         const room = await this.getRoomById(payload.room_id)
+        if (room == undefined) {
+            throw new BadRequestException("room not found")
+        }
         const administrate_payload: AdministrateDTO = {
             userId: user.id,
             roomId: room.id,
@@ -681,6 +687,10 @@ export class RoomService {
         }
         if (! await this.canAdminstrate(administrate_payload)) {
             throw new UnauthorizedException()
+        }
+        const is_member = await this.isRoomMember(room.id, payload.user_id)
+        if (!is_member) {
+            throw new BadRequestException("User is not room member")
         }
         if (!await this.addRoomAdmin(payload.user_id, room.id)) {
             throw new BadRequestException()
