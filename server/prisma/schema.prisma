@@ -31,6 +31,7 @@ model user {
 
   ownedRooms  ChatRoom[]
   memberRooms RoomMembers[]
+  bannedRooms RoomBan[]
   messages    Messages[]
   //mutedInRooms RoomMute[]
 
@@ -50,6 +51,7 @@ model ChatRoom {
 
   ownerRef   user          @relation(fields: [owner], references: [id])
   membersRef RoomMembers[]
+  bannedUsers RoomBan[]
   messages   Messages[]
   //mutedUserRef   RoomMute[]
 }
@@ -68,6 +70,7 @@ model Messages {
   recepient user?     @relation(fields: [recepient_id], references: [id])
   chatroom  ChatRoom? @relation(fields: [chatRom_id], references: [id])
 }
+
 model UserChats {
   id Int @id @unique @default(autoincrement())
   user_id Int
@@ -77,11 +80,20 @@ model UserChats {
   @@unique([user_id, recepient_id])
 }
 
+model RoomBan {
+  id Int @id @unique @default(autoincrement())
+  user_id Int
+  room_id Int 
+
+  banned_user user @relation(fields: [user_id], references: [id])
+  chat_room   ChatRoom @relation(fields: [room_id], references: [id])
+  @@unique([user_id, room_id])
+}
 model RoomMembers {
   id          Int     @id @unique @default(autoincrement())
   userId      Int
   roomId      Int
-  userBanned  Boolean @default(false)
+  userBanned  Boolean @default(false) // no needed!! 
   isAdmin     Boolean @default(false)
   mutedUntile BigInt?
 

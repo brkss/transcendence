@@ -37,12 +37,12 @@ export class RoomController {
   
     @Post("users/ban")
     async banUserFromRoom(@Req() request: any, @Body() body: BanDTO) {
-      await this.roomService.banRoomUser(request.user, body)
+      return (await this.roomService.banRoomUser(request.user, body))
     }
   
     @Post("users/unban")
     async UnbanUserFromRoom(@Req() request: any, @Body() body: kickDTO) {
-      await this.roomService.UnbanUser(request.user, body)
+      return (await this.roomService.UnbanUser(request.user, body))
     }
   
     @Post("users/setadmin")

@@ -211,43 +211,42 @@ export class RoomService {
     }
     async banUserFromRoom(userId: number, roomId: number) {
         // may throw on duplicate entries 
-        const user = await this.prismaService.roomMembers.update({
-            where: {
-                userBanned: false,
-                userId_roomId: {
-                    userId: userId,
-                    roomId: roomId
+        try {
+            const user = await this.prismaService.roomBan.create({
+                data: {
+                    user_id: userId,
+                    room_id: roomId
+                },
+                select: {
+                    user_id: true
                 }
-            },
-            data: {
-                userBanned: true
-            },
-            select: {
-                userId: true
-            }
-        })
-        if (user == null)
+            })
+        } catch (error) {
+            console.log(error)
             return (false)
+        }
         return (true)
     }
     async UnbanUserFromRoom(userId: number, roomId: number) {
         // may throw on duplicate entries 
-        const user = await this.prismaService.roomMembers.update({
-            where: {
-                userBanned: true,
-                userId_roomId: {
-                    userId: userId,
-                    roomId: roomId
+        try {
+
+            const user = await this.prismaService.roomBan.delete({
+                where: {
+                    user_id_room_id: {
+                        user_id: userId,
+                        room_id: roomId
+                    }
+                },
+                select: {
+                    user_id: true
                 }
-            },
-            data: {
-                userBanned: false
-            },
-            select: {
-                userId: true
-            }
-        })
-        return (user == null ? false : true)
+            })
+        }catch (error) {
+            console.log(error)
+            return (false)
+        }
+        return (true)
     }
 
     async deleteMemberFromRooms(userId: number) {
@@ -336,6 +335,20 @@ export class RoomService {
         })
         return (isadmin?.isAdmin)
     }
+    async isRoomMember(roomId: number, userId: number) {
+        const is_member = await this.prismaService.roomMembers.findUnique({
+            where: {
+                userId_roomId: {
+                    roomId: roomId,
+                    userId: userId
+                }
+            },
+            select: {
+                userId: true
+            }
+        })
+        return (is_member != null ? true : false)
+    }
     async addRoomAdmin(userId: number, roomId: number) {
         const user = await this.prismaService.roomMembers.update({
             where: {
@@ -354,19 +367,19 @@ export class RoomService {
         return (user == null ? false : true)
     }
     async isBannedFromRoom(userId: number, roomId: number) {
-        const ban_id = await this.prismaService.roomMembers.findUnique({
+        console.log("is user banned?:", "userId:", userId, "roomId", roomId)
+        const ban_id = await this.prismaService.roomBan.findUnique({
             where: {
-                userBanned: true,
-                userId_roomId: {
-                    roomId: roomId,
-                    userId: userId
+                user_id_room_id: {
+                    room_id: roomId,
+                    user_id: userId
                 },
             },
             select: {
                 id: true
             }
         })
-        console.log(ban_id)
+        console.log("badn id: ", ban_id)
         return (ban_id != null ? true : false)
     }
     async getAllBannedUsers(roomId: number) {
@@ -523,7 +536,7 @@ export class RoomService {
             throw new UnauthorizedException()
         }
         await this.deleteRoom(room_id);
-        const response = { 
+        const response = {
             status: "success",
             message: "room deleted successfully"
         }
@@ -546,7 +559,7 @@ export class RoomService {
         if (roomId == null) {
             throw new BadRequestException("User Already in room")
         }
-        const response = { 
+        const response = {
             status: "succcess",
             message: "user joined room"
         }
@@ -569,7 +582,7 @@ export class RoomService {
         //socket.to(room.b).emit("message", `${user.username} left Ch4t!`)
         //socket.emit("success", "Success")
         //socket.leave(room.name)
-        const response = { 
+        const response = {
             status: "success",
             message: "User out of room"
         }
@@ -584,7 +597,7 @@ export class RoomService {
     */
     async kickUserFromRoom(user: any, payload: kickDTO) {
         const room = await this.getRoomById(payload.room_id)
-        const payload_administer : AdministrateDTO = {
+        const payload_administer: AdministrateDTO = {
             userId: user.id,
             roomId: room.id,
             memberId: payload.user_id
@@ -603,21 +616,26 @@ export class RoomService {
 
     async banRoomUser(user: any, payload: BanDTO) {
         const room = await this.getRoomById(payload.room_id)
-        const is_banned = await this.isBannedFromRoom(user.id, room.id)
-        if (is_banned) {
-            throw new BadRequestException()
+        if (room == undefined) {
+            throw new BadRequestException("Room Not found")
         }
-        const administrate_payload : AdministrateDTO= {
+        const administrate_payload: AdministrateDTO = {
             userId: user.id,
             roomId: room.id,
             memberId: payload.user_id
         }
+        const is_membeer = await this.isRoomMember(room.id, payload.user_id)
+        if (! is_membeer) {
+            throw new UnauthorizedException()
+        }
         if (! await this.canAdminstrate(administrate_payload)) {
             throw new UnauthorizedException()
         }
-        if (! await this.banUserFromRoom(payload.user_id, room.id)) {
-            throw new BadRequestException("User not room member")
+        const is_banned = await this.isBannedFromRoom(payload.user_id, room.id)
+        if (is_banned) {
+            throw new BadRequestException("user may already be banned")
         }
+        await this.banUserFromRoom(payload.user_id, room.id)
         const resp = {
             status: "success",
             message: "User successfully banned from the room."
@@ -627,17 +645,16 @@ export class RoomService {
 
     async UnbanUser(user: any, payload: BanDTO) {
         const room = await this.getRoomById(payload.room_id)
-        const is_banned = await this.isBannedFromRoom(user.id, room.id)
+        const is_banned = await this.isBannedFromRoom(payload.user_id, room.id)
         if (!is_banned) {
-            throw new BadRequestException()
+            throw new BadRequestException("User my not be banned")
         }
 
-        const administrate_payload: AdministrateDTO= {
+        const administrate_payload: AdministrateDTO = {
             userId: user.id,
             roomId: room.id,
             memberId: payload.user_id
         }
-
         if (! await this.canAdminstrate(administrate_payload)) {
             throw new UnauthorizedException()
         }
@@ -657,7 +674,7 @@ export class RoomService {
     */
     async setAdmin(user: any, payload: setAdminDTO) {
         const room = await this.getRoomById(payload.room_id)
-        const administrate_payload : AdministrateDTO= {
+        const administrate_payload: AdministrateDTO = {
             userId: user.id,
             roomId: room.id,
             memberId: payload.user_id
@@ -680,7 +697,7 @@ export class RoomService {
     */
     async muteUser(user: any, payload: MuteUserDTO) {
         const room = await this.getRoomById(payload.room_id)
-        const operation_data : AdministrateDTO = {
+        const operation_data: AdministrateDTO = {
             userId: user.id,
             roomId: room.id,
             memberId: payload.user_id
@@ -705,7 +722,7 @@ export class RoomService {
             throw new BadRequestException()
         }
 
-        const operation_data : AdministrateDTO = {
+        const operation_data: AdministrateDTO = {
             userId: user.id,
             roomId: room.id,
             memberId: payload.user_id
