@@ -1,19 +1,8 @@
 import { UserService } from "./user.service";
-import {Controller, Get, Param, Req, UseGuards, Post, Body, BadRequestException} from "@nestjs/common"
+import {Controller, Get, Param, Req, UseGuards, Post, Body } from "@nestjs/common"
 import { JwtAuth } from "src/auth/guards/jwtauth.guard";
 import { Request } from 'express'
 import { addFriendDTO } from "./user.dto";
-
-import  {createRoomDTO,
-        JoinRoomDTO,
-        LeaveRoomDTO,
-        chatMessageDTO,
-        updateRoomDTO,
-        kickDTO,
-        setAdminDTO,
-        RoomDTO,
-        MuteUserDTO,
-        PrivateMessageDTO} from "src/chat/dtos/chat.dto"
 
 @Controller('user')
 @UseGuards(JwtAuth)

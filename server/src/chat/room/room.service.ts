@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { constrainedMemory } from "process";
 import { PrismaService } from "src/prisma/prisma.service";
-import { BanDTO, JoinRoomDTO, MuteUserDTO, RoomDTO, createRoomDTO, kickDTO, setAdminDTO, updateRoomDTO } from "../dtos/chat.dto";
+import { AdministrateDTO, BanDTO, JoinRoomDTO, MuteUserDTO, RoomDTO, createRoomDTO, kickDTO, setAdminDTO, updateRoomDTO } from "../dtos/chat.dto";
 
 @Injectable()
 export class RoomService {
@@ -15,7 +15,7 @@ export class RoomService {
             return (false)
         if (room.roomType == "PROTECTED") {
             if (room.password != payload.password) {
-                return (false)
+                throw new UnauthorizedException("Invalid Password")
             }
         }
         //either password correct or room is public
@@ -24,9 +24,10 @@ export class RoomService {
     /*
         Checks if User has admin access
         before administrating chanel
+        no need to check if user is a room member !!
     */
-    private async canAdminstrate(payload: any): Promise<boolean> {
-        const userId = payload.user_id
+    private async canAdminstrate(payload: AdministrateDTO): Promise<boolean> {
+        const userId = payload.userId
         const roomId = payload.roomId
         const memberId = payload.memberId
         const user_is_admin = await this.IsRoomAdmin(userId, roomId)
@@ -72,7 +73,7 @@ export class RoomService {
             return (true)
 
         } catch (error) {
-            console.log(error)
+            //console.log(error)
             return null
         }
     }
@@ -98,7 +99,7 @@ export class RoomService {
             return (newRoom)
 
         } catch (error) {
-            console.log(error)
+            //console.log(error)
             return (undefined)
         }
     }
@@ -522,6 +523,11 @@ export class RoomService {
             throw new UnauthorizedException()
         }
         await this.deleteRoom(room_id);
+        const response = { 
+            status: "success",
+            message: "room deleted successfully"
+        }
+        return (response)
         // 200 success!!
     }
 
@@ -540,6 +546,11 @@ export class RoomService {
         if (roomId == null) {
             throw new BadRequestException("User Already in room")
         }
+        const response = { 
+            status: "succcess",
+            message: "user joined room"
+        }
+        return (response)
         // PS : fallback recheck!
         //this.connectToChat(socket, payload)
     }
@@ -553,11 +564,16 @@ export class RoomService {
         // Delete user from member table
         const success = await this.removeUserFromRoom(user.id, room.id)
         if (!success) {
-            throw new BadRequestException()
+            throw new BadRequestException("User not room member")
         }
         //socket.to(room.b).emit("message", `${user.username} left Ch4t!`)
         //socket.emit("success", "Success")
         //socket.leave(room.name)
+        const response = { 
+            status: "success",
+            message: "User out of room"
+        }
+        return (response)
     }
     /*
         kick user from chat room
@@ -568,7 +584,7 @@ export class RoomService {
     */
     async kickUserFromRoom(user: any, payload: kickDTO) {
         const room = await this.getRoomById(payload.room_id)
-        const payload_administer = {
+        const payload_administer : AdministrateDTO = {
             userId: user.id,
             roomId: room.id,
             memberId: payload.user_id
@@ -591,7 +607,7 @@ export class RoomService {
         if (is_banned) {
             throw new BadRequestException()
         }
-        const administrate_payload = {
+        const administrate_payload : AdministrateDTO= {
             userId: user.id,
             roomId: room.id,
             memberId: payload.user_id
@@ -616,7 +632,7 @@ export class RoomService {
             throw new BadRequestException()
         }
 
-        const administrate_payload = {
+        const administrate_payload: AdministrateDTO= {
             userId: user.id,
             roomId: room.id,
             memberId: payload.user_id
@@ -641,7 +657,7 @@ export class RoomService {
     */
     async setAdmin(user: any, payload: setAdminDTO) {
         const room = await this.getRoomById(payload.room_id)
-        const administrate_payload = {
+        const administrate_payload : AdministrateDTO= {
             userId: user.id,
             roomId: room.id,
             memberId: payload.user_id
@@ -664,15 +680,15 @@ export class RoomService {
     */
     async muteUser(user: any, payload: MuteUserDTO) {
         const room = await this.getRoomById(payload.room_id)
-        const operation_data = {
+        const operation_data : AdministrateDTO = {
             userId: user.id,
             roomId: room.id,
-            memberId: payload.userId
+            memberId: payload.user_id
         }
         if (! await this.canAdminstrate(operation_data)) {
             throw new UnauthorizedException()
         }
-        if (!await this.muteUserFor(payload.userId, room.id, payload.muteDuration)) {
+        if (!await this.muteUserFor(payload.user_id, room.id, payload.muteDuration)) {
             throw new UnauthorizedException()
         }
         const resp = {
@@ -689,15 +705,15 @@ export class RoomService {
             throw new BadRequestException()
         }
 
-        const operation_data = {
+        const operation_data : AdministrateDTO = {
             userId: user.id,
             roomId: room.id,
-            memberId: payload.userId
+            memberId: payload.user_id
         }
         if (!await this.canAdminstrate(operation_data)) {
             throw new UnauthorizedException()
         }
-        if (await this.UnmuteUser(payload.userId, room.id)) {
+        if (await this.UnmuteUser(payload.user_id, room.id)) {
             throw new BadRequestException()
         }
         const resp = {

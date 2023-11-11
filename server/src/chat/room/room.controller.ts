@@ -12,7 +12,7 @@ export class RoomController {
 
     @Delete('/:room_id')
     async handleDeleteRoom(@Req() request: any, @Param('room_id', ParseIntPipe) room_id : number) {
-        await this.roomService.DeleteChatRoom(request.user, room_id)
+        return (await this.roomService.DeleteChatRoom(request.user, room_id))
     }
     @Post("add")
     async handleRoomCreate(@Req() request: any, @Body() body: createRoomDTO): Promise<any> {
@@ -24,11 +24,11 @@ export class RoomController {
     }
     @Post('join')
     async joinRoom(@Req() request: any, @Body() body:  JoinRoomDTO) {
-        await this.roomService.joinChatRoom(request.user, body)
+        return (await this.roomService.joinChatRoom(request.user, body))
     }
     @Post('/:id/leave')
     async leaveRoom(@Req() request: any, @Param('id', ParseIntPipe) room_id : number) {
-      await this.roomService.leaveChatRoom(request.user, room_id)
+      return (await this.roomService.leaveChatRoom(request.user, room_id))
     }
     @Post("users/kick")
     async kickUserFromRoom(@Req() request: any, @Body() body: kickDTO) {

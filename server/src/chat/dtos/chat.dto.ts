@@ -6,9 +6,16 @@ import {
     IsNumber,
     IsString,
     ValidateIf,
-    isNumber,
 
 } from 'class-validator'
+export class AdministrateDTO {
+    @IsNumber()
+    userId: number
+    @IsNumber()
+    roomId: number
+    @IsNumber()
+    memberId: number 
+}
 
 export class RoomDTO {
     @IsNumber()
@@ -41,7 +48,7 @@ export class MuteUserDTO extends RoomDTO {
     // user: string // not necessary! 
 
     @IsNumber()
-    userId: number
+    user_id: number
 
     // mute duration in seconds 
     @IsNumber()
@@ -73,7 +80,9 @@ export class JoinRoomDTO  extends RoomDTO {
     roomType: string
 
     @ValidateIf(object => object.roomType === 'PROTECTED')
-    password?: string
+    @IsNotEmpty()
+    @IsAscii()
+    password: string
 }
 
 export class LeaveRoomDTO extends RoomDTO {
