@@ -401,12 +401,7 @@ export class RoomService {
                 }
             }
         })
-        const res_payload = {
-            BannedUsers: {
-                banned_users
-            }
-        }
-        return (res_payload)
+        return (banned_users)
     }
 
     async muteUserFor(userId: number, roomId: number, muteDuration: number) {
