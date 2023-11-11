@@ -84,7 +84,7 @@ export class ChatService {
         const room_id: number = payload.room_id;
         const user = socket.data.user;
         // check user is in room 
-        const userIsMember = await this.roomService.selectUserRoom(user.id, room_id)
+        const userIsMember = await this.roomService.isRoomMember(room_id, user.id)
         if (!userIsMember) {
             socket.emit("Error", "Room Not found")
             return;

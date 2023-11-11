@@ -271,26 +271,26 @@ export class RoomService {
         })
         return (joinedRooms?.memberRooms)
     }
-    async selectUserRoom(userId: number, room_id: number) {
-        const room = await this.getRoomById(room_id)
-        if (room === undefined) {
-            return (false)
-        }
-        const userRoom = await this.prismaService.roomMembers.findMany({
-            where: {
-                userId: userId,
-                roomId: room.id,
-                userBanned: false
-            },
-            select: {
-                room: { select: { id: true } }
-            }
-        })
-        if (room_id === userRoom[0]?.room.id) {
-            return (true)
-        }
-        return (false)
-    }
+    // async selectUserRoom(userId: number, room_id: number) {
+    //     const room = await this.getRoomById(room_id)
+    //     if (room === undefined) {
+    //         return (false)
+    //     }
+    //     const userRoom = await this.prismaService.roomMembers.findMany({
+    //         where: {
+    //             userId: userId,
+    //             roomId: room.id,
+    //             userBanned: false
+    //         },
+    //         select: {
+    //             room: { select: { id: true } }
+    //         }
+    //     })
+    //     if (room_id === userRoom[0]?.room.id) {
+    //         return (true)
+    //     }
+    //     return (false)
+    // }
 
     async getRoomsOfUser(userId: number) {
         const all_rooms = await this.prismaService.roomMembers.findMany({
@@ -386,10 +386,29 @@ export class RoomService {
         return (ban_id != null ? true : false)
     }
     async getAllBannedUsers(roomId: number) {
+        const banned_users = await this.prismaService.roomBan.findMany({
+            where: {
+                room_id: roomId,
+            },
+            select: {
+                banned_user: {
+                    select: {
+                        id: true,
+                        username: true,
+                        avatar: true
+                    }
+                }
+            }
+        })
+        return (banned_users)
+    }
+    async getAlMutedUsers(roomId: number) {
         const banned_users = await this.prismaService.roomMembers.findMany({
             where: {
                 roomId: roomId,
-                userBanned: true
+                mutedUntile: {
+                    not: null
+                }
             },
             select: {
                 user: {
@@ -414,7 +433,7 @@ export class RoomService {
                 }
             },
             data: {
-                mutedUntile: mute_duration
+                mutedUntile: mute_duration,
             }
         })
         return (entry == null ? false : true)
@@ -428,7 +447,7 @@ export class RoomService {
                 }
             },
             data: {
-                mutedUntile: null
+                mutedUntile: null,
             }
         })
         return (entry)
@@ -767,4 +786,22 @@ export class RoomService {
         }
         return (response)
     }
+
+    async getMutedUsers(user: any, payload: RoomDTO) {
+        const room = await this.getRoomById(payload.room_id)
+        if (room == undefined) {
+            throw new BadRequestException("Room does not exist")
+        }
+        const user_is_admin = await this.IsRoomAdmin(user.id, room.id)
+        if (!user_is_admin) {
+            throw new UnauthorizedException()
+        }
+        const banned_users = await this.getAlMutedUsers(room.id)
+        const response = {
+            status: "success",
+            banndUsers: banned_users
+        }
+        return (response)
+    }
+
 }

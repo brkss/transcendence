@@ -64,6 +64,10 @@ export class RoomController {
     async getBannedUsers(@Req() request: any, @Body() body: RoomDTO) {
       return (await this.roomService.getBannedUsers(request.user, body))
     }
+    @Get("users/muted")
+    async getMutedUsers(@Req() request: any, @Body() body: RoomDTO) {
+      return (await this.roomService.getMutedUsers(request.user, body))
+    }
   
 }
    

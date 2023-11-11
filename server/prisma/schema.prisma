@@ -93,7 +93,7 @@ model RoomMembers {
   id          Int     @id @unique @default(autoincrement())
   userId      Int
   roomId      Int
-  userBanned  Boolean @default(false) // no needed!! 
+  //userMuted  Boolean @default(false) // no needed!! 
   isAdmin     Boolean @default(false)
   mutedUntile BigInt?
 
