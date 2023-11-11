@@ -295,7 +295,7 @@ export class ChatService {
     */
 
     async getAllRooms(socket: Socket) {
-        const user = socket.data.user
+        const user = socket.data.user;
         const all_rooms = await this.roomService.getRoomsOfUser(user.id)
         socket.emit("rooms", all_rooms)
     }

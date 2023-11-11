@@ -4,6 +4,9 @@ import { ChatFooter } from './Footer';
 import { ChatHeader } from './Header';
 import { ChatMessages } from './Messages'
 import { ChatSettings } from './Settings';
+import { API_URL } from '@/utils/constants';
+import { getAccessToken } from '@/utils/token';
+import { io } from 'socket.io-client';
 
 interface Props {
 	isOpen: boolean;
@@ -38,6 +41,37 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId}) => {
 		}, 1000);
 	};
 
+	let socket = io(API_URL, {
+		extraHeaders: {
+			Authorization: getAccessToken()
+		}
+	})
+
+	React.useEffect(() => {
+
+		socket.on('connect', () => {
+			console.log("socket connected");
+		})
+		
+		socket.connect()
+		socket.on("users", (data) => {
+			console.log("users chat data : ", data);
+		});
+
+		socket.on("history", (data) => {
+			console.log("history chat data : ", data);
+		});
+		
+
+		socket.emit("joinChat")
+		return () => {
+			socket.off("connect")
+			socket.off("users")
+			socket.off("history")
+			socket.disconnect()
+		}
+
+	}, [socket])
 	return (
 		<Drawer
 			isOpen={isOpen}

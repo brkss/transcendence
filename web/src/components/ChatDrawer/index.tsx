@@ -27,17 +27,6 @@ interface Props {
 	onClose: () => void;
 }
 
-const _tmp = [
-	{
-		name: "Chat 1",
-		isProtected: true,
-	},
-	{
-		name: "Chat 2",
-		isProtected: false,
-	}
-]
-
 export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 
 	const [rooms, setRooms] = React.useState<any[]>([]);
@@ -55,7 +44,6 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 	const _chat = useDisclosure();
 
 	React.useEffect(() => {
-
 		socket.connect()
 		
 		socket.on('connect', () => {
