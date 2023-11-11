@@ -702,6 +702,9 @@ export class RoomService {
     */
     async muteUser(user: any, payload: MuteUserDTO) {
         const room = await this.getRoomById(payload.room_id)
+        if (room == undefined) {
+            throw new BadRequestException("room not found")
+        }
         const operation_data: AdministrateDTO = {
             userId: user.id,
             roomId: room.id,

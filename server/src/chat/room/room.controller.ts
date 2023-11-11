@@ -52,10 +52,10 @@ export class RoomController {
 
     @Post("/users/mute")
     async muteUser(@Req() request: any, @Body() body: MuteUserDTO) {
-      await this.roomService.muteUser(request.user, body)
+      return (await this.roomService.muteUser(request.user, body))
     }
   
-    @Get("users/unmute")
+    @Post("users/unmute")
     async UnmuteUser(@Req() request: any, @Body() body: MuteUserDTO) {
       await this.roomService.Un_muteUser(request.user, body)
     }
