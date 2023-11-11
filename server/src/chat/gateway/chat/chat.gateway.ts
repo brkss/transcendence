@@ -4,16 +4,10 @@ import {OnGatewayConnection,
         WebSocketGateway,
         } from '@nestjs/websockets';
 
-import  {createRoomDTO,
+import  {
         JoinRoomDTO,
-        LeaveRoomDTO,
         chatMessageDTO,
-        updateRoomDTO,
-        kickDTO,
-        setAdminDTO,
-        RoomDTO,
-        MuteUserDTO,
-        PrivateMessageDTO} from "src/chat/dtos/chat.dto"
+        PrivateMessageDTO } from "src/chat/dtos/chat.dto"
     
 import { Socket } from 'socket.io'
 import { ValidationExceptionFilter } from "src/chat/dtos/chatvalidation.filer";
@@ -53,31 +47,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.leaveAllRoomsOnDisconnect(socket, user)
   }
 
-  @SubscribeMessage('allRooms')
-  async getAllUserRooms(socket: Socket) {
-    await this.chatService.getAllRooms(socket)
-  }
-
-  @SubscribeMessage('newRoom')
-  async handleRoomCreate(socket: Socket, payload: createRoomDTO): Promise<any> {
-    await  this.chatService.CreateNewChatRoom(socket, payload)
-  }
-
-  @SubscribeMessage('updateRoom')
-  async handleRoomUpdate(socket: Socket, payload: updateRoomDTO) {
-    await this.chatService.UpdateChatRoom(socket, payload)
-  }
-
-  @SubscribeMessage('deleteRoom')
-  async handleDeleteRoom(socket: Socket, payload: RoomDTO) {
-    await this.chatService.DeleteChatRoom(socket, payload)
-  }
-
-  @SubscribeMessage('joinRoom')
-  async joinRoom(socket: Socket, payload: JoinRoomDTO) {
-    await this.chatService.joinChatRoom(socket, payload)
-  }
-
   @SubscribeMessage('joinChat')
   async joinChat(socket: Socket, payload: JoinRoomDTO) {
     await this.chatService.connectToChat(socket, payload)
@@ -86,11 +55,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('leaveChat')
   async leavChat(socket: Socket, payload: JoinRoomDTO) {
     await this.chatService.leaveChat(socket, payload)
-  }
-
-  @SubscribeMessage('leaveRoom')
-  async leaveRoom(socket: Socket, payload: LeaveRoomDTO) {
-    await this.chatService.leaveChatRoom(socket, payload)
   }
 
   @SubscribeMessage('chatMessage')
@@ -108,38 +72,4 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.chatService.getMyChats(socket)
   }
 
-  @SubscribeMessage("kickUser")
-  async kickUserFromRoom(socket: Socket, payload: kickDTO) {
-    await this.chatService.kickUserFromRoom(socket, payload)
-  }
-
-  @SubscribeMessage("banUser")
-  async banUserFromRoom(socket: Socket, payload: kickDTO) {
-    await this.chatService.banUserFromRoom(socket, payload)
-  }
-
-  @SubscribeMessage("unbanUser")
-  async UnbanUserFromRoom(socket: Socket, payload: kickDTO) {
-    await this.chatService.UnbanUserFromRoom(socket, payload)
-  }
-
-  @SubscribeMessage("setAdmin")
-  async setRoomAdmin(socket: Socket, payload: setAdminDTO) {
-    await this.chatService.setAdmin(socket, payload)
-  }
-
-  @SubscribeMessage("bannedUsers")
-  async getBannedUsers(socket: Socket, payload: RoomDTO) {
-    await this.chatService.getBannedUsers(socket, payload)
-  }
-
-  @SubscribeMessage("muteUser")
-  async muteUser(socket: Socket, payload: MuteUserDTO) {
-    await this.chatService.muteUser(socket, payload)
-  }
-
-  @SubscribeMessage("unmuteUser")
-  async UnmuteUser(socket: Socket, payload: MuteUserDTO) {
-    await this.chatService.UnmuteUser(socket, payload)
-  }
 }

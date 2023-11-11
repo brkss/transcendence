@@ -10,6 +10,8 @@ import { TwofactorauController } from './auth/twofactorauth/twofactorauth.contro
 import { AuthService } from './auth/auth.service';
 import { UserController } from './user/user.controller';
 import { ChatModule } from './chat/chat.module';
+import { RoomController } from './chat/room/room.controller';
+import { RoomService } from './chat/room/room.service';
 
 @Module({
   imports: [AuthModule, PrismaModule, UserModule,
@@ -17,7 +19,7 @@ import { ChatModule } from './chat/chat.module';
             isGlobal:true
   }),
     ChatModule],
-  controllers: [AppController, TwofactorauController, UserController],
-  providers: [AppService, AuthService, TwofactorauthService],
+  controllers: [AppController, TwofactorauController, UserController, RoomController],
+  providers: [AppService, AuthService, TwofactorauthService, RoomService],
 })
 export class AppModule {}

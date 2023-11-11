@@ -1,9 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { RoomService } from 'src/chat/room/room.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+
+import  {createRoomDTO,
+        JoinRoomDTO,
+        LeaveRoomDTO,
+        chatMessageDTO,
+        updateRoomDTO,
+        kickDTO,
+        setAdminDTO,
+        RoomDTO,
+        MuteUserDTO,
+        PrivateMessageDTO} from "src/chat/dtos/chat.dto"
 
 @Injectable()
 export class UserService {
-    constructor(private prismaService: PrismaService) {
+    constructor(private prismaService: PrismaService,
+				private roomService: RoomService) {
 
 	}
 	private make_error(error: string) { 
@@ -365,4 +378,14 @@ export class UserService {
 		else 
 			return relationship[0].status;
 	}
+
+	/*
+        gets all rooms of a user 
+    */
+    async getAllRooms(userId: number) {
+        const all_rooms = await this.roomService.getRoomsOfUser(userId)
+		return (all_rooms);
+    }
+
+
 }

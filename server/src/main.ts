@@ -12,7 +12,11 @@ async function bootstrap() {
 		origin: 'http://localhost:3000', 
 		credentials: true, 
 	}))
-	app.useGlobalPipes(new ValidationPipe())
+	app.useGlobalPipes(new ValidationPipe({
+		whitelist: true,
+		forbidNonWhitelisted: true,
+		disableErrorMessages: false,
+	}))
 	app.useWebSocketAdapter(new IoAdapter(app));
 	app.use(cookieParser())
 	await app.listen(8000);
