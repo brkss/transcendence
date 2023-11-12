@@ -75,6 +75,4 @@ export class UserController {
         const user_rooms = await this.userService.getAllRooms(user.id)
         return (user_rooms)
     }
-
-
 }

@@ -1,7 +1,8 @@
 import {
     JoinRoomDTO,
     chatMessageDTO,
-    PrivateMessageDTO
+    PrivateMessageDTO,
+    LeaveRoomDTO
 } from "./dtos/chat.dto"
 
 import { Socket } from "socket.io";
@@ -9,7 +10,6 @@ import { Injectable } from "@nestjs/common";
 import { RoomService } from "./room/room.service";
 import { GatewayService } from "./gateway/chat/gateway.service";
 import { UserService } from "src/user/user.service";
-import { mergeWith } from "rxjs";
 
 @Injectable()
 export class ChatService {
@@ -34,6 +34,11 @@ export class ChatService {
             socket.emit("Error", "Muted :C")
             return null
         }
+        const is_inchat = await this.roomService.isUserInchat(user_id,  room_id);
+        if (!is_inchat) {
+            this.gatewayService.emitError(socket, "Error, Please rejoin")
+            return null
+        }
         return (room)
     }
 
@@ -53,6 +58,11 @@ export class ChatService {
             this.gatewayService.emitError(socket, "Banned")
             return null
         }
+        const already_in_chat = await this.roomService.isUserInchat(user_id,  room_id);
+        if (already_in_chat) {
+            this.gatewayService.emitError(socket, "User already in Chat")
+            return null
+        }
         return (room)
     }
 
@@ -60,7 +70,7 @@ export class ChatService {
         this is different from leaving the room 
         leave room deletes the user entry in roomMember table
     */
-    async leaveChat(socket: Socket, payload: JoinRoomDTO) {
+    async leaveChat(socket: Socket, payload: LeaveRoomDTO) {
         const room_id = payload.room_id
         const user = socket.data.user
         const room = await this.roomService.getRoomById(room_id);
@@ -68,15 +78,24 @@ export class ChatService {
             this.gatewayService.emitError(socket, "Error Room not found!")
             return
         }
+        const user_inchat = await this.roomService.isUserInchat(user.id,  room_id);
+        if (!user_inchat) {
+            this.gatewayService.emitError(socket, "Error")
+            return 
+        }
         const message = {
             user: "PongBot",
             message: `${user.username} left the chat`,
             time: Date()
         }
         socket.to(room.name).emit("message", message)
-        // emit room users not members!!
+        await this.roomService.setUserInChat(user.id , room.id,  false);
+        const chat_users =  await this.roomService.getChatUsers(room.id)
+        socket.to(room.name).emit("users", chat_users)
         socket.leave(room.name)
-        await this.roomService.setUserInChat(room.id, user.id, false);
+    }
+    disconnect(socket: Socket) {
+        console.log(socket.rooms)
     }
 
     async connectToChat(socket: Socket, payload: JoinRoomDTO) {
@@ -93,17 +112,15 @@ export class ChatService {
         if (room != null) {
             message.message = "Welcome to Ch4t!"
             socket.emit("message", message)
-            socket.join(room.name)
             message.message = `${user.username} Joined Ch4t!`
+            socket.join(room.name)
+            console.log("socket rooms : ", socket.rooms)
             socket.to(room.name).emit("message", message)
-            await this.roomService.setUserInChat(room.id, user.id, true);
-            //emmit chat users 
+
+            // create socket room and join it
+            await this.roomService.setUserInChat(user.id, room.id, true);
             const chat_users =  await this.roomService.getChatUsers(room.id)
-            ///socket.emit()
-            //////
-            //////
-            //////
-            //////
+            socket.nsp.to(room.name).emit("users", chat_users)
         }
     }
 
@@ -171,5 +188,9 @@ export class ChatService {
     async getMyChats(socket: Socket) {
         const user = socket.data.user
         const all_chats = await this.roomService.getAllUserChats(user.id)
+    }
+    async getConnectedRooms(user_id: number) {
+        const room_names =  await this.roomService.getConnectedRooms(user_id)
+        return (room_names)
     }
 }

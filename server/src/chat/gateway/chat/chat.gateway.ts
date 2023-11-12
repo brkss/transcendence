@@ -7,7 +7,8 @@ import {OnGatewayConnection,
 import  {
         JoinRoomDTO,
         chatMessageDTO,
-        PrivateMessageDTO } from "src/chat/dtos/chat.dto"
+        PrivateMessageDTO, 
+        LeaveRoomDTO} from "src/chat/dtos/chat.dto"
     
 import { Socket } from 'socket.io'
 import { ValidationExceptionFilter } from "src/chat/dtos/chatvalidation.filer";
@@ -44,10 +45,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect(socket: Socket) {
     const user = socket.data.user
-    // socket.rooms 
-    // emit remaining users 
-    //socket.leave(String(user.id))
-    await this.leaveAllRoomsOnDisconnect(socket, user)
+    const connected_rooms = await this.chatService.getConnectedRooms(user.id)
+
+    for (const room of connected_rooms) {
+      const payload = {
+        room_id: room.roomId
+      }
+      await this.chatService.leaveChat(socket, payload)
+    }
   }
 
   @SubscribeMessage('joinChat')
@@ -56,7 +61,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('leaveChat')
-  async leavChat(socket: Socket, payload: JoinRoomDTO) {
+  async leavChat(socket: Socket, payload: LeaveRoomDTO) {
     await this.chatService.leaveChat(socket, payload)
   }
 

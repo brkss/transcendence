@@ -78,7 +78,7 @@ export class RoomService {
         }
     }
     async addUserToChat(user_id: number, room_id: number,in_chat: boolean) {
-        await this.prismaService.roomMembers.update({
+        const entry = await this.prismaService.roomMembers.update({
             where: {
                 userId_roomId:{
                     userId: user_id,
@@ -89,6 +89,21 @@ export class RoomService {
                 inChat: in_chat
             }
         })
+        return (entry)
+    }
+    async isUserInchat(user_id: number, room_id: number) {
+        const in_chat  =  await this.prismaService.roomMembers.findUnique({
+            where: {
+                userId_roomId: {
+                    userId: user_id,
+                    roomId: room_id
+                }
+            },
+            select: {
+                inChat: true
+            }
+        })
+        return (in_chat.inChat)
     }
 
     async createChatRoom(user: any, roominfo: any) {
@@ -197,15 +212,6 @@ export class RoomService {
             }
         })
         return (roomMembers)
-    }
-
-    async getRoomMembers(room: any) {
-        const roomMembers = await this.getRoomUsers(room.id)
-        const payload = {
-            room_name: room.name,
-            room_users: roomMembers
-        }
-        return (payload)
     }
 
     async removeUserFromRoom(userId: number, roomId: number) {
@@ -331,6 +337,18 @@ export class RoomService {
             }
         })
         return (chat_users)
+    }
+    async getConnectedRooms(user_id:  number) {
+        const room_ids = await this.prismaService.roomMembers.findMany({
+            where: {
+                userId: user_id,
+                inChat: true
+            },
+            select: {
+                roomId: true
+            }
+        })
+        return (room_ids)
     }
     async IsRoomAdmin(userId: number, roomId: number) {
         const isadmin = await this.prismaService.roomMembers.findUnique({
@@ -663,6 +681,7 @@ export class RoomService {
         if (is_banned) {
             throw new BadRequestException("user may already be banned")
         }
+        await this.setUserInChat(payload.user_id, room.id,false)
         await this.banUserFromRoom(payload.user_id, room.id)
         const resp = {
             status: "success",
@@ -797,6 +816,18 @@ export class RoomService {
         }
         return (response)
     }
+    async getAllRoomUsers(user: any, room_id: number) {
+        const room = await this.getRoomById(room_id)
+        if (room == undefined) {
+            throw new BadRequestException("Room does not exist")
+        }
+        const is_membeer = await this.isRoomMember(room.id, user.id)
+        if (! is_membeer) {
+            throw new UnauthorizedException()
+        }
+        const room_users = await this.getRoomUsers(room.id)
+        return (room_users)
+    }
 
     async getMutedUsers(user: any, payload: RoomDTO) {
         const room = await this.getRoomById(payload.room_id)
@@ -820,8 +851,13 @@ export class RoomService {
 
     }
 
-    async setUserInChat(room_id: number, user_id: number, in_chat: boolean) {
-        await this.addUserToChat(room_id, user_id, in_chat);
+    async setUserInChat(user_id: number, room_id: number, in_chat: boolean) {
+        try {
+            const entry = await this.addUserToChat(user_id, room_id, in_chat);
+            console.log(entry)
+        }catch (error) {
+            console.log(error)
+        }
     }
 
 }

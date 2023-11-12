@@ -68,6 +68,8 @@ export class RoomController {
     async getMutedUsers(@Req() request: any, @Body() body: RoomDTO) {
       return (await this.roomService.getMutedUsers(request.user, body))
     }
-  
+    @Get("/:room_id/users")
+    async getRoomUsers(@Req() request: any , @Param('room_id', ParseIntPipe) room_id : number) {
+      return (await this.roomService.getAllRoomUsers(request.user, room_id))
+    }
 }
-   
