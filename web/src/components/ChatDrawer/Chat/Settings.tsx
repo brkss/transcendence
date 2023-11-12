@@ -17,6 +17,7 @@ import { AiOutlineUserAdd, AiOutlineUserDelete, AiOutlineClockCircle } from 'rea
 import { API_URL } from '@/utils/constants';
 import { getAccessToken } from '@/utils/token';
 import { io } from 'socket.io-client';
+import { deleteRoomService } from '@/utils/services';
 
 interface Props {
 	isOpen: boolean;
@@ -28,43 +29,9 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId}) => {
 	
 	const [members, setMembers] = React.useState([]);
 
-	let socket = io(API_URL, {
-		extraHeaders: {
-			Authorization: getAccessToken()
-		}
-	})
-
-	React.useEffect(() => {
-
-		socket.on('connect', () => {
-			console.log("socket connected");
-		})
-		
-		socket.connect()
-		socket.on("", () => {
-
-		});
-		socket.on("", () => {
-
-		})
-		socket.on("", () => {
-
-		})
-
-		return () => {
-			socket.disconnect()
-			socket.off("connect")
-		}
-
-	}, [socket])
-
-
-	const handleDeleteRoom = () => {
-
-	}
-
-	const handleLeaveRoom = () => {
-
+	const handleDeleteRoom = async () => {
+		const response = await deleteRoomService(roomId);
+		console.log('delete room response : ', response);
 	}
 
 	const handleBanUser = () => {
