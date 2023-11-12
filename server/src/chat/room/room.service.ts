@@ -77,6 +77,20 @@ export class RoomService {
             return null
         }
     }
+    async addUserToChat(user_id: number, room_id: number,in_chat: boolean) {
+        await this.prismaService.roomMembers.update({
+            where: {
+                userId_roomId:{
+                    userId: user_id,
+                    roomId: room_id
+                }
+            },
+            data: {
+                inChat: in_chat
+            }
+        })
+    }
+
     async createChatRoom(user: any, roominfo: any) {
         try {
             const newRoom = await this.prismaService.chatRoom.create({
@@ -299,6 +313,24 @@ export class RoomService {
             }
         })
         return (all_chats)
+    }
+    async getChatUsers(room_id: number) {
+        const chat_users = await this.prismaService.roomMembers.findMany({
+            where: {
+                roomId: room_id,
+                inChat: true
+            },
+            select: {
+                user: {
+                    select: {
+                        id: true,
+                        username: true,
+                        avatar: true,
+                    }                    
+                }
+            }
+        })
+        return (chat_users)
     }
     async IsRoomAdmin(userId: number, roomId: number) {
         const isadmin = await this.prismaService.roomMembers.findUnique({
@@ -781,6 +813,15 @@ export class RoomService {
             banndUsers: banned_users
         }
         return (response)
+    }
+    async getUsersInChat(room_id: number) {
+        const chat_users = await this.getChatUsers(room_id)
+        return chat_users
+
+    }
+
+    async setUserInChat(room_id: number, user_id: number, in_chat: boolean) {
+        await this.addUserToChat(room_id, user_id, in_chat);
     }
 
 }

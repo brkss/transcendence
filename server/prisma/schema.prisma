@@ -93,9 +93,10 @@ model RoomMembers {
   id          Int     @id @unique @default(autoincrement())
   userId      Int
   roomId      Int
-  //userMuted  Boolean @default(false) // no needed!! 
   isAdmin     Boolean @default(false)
+  inChat      Boolean @default(false)
   mutedUntile BigInt?
+
 
   user user     @relation(fields: [userId], references: [id], onDelete: Cascade)
   room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)

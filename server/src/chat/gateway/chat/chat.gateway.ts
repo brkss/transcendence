@@ -44,7 +44,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect(socket: Socket) {
     const user = socket.data.user
-    socket.leave(String(user.id))
+    // socket.rooms 
+    // emit remaining users 
+    //socket.leave(String(user.id))
     await this.leaveAllRoomsOnDisconnect(socket, user)
   }
 

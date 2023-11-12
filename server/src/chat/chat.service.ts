@@ -9,6 +9,7 @@ import { Injectable } from "@nestjs/common";
 import { RoomService } from "./room/room.service";
 import { GatewayService } from "./gateway/chat/gateway.service";
 import { UserService } from "src/user/user.service";
+import { mergeWith } from "rxjs";
 
 @Injectable()
 export class ChatService {
@@ -61,22 +62,48 @@ export class ChatService {
     */
     async leaveChat(socket: Socket, payload: JoinRoomDTO) {
         const room_id = payload.room_id
+        const user = socket.data.user
         const room = await this.roomService.getRoomById(room_id);
         if (room == undefined) {
             this.gatewayService.emitError(socket, "Error Room not found!")
             return
         }
+        const message = {
+            user: "PongBot",
+            message: `${user.username} left the chat`,
+            time: Date()
+        }
+        socket.to(room.name).emit("message", message)
+        // emit room users not members!!
         socket.leave(room.name)
+        await this.roomService.setUserInChat(room.id, user.id, false);
     }
 
     async connectToChat(socket: Socket, payload: JoinRoomDTO) {
+        const message = {
+            user: "PongBot",
+            message: "",
+            time: Date()
+        }
         const user = socket.data.user
-        const room = await this.verify_connect_access(socket, payload.room_id, user.id)
-
+        const room = await this.verify_connect_access(socket,
+            payload.room_id,
+            user.id
+        )
         if (room != null) {
-            socket.to(room.name).emit("message", `${user.username} Joined Ch4t!`)
-            socket.emit("message", "Welcome to Ch4t!")
+            message.message = "Welcome to Ch4t!"
+            socket.emit("message", message)
             socket.join(room.name)
+            message.message = `${user.username} Joined Ch4t!`
+            socket.to(room.name).emit("message", message)
+            await this.roomService.setUserInChat(room.id, user.id, true);
+            //emmit chat users 
+            const chat_users =  await this.roomService.getChatUsers(room.id)
+            ///socket.emit()
+            //////
+            //////
+            //////
+            //////
         }
     }
 
