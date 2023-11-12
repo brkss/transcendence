@@ -21,31 +21,16 @@ import { CreateRoom } from './CreateRoom'
 import { API_URL } from '@/utils/constants';
 import { getAccessToken } from '@/utils/token';
 import { io } from 'socket.io-client';
+import { getUserRooms } from '@/utils/services';
 
 interface Props {
 	isOpen: boolean;
 	onClose: () => void;
 }
 
-const _tmp = [
-	{
-		name: "Chat 1",
-		isProtected: true,
-	},
-	{
-		name: "Chat 2",
-		isProtected: false,
-	}
-]
-
 export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 
 	const [rooms, setRooms] = React.useState<any[]>([]);
-	let socket = io(API_URL, {
-		extraHeaders: {
-			Authorization: getAccessToken()
-		}
-	})
 	const [selectedRoomID, setSelectedRoomID] = React.useState<number | null>(null);
 	const [openCreateModal, setOpenCreateModal] = React.useState(false);
 	const [openModal, setOpenModal] = React.useState(false);
@@ -54,28 +39,15 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 	const _createRoomModal = useDisclosure();
 	const _chat = useDisclosure();
 
+
+
 	React.useEffect(() => {
-
-		socket.connect()
-		
-		socket.on('connect', () => {
-			console.log("socket connected ! chats")
-		})
-
-		socket.on("rooms", (data) => {
-			setRooms(data);
-			console.log("data : ", data);
-		})
-
-		socket.emit("allRooms")
-
-		return () => {
-			socket.disconnect()
-			console.log("socket disconnect!")
-		}
-
-	}, [isOpen])
-
+		(async () => {
+			const _data = await getUserRooms();	
+			console.log("rooms : ", _data);
+			setRooms(_data);
+		})();
+	}, []);
 
 	const handleEntringRoom = (id: number, isProtected: boolean) => {
 		console.log("id : ", id, isProtected)
