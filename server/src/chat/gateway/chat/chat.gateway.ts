@@ -79,5 +79,4 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async getMychats(socket: Socket, payload) {
     await this.chatService.getMyChats(socket)
   }
-
 }
