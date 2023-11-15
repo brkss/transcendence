@@ -4,16 +4,11 @@ import {OnGatewayConnection,
         WebSocketGateway,
         } from '@nestjs/websockets';
 
-import  {createRoomDTO,
+import  {
         JoinRoomDTO,
-        LeaveRoomDTO,
         chatMessageDTO,
-        updateRoomDTO,
-        kickDTO,
-        setAdminDTO,
-        RoomDTO,
-        MuteUserDTO,
-        PrivateMessageDTO} from "src/chat/dtos/chat.dto"
+        PrivateMessageDTO, 
+        LeaveRoomDTO} from "src/chat/dtos/chat.dto"
     
 import { Socket } from 'socket.io'
 import { ValidationExceptionFilter } from "src/chat/dtos/chatvalidation.filer";
@@ -24,10 +19,11 @@ import { UseFilters, UsePipes, ValidationPipe } from "@nestjs/common"
 @WebSocketGateway({ cors: true })
 @UseFilters(ValidationExceptionFilter)
 @UsePipes(new ValidationPipe({
-  //disableErrorMessages: true,
+  disableErrorMessages: false,
   whitelist: true,
   forbidNonWhitelisted: true
 }))
+
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(
@@ -49,33 +45,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect(socket: Socket) {
     const user = socket.data.user
-    socket.leave(String(user.id))
-    await this.leaveAllRoomsOnDisconnect(socket, user)
-  }
+    const connected_rooms = await this.chatService.getConnectedRooms(user.id)
 
-  @SubscribeMessage('allRooms')
-  async getAllUserRooms(socket: Socket) {
-    await this.chatService.getAllRooms(socket)
-  }
-
-  @SubscribeMessage('newRoom')
-  async handleRoomCreate(socket: Socket, payload: createRoomDTO): Promise<any> {
-    await  this.chatService.CreateNewChatRoom(socket, payload)
-  }
-
-  @SubscribeMessage('updateRoom')
-  async handleRoomUpdate(socket: Socket, payload: updateRoomDTO) {
-    await this.chatService.UpdateChatRoom(socket, payload)
-  }
-
-  @SubscribeMessage('deleteRoom')
-  async handleDeleteRoom(socket: Socket, payload: RoomDTO) {
-    await this.chatService.DeleteChatRoom(socket, payload)
-  }
-
-  @SubscribeMessage('joinRoom')
-  async joinRoom(socket: Socket, payload: JoinRoomDTO) {
-    await this.chatService.joinChatRoom(socket, payload)
+    for (const room of connected_rooms) {
+      const payload = {
+        room_id: room.roomId
+      }
+      await this.chatService.leaveChat(socket, payload)
+    }
   }
 
   @SubscribeMessage('joinChat')
@@ -84,13 +61,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('leaveChat')
-  async leavChat(socket: Socket, payload: JoinRoomDTO) {
+  async leavChat(socket: Socket, payload: LeaveRoomDTO) {
     await this.chatService.leaveChat(socket, payload)
-  }
-
-  @SubscribeMessage('leaveRoom')
-  async leaveRoom(socket: Socket, payload: LeaveRoomDTO) {
-    await this.chatService.leaveChatRoom(socket, payload)
   }
 
   @SubscribeMessage('chatMessage')
@@ -103,38 +75,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.chatService.SendPrivateChatMessage(socket, payload)
   }
 
-  @SubscribeMessage("kickUser")
-  async kickUserFromRoom(socket: Socket, payload: kickDTO) {
-    await this.chatService.kickUserFromRoom(socket, payload)
-  }
-
-  @SubscribeMessage("banUser")
-  async banUserFromRoom(socket: Socket, payload: kickDTO) {
-    await this.chatService.banUserFromRoom(socket, payload)
-  }
-
-  @SubscribeMessage("unbanUser")
-  async UnbanUserFromRoom(socket: Socket, payload: kickDTO) {
-    await this.chatService.UnbanUserFromRoom(socket, payload)
-  }
-
-  @SubscribeMessage("setAdmin")
-  async setRoomAdmin(socket: Socket, payload: setAdminDTO) {
-    await this.chatService.setAdmin(socket, payload)
-  }
-
-  @SubscribeMessage("bannedUsers")
-  async getBannedUsers(socket: Socket, payload: RoomDTO) {
-    await this.chatService.getBannedUsers(socket, payload)
-  }
-
-  @SubscribeMessage("muteUser")
-  async muteUser(socket: Socket, payload: MuteUserDTO) {
-    await this.chatService.muteUser(socket, payload)
-  }
-
-  @SubscribeMessage("unmuteUser")
-  async UnmuteUser(socket: Socket, payload: MuteUserDTO) {
-    await this.chatService.UnmuteUser(socket, payload)
+  @SubscribeMessage('myChats')
+  async getMychats(socket: Socket, payload) {
+    await this.chatService.getMyChats(socket)
   }
 }

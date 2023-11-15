@@ -21,6 +21,7 @@ import { CreateRoom } from './CreateRoom'
 import { API_URL } from '@/utils/constants';
 import { getAccessToken } from '@/utils/token';
 import { io } from 'socket.io-client';
+import { getUserRooms } from '@/utils/services';
 
 interface Props {
 	isOpen: boolean;
@@ -30,11 +31,6 @@ interface Props {
 export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 
 	const [rooms, setRooms] = React.useState<any[]>([]);
-	let socket = io(API_URL, {
-		extraHeaders: {
-			Authorization: getAccessToken()
-		}
-	})
 	const [selectedRoomID, setSelectedRoomID] = React.useState<number | null>(null);
 	const [openCreateModal, setOpenCreateModal] = React.useState(false);
 	const [openModal, setOpenModal] = React.useState(false);
@@ -43,7 +39,10 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 	const _createRoomModal = useDisclosure();
 	const _chat = useDisclosure();
 
+
+
 	React.useEffect(() => {
+<<<<<<< HEAD
 		socket.connect()
 		
 		socket.on('connect', () => {
@@ -64,6 +63,14 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 
 	}, [isOpen])
 
+=======
+		(async () => {
+			const _data = await getUserRooms();	
+			console.log("rooms : ", _data);
+			setRooms(_data);
+		})();
+	}, []);
+>>>>>>> adcover
 
 	const handleEntringRoom = (id: number, isProtected: boolean) => {
 		console.log("id : ", id, isProtected)

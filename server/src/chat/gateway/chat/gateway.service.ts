@@ -43,11 +43,10 @@ export class GatewayService {
             socket.data.user = payload;
             this.connectionSuccess(socket)
             socket.join(String(payload.userId)) // for private chats
-            await this.joinPrevRooms(socket, payload.id)
+            //await this.joinPrevRooms(socket, payload.id)
 
         } catch (error) {
             this.UnauthorizedDisconnect(socket)
-            return 
         }
     }
 
