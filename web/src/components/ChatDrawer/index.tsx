@@ -39,8 +39,6 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 	const _createRoomModal = useDisclosure();
 	const _chat = useDisclosure();
 
-
-
 	React.useEffect(() => {
 		(async () => {
 			const _data = await getUserRooms();	
@@ -62,8 +60,6 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 		}
 	}
 
-	
-
 	return (
 		<Drawer
 			isOpen={isOpen}
@@ -75,7 +71,6 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 			<DrawerContent>
 				<DrawerCloseButton />
 				<DrawerHeader></DrawerHeader>
-
 				<DrawerBody>
 					<Box display={'flex'} justifyContent={'space-between'} mt={'20px'} alignItems={'center'}>
 						<Heading>Chat</Heading>
