@@ -40,35 +40,12 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 	const _chat = useDisclosure();
 
 	React.useEffect(() => {
-<<<<<<< HEAD
-		socket.connect()
-		
-		socket.on('connect', () => {
-			console.log("socket connected ! chats")
-		})
-
-		socket.on("rooms", (data) => {
-			setRooms(data);
-			console.log("data : ", data);
-		})
-
-		socket.emit("allRooms")
-
-		return () => {
-			socket.disconnect()
-			console.log("socket disconnect!")
-		}
-
-	}, [isOpen])
-
-=======
 		(async () => {
 			const _data = await getUserRooms();	
 			console.log("rooms : ", _data);
 			setRooms(_data);
 		})();
 	}, []);
->>>>>>> adcover
 
 	const handleEntringRoom = (id: number, isProtected: boolean) => {
 		console.log("id : ", id, isProtected)
