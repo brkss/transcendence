@@ -171,22 +171,6 @@ export class ChatService {
         } else {
             socket.emit("Error", "User Not found")
         }
-<<<<<<< HEAD
-
-
-    }
-    /*
-        gets all rooms of a user 
-        mainlly called after socket connection
-        !! NO payload requred for the moment
-    */
-
-    async getAllRooms(socket: Socket) {
-        const user = socket.data.user;
-        const all_rooms = await this.roomService.getRoomsOfUser(user.id)
-        socket.emit("rooms", all_rooms)
-=======
->>>>>>> adcover
     }
 
     async IsUserMuted(userId: number, roomId: number): Promise<boolean> {
