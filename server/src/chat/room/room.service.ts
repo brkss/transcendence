@@ -225,7 +225,7 @@ export class RoomService {
                 }
             }
         })
-        return (roomMembers)
+        return (roomMembers.map((item) => ({...item.user, isAdmin: item.isAdmin})));
     }
 
     async removeUserFromRoom(userId: number, roomId: number) {
