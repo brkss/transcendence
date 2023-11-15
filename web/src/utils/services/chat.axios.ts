@@ -2,6 +2,12 @@ import { API_URL } from '../constants';
 import { api } from './axios.config';
 import { CreateRoomInput, UpdateRoomInput, JoinRoomInput } from '../types';
 
+// room members 
+export const getRoomMembers = async (roomID: number) => {
+	const response = await api.get(`${API_URL}/room/${roomID}/users`);
+	return response.data;
+}
+
 // get rooms 
 export const getUserRooms = async () => {
 	const response = await api.get(`${API_URL}/user/rooms`);

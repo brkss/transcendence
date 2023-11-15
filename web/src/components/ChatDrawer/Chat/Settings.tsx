@@ -17,7 +17,7 @@ import { AiOutlineUserAdd, AiOutlineUserDelete, AiOutlineClockCircle } from 'rea
 import { API_URL } from '@/utils/constants';
 import { getAccessToken } from '@/utils/token';
 import { io } from 'socket.io-client';
-import { deleteRoomService } from '@/utils/services';
+import { deleteRoomService, getRoomMembers } from '@/utils/services';
 
 interface Props {
 	isOpen: boolean;
@@ -28,6 +28,13 @@ interface Props {
 export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId}) => {
 	
 	const [members, setMembers] = React.useState([]);
+
+	React.useEffect(() => {
+		(async () => {
+			const response = await getRoomMembers(roomId);
+			console.log("room members : ", response);
+		})();
+	});
 
 	const handleDeleteRoom = async () => {
 		const response = await deleteRoomService(roomId);
