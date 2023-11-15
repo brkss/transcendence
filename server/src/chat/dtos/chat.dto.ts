@@ -22,6 +22,11 @@ export class RoomDTO {
     room_id: number
 
 }
+export class findRoomDTO {
+    @IsString()
+    @IsNotEmpty()
+    room_name: string
+}
 
 export class createRoomDTO {
     @IsString()

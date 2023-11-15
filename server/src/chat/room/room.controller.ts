@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Req, UseGuards } from "@nestjs/common";
 import { RoomService } from "./room.service";
 import { JwtAuth } from "src/auth/guards/jwtauth.guard";
-import { BanDTO, JoinRoomDTO, MuteUserDTO, RoomDTO, createRoomDTO, kickDTO, setAdminDTO, updateRoomDTO } from "../dtos/chat.dto";
+import { BanDTO, JoinRoomDTO, MuteUserDTO, RoomDTO, createRoomDTO, findRoomDTO, kickDTO, setAdminDTO, updateRoomDTO } from "../dtos/chat.dto";
 
 @Controller('room')
 @UseGuards(JwtAuth)
@@ -13,6 +13,10 @@ export class RoomController {
     @Delete('/:room_id')
     async handleDeleteRoom(@Req() request: any, @Param('room_id', ParseIntPipe) room_id : number) {
         return (await this.roomService.DeleteChatRoom(request.user, room_id))
+    }
+    @Post("search")
+    async hadleSearchRoom(@Req() request: any, @Body() body: findRoomDTO) {
+      return (await this.roomService.findRoomByName(body))
     }
     @Post("add")
     async handleRoomCreate(@Req() request: any, @Body() body: createRoomDTO): Promise<any> {
