@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
-import { constrainedMemory } from "process";
 import { PrismaService } from "src/prisma/prisma.service";
-import { AdministrateDTO, BanDTO, JoinRoomDTO, MuteUserDTO, RoomDTO, createRoomDTO, kickDTO, setAdminDTO, updateRoomDTO } from "../dtos/chat.dto";
+import { AdministrateDTO, BanDTO, JoinRoomDTO, MuteUserDTO, RoomDTO, createRoomDTO, findRoomDTO, kickDTO, setAdminDTO, updateRoomDTO } from "../dtos/chat.dto";
+import {RoomType } from '@prisma/client'
 
 @Injectable()
 export class RoomService {
@@ -77,10 +77,10 @@ export class RoomService {
             return null
         }
     }
-    async addUserToChat(user_id: number, room_id: number,in_chat: boolean) {
+    async addUserToChat(user_id: number, room_id: number, in_chat: boolean) {
         const entry = await this.prismaService.roomMembers.update({
             where: {
-                userId_roomId:{
+                userId_roomId: {
                     userId: user_id,
                     roomId: room_id
                 }
@@ -92,7 +92,7 @@ export class RoomService {
         return (entry)
     }
     async isUserInchat(user_id: number, room_id: number) {
-        const in_chat  =  await this.prismaService.roomMembers.findUnique({
+        const in_chat = await this.prismaService.roomMembers.findUnique({
             where: {
                 userId_roomId: {
                     userId: user_id,
@@ -162,6 +162,20 @@ export class RoomService {
             return undefined
         }
 
+    }
+    async getMatchingRooms(room_name: string) {
+        const matched_rooms = await this.prismaService.chatRoom.findMany({
+            where: {
+                roomType: {
+                    not: RoomType.PRIVATE
+                },
+                name: {
+                    contains: room_name,
+                    mode: 'insensitive', // Case-insensitive search
+                }
+            }
+        })
+        return (matched_rooms)
     }
     async getRoomById(room_id: number): Promise<any> {
         try {
@@ -262,7 +276,7 @@ export class RoomService {
                     user_id: true
                 }
             })
-        }catch (error) {
+        } catch (error) {
             console.log(error)
             return (false)
         }
@@ -332,13 +346,13 @@ export class RoomService {
                         id: true,
                         username: true,
                         avatar: true,
-                    }                    
+                    }
                 }
             }
         })
         return (chat_users)
     }
-    async getConnectedRooms(user_id:  number) {
+    async getConnectedRooms(user_id: number) {
         const room_ids = await this.prismaService.roomMembers.findMany({
             where: {
                 userId: user_id,
@@ -362,7 +376,7 @@ export class RoomService {
                 isAdmin: true
             }
         })
-        console.log("is admin ? ",isadmin)
+        console.log("is admin ? ", isadmin)
         if (isadmin == null)
             return (false)
         return (isadmin.isAdmin)
@@ -671,7 +685,7 @@ export class RoomService {
             memberId: payload.user_id
         }
         const is_membeer = await this.isRoomMember(room.id, payload.user_id)
-        if (! is_membeer) {
+        if (!is_membeer) {
             throw new UnauthorizedException()
         }
         if (! await this.canAdminstrate(administrate_payload)) {
@@ -681,7 +695,7 @@ export class RoomService {
         if (is_banned) {
             throw new BadRequestException("user may already be banned")
         }
-        await this.setUserInChat(payload.user_id, room.id,false)
+        await this.setUserInChat(payload.user_id, room.id, false)
         await this.banUserFromRoom(payload.user_id, room.id)
         const resp = {
             status: "success",
@@ -822,7 +836,7 @@ export class RoomService {
             throw new BadRequestException("Room does not exist")
         }
         const is_membeer = await this.isRoomMember(room.id, user.id)
-        if (! is_membeer) {
+        if (!is_membeer) {
             throw new UnauthorizedException()
         }
         const room_users = await this.getRoomUsers(room.id)
@@ -855,9 +869,12 @@ export class RoomService {
         try {
             const entry = await this.addUserToChat(user_id, room_id, in_chat);
             console.log(entry)
-        }catch (error) {
+        } catch (error) {
             console.log(error)
         }
     }
-
+    async findRoomByName(payload: findRoomDTO) {
+        const matched_rooms = await this.getMatchingRooms(payload.room_name)
+        return (matched_rooms)
+    }
 }
