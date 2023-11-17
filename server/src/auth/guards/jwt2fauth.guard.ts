@@ -20,7 +20,7 @@ export class Jwt2faAuth implements CanActivate {
             const payload = await this.jwtService.verifyAsync(
                 jwtoken, 
                 {
-                    secret: this.configService.get('JWT_SECRET') 
+                    secret: this.configService.get('JWT_REFRESH_SECRET') 
                 }
             ) 
             if (payload.is2faToken === true) { // ditinguish auth and 2fa tokens
