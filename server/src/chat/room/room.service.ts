@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/
 import { PrismaService } from "src/prisma/prisma.service";
 import { AdministrateDTO, BanDTO, JoinRoomDTO, MuteUserDTO, RoomDTO, createRoomDTO, findRoomDTO, kickDTO, setAdminDTO, updateRoomDTO } from "../dtos/chat.dto";
 import {RoomType } from '@prisma/client'
+import * as bcrypt from "src/utils/bcrypt"
 
 @Injectable()
 export class RoomService {
@@ -14,7 +15,8 @@ export class RoomService {
         if (room.roomType === "PRIVATE")
             return (false)
         if (room.roomType == "PROTECTED") {
-            if (room.password != payload.password) {
+            // hash password; compare the hash 
+            if (! bcrypt.compare_password_hash(payload.password, room.password)) {
                 throw new UnauthorizedException("Invalid Password")
             }
         }
@@ -562,6 +564,10 @@ export class RoomService {
         if (duplicate_name) {
             throw new BadRequestException('Room With Same Name Already exits')
         }
+        // hash room password before insert 
+        const password_hash = await bcrypt.hash_password(payload.password)
+        payload.password = password_hash;
+        // maybe encrypt it aftwerwards 
         const newRoom = await this.createChatRoom(user, payload);
         return (newRoom)
     }
@@ -579,6 +585,8 @@ export class RoomService {
         if (room.owner != user.id) {
             throw new UnauthorizedException()
         }
+        if (payload.roomType == "PRETECTED")
+            payload.password = await bcrypt.hash_password(payload.password)
         const data = {
             roomType: payload.roomType,
             password: (payload.roomType === "PROTECTED") ? payload.password : null
