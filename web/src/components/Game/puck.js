@@ -1,30 +1,61 @@
+class Particle {
+  constructor(x, y, p5) {
+    this.x = x;
+    this.y = y;
+    this.p5 = p5;
+    this.lifespan = 255;
+    this.vel = p5.createVector(p5.random(-1, 1), p5.random(-1, 1));
+    this.acc = p5.createVector(0, 0.05);
+  }
 
+  update() {
+    this.vel.add(this.acc);
+    this.x += this.vel.x;
+    this.y += this.vel.y;
+    this.lifespan -= 2;
+  }
 
+  show() {
+    this.p5.noStroke();
+    this.p5.fill(255, this.lifespan);
+    this.p5.ellipse(this.x, this.y, 8, 8);
+  }
 
+  isDead() {
+    return this.lifespan <= 0;
+  }
+}
 
 function radians(degrees) {
   return degrees * (Math.PI / 180);
 }
 
 export class Puck {
-  constructor(canvasWidth, canvasHeight, updateLeftScore, updateRightScore, p5, sound) {
+  constructor(
+    canvasWidth,
+    canvasHeight,
+    p5,
+    sound,
+    servingPlayer
+  ) {
     this.r = 12;
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
-    this.updateLeftScore = updateLeftScore;
-    this.updateRightScore = updateRightScore;
     this.p5 = p5;
     this.isGameOver = false;
     this.sound = new Audio(sound);
-    this.servingPlayer = '';
+    this.servingPlayer = servingPlayer; 
+    this.particles = [];
     this.reset();
+   
   }
 
   checkPaddleLeft(p) {
-    if (this.y - this.r < p.y + p.h / 2 &&
+    if (
+      this.y - this.r < p.y + p.h / 2 &&
       this.y + this.r > p.y - p.h / 2 &&
-      this.x - this.r < p.x + p.w / 2) {
-
+      this.x - this.r < p.x + p.w / 2
+    ) {
       if (this.x > p.x) {
         let diff = this.y - (p.y - p.h / 2);
         let rad = radians(45);
@@ -33,14 +64,14 @@ export class Puck {
         this.yspeed = 5 * Math.sin(angle);
         this.x = p.x + p.w / 2 + this.r;
       }
-
     }
   }
   checkPaddleRight(p) {
-    if (this.y - this.r < p.y + p.h / 2 &&
+    if (
+      this.y - this.r < p.y + p.h / 2 &&
       this.y + this.r > p.y - p.h / 2 &&
-      this.x + this.r > p.x - p.w / 2) {
-
+      this.x + this.r > p.x - p.w / 2
+    ) {
       if (this.x < p.x) {
         let diff = this.y - (p.y - p.h / 2);
         let angle = this.p5.map(diff, 0, p.h, radians(225), radians(135));
@@ -54,69 +85,72 @@ export class Puck {
   update() {
     this.x += this.xspeed;
     this.y += this.yspeed;
+    for (let i = 0; i < 1; i++) {
+      this.particles.push(new Particle(this.x, this.y, this.p5));
+    }
   }
 
-  reset() {
-
-    if (this.updateLeftScore >= 2 || this.updateRightScore >= 2) {
-      // Set isGameOver to true when the game is over
-      this.isGameOver = true;
+  showParticles() {
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const particle = this.particles[i];
+      particle.update();
+      particle.show();
+      if (particle.isDead()) {
+        this.particles.splice(i, 1);
+      }
     }
-    else {
+  }
+
+  reset(serving) {
+   
       this.x = this.canvasWidth / 2;
       this.y = this.canvasHeight / 2;
-
-      if (this.servingPlayer === 'left') {
+      console.log(this.servingPlayer);
+      if (this.servingPlayer === "left") {
         this.xspeed = 5; // Serve to the left
       } else {
         this.xspeed = -5; // Serve to the right
       }
       this.yspeed = Math.random() < 0.5 ? -5 : 5;
-    }
-
   }
 
-  edges() {
-    if (!this.isGameOver) {
+  getServingPlayer() {
+    return this.servingPlayer;
+  }
+
+  edges(serving) {
+    if (this.isGameOver === false) 
+    {
       if (this.y < 0 || this.y > this.canvasHeight) {
         this.yspeed *= -1;
       }
 
       if (this.x - this.r > this.canvasWidth) {
-        this.updateLeftScore++;
-        this.servingPlayer = 'left';
-        this.reset(); // Player who was scored against serves the ball
+        this.servingPlayer = "left";
+        this.reset(serving); // Player who was scored against serves the ball
         this.sound.play();
+        return true;
       }
 
       if (this.x + this.r < 0) {
-        this.updateRightScore++;
-        this.servingPlayer = 'right';
-        this.reset(); // Player who was scored against serves the ball
+        this.servingPlayer = "right";
+        this.reset(serving); // Player who was scored against serves the ball
         this.sound.play();
+        return true;
       }
     }
   }
 
-  showGameOverMessage() {
-    this.p5.fill(255);
-    this.p5.textSize(64);
-    this.p5.text('Game Over!', this.canvasWidth / 2 - 180, this.canvasHeight / 2 + 25);
-  }
+
   show() {
+    if(this.isGameOver)
+      return ;
     this.p5.fill(255);
     this.p5.ellipse(this.x, this.y, this.r * 2);
-    this.p5.fill(255);
-    this.p5.textSize(32);
-    this.p5.text(this.updateLeftScore, 32, 40);
-    this.p5.text(this.updateRightScore, this.canvasWidth - 64, 40);
-
-    if (this.isGameOver) {
-      // Display game over message
-      this.p5.fill(255);
-      this.p5.textSize(64);
-      this.p5.text('Game Over!', this.canvasWidth / 2 - 180, this.canvasHeight / 2 + 25);
-    }
+    this.showParticles();
   }
-
+  destroy()
+  {
+    this.isGameOver=true;
+  }
 }
