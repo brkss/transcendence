@@ -31,9 +31,9 @@ const _singnals = [
 ]
 
 
-export const Layout : React.FC<any> = ({children}) => {
+export const Layout: React.FC<any> = ({ children, disablePadding }) => {
 
-	
+
 	const router = useRouter();
 	const showFriends = useDisclosure();
 	const showGame = useDisclosure();
@@ -68,17 +68,19 @@ export const Layout : React.FC<any> = ({children}) => {
 	return (
 		<Box>
 			<TopBar />
-			<Grid templateColumns={'repeat(12, 1fr)'}>
-				<GridItem colSpan={{md: 1, base: 12}}>
-					<SideBar signal={(sig: string) => handleSig(sig) } />
-				</GridItem>
-				<GridItem colSpan={{md: 11, base: 12}} p={{md: '40px', base: '15px'}}>
-					{children}
-				</GridItem>
-			</Grid>
-			{  <FriendsDrawer isOpen={showFriends.isOpen} onClose={showFriends.onClose} /> }			
-			{ <ChatDrawer isOpen={showChat.isOpen}  onClose={showChat.onClose} /> }
-			{ <SettingsDrawer isOpen={showSettings.isOpen}  onClose={showSettings.onClose} /> }
+			{/* <Grid templateColumns={'repeat(12, 1fr)'}> */}
+
+			<SideBar signal={(sig: string) => handleSig(sig)} />
+
+			{/* <GridItem colSpan={{ md: 12, base: 12 }} p={{ md: '40px', base: '15px' }} sx={{ paddingLeft: '90px' }}> */}
+			<div style={{ paddingLeft: disablePadding ? '0px' : '95px' }}>
+				{children}
+			</div>
+			{/* </GridItem> */}
+			{/* </Grid> */}
+			{<FriendsDrawer isOpen={showFriends.isOpen} onClose={showFriends.onClose} />}
+			{<ChatDrawer isOpen={showChat.isOpen} onClose={showChat.onClose} />}
+			{<SettingsDrawer isOpen={showSettings.isOpen} onClose={showSettings.onClose} />}
 		</Box>
 	)
 }
