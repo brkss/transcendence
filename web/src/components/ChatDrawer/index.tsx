@@ -87,7 +87,7 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 		if(room){
 			const data = {
 				password: roomPassword,
-				id: room.id,
+				id: Number(room.id),
 				type: room.roomType
 			}
 			setRoomPassword("")
@@ -97,8 +97,6 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 	}
 
 	const handleJoinRoom = async (roomID: number, roomType: string, password?: string) => {
-		
-		//console.log("join room data : ", roomID, roomType, password);
 		const response = await joinRoomService({room_id: roomID, roomType: roomType, password: password || ""});
 		console.log("joim room response : ", response);
 	}

@@ -15,8 +15,11 @@ export class authController {
     async userLogin(@Req() req: any, @Res({passthrough: true}) resp: Response) {
         // add user to database or get his id 
         const userID = await this.auth_service.getUserID(req.user);
+        console.log("got user ID : ", userID);
 		const refresh_token = generateRefreshToken(userID);
+        console.log("got refresh token : ", refresh_token);
 		const auth2fa_active = await this.auth_service.auth2faActive(userID)
+        console.log("got oauth active : ", auth2fa_active);
         if (auth2fa_active){
             const auth2fa_token = await this.auth_service.login2fa(req)
             resp.cookie('auth2fa_token', auth2fa_token)

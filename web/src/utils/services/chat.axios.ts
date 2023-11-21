@@ -22,7 +22,6 @@ export const getUserRooms = async () => {
 
 // handle create new room
 export const createRoomService = async (input: CreateRoomInput) => {
-	console.log("input : ", JSON.stringify(input));
 	const response = await api.post(`${API_URL}/room/add`, input, { headers: { 'Content-Type': 'application/json' } });
 	return response.data;
 }
@@ -43,7 +42,6 @@ export const updateRoomService = async (input: UpdateRoomInput) => {
 
 // join room
 export const joinRoomService = async (input: JoinRoomInput) => {
-	console.log("join input : ", input);
 	const response = await api.post(`${API_URL}/room/join`, {...input}, {
 		headers: { 'Content-Type': 'application/json' }
 	});

@@ -8,16 +8,24 @@ import {
     ValidateIf,
 
 } from 'class-validator'
+import { Transform } from 'class-transformer';
+
 export class AdministrateDTO {
+    @Transform(value => Number.isNaN(+value) ? 0 : +value)
     @IsNumber()
     userId: number
+
+    @Transform(value => Number.isNaN(+value) ? 0 : +value)
     @IsNumber()
     roomId: number
+
+    @Transform(value => Number.isNaN(+value) ? 0 : +value)
     @IsNumber()
     memberId: number 
 }
 
 export class RoomDTO {
+    @Transform(value => Number.isNaN(+value) ? 0 : +value)
     @IsNumber()
     room_id: number
 
@@ -43,6 +51,8 @@ export class createRoomDTO {
 }
 
 export class kickDTO extends RoomDTO{ 
+
+    @Transform(value => Number.isNaN(+value) ? 0 : +value)
     @IsNumber()
     user_id: number
 }
@@ -52,10 +62,12 @@ export class MuteUserDTO extends RoomDTO {
     // @IsNotEmpty()
     // user: string // not necessary! 
 
+    @Transform(value => Number.isNaN(+value) ? 0 : +value)
     @IsNumber()
     user_id: number
 
     // mute duration in seconds 
+    @Transform(value => Number.isNaN(+value) ? 0 : +value)
     @IsNumber()
     muteDuration: number
 
@@ -72,6 +84,7 @@ export class chatMessageDTO extends RoomDTO{
 }
 
 export class PrivateMessageDTO {
+    @Transform(value => Number.isNaN(+value) ? 0 : +value)
     @IsNumber()
     userId: number
 
