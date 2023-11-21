@@ -386,6 +386,13 @@ export class UserService {
         const all_rooms = await this.roomService.getRoomsOfUser(userId)
 		return (all_rooms);
     }
+	/*
+        gets users that chated with  
+    */
+	async getUserChats(user_id: number) {
+        const all_chats = await this.roomService.getAllUserChats(user_id)
+		return all_chats
+    }
 
 
 }

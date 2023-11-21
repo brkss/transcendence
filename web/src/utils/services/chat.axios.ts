@@ -42,7 +42,7 @@ export const updateRoomService = async (input: UpdateRoomInput) => {
 
 // join room
 export const joinRoomService = async (input: JoinRoomInput) => {
-	const response = await api.post(`${API_URL}/room/join`, {...input}, {
+	const response = await api.post(`${API_URL}/room/join`, input, {
 		headers: { 'Content-Type': 'application/json' }
 	});
 	return response.data;
