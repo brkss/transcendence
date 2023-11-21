@@ -156,9 +156,8 @@ export class ChatService {
                 message: payload.message,
                 time: Date()
             }
-            socket.join(String(recepient_id))
-            socket.to(String(recepient_id)).emit("PrivateMessage", message)
-            socket.leave(String(recepient_id))
+            socket.to("private-chat-socket-" + String(recepient_id))
+                .emit("PrivateMessage", message)
             const data = {
                 userId: user.id,
                 roomId: null,
@@ -185,10 +184,6 @@ export class ChatService {
         return (false)
     }
 
-    async getMyChats(socket: Socket) {
-        const user = socket.data.user
-        const all_chats = await this.roomService.getAllUserChats(user.id)
-    }
     async getConnectedRooms(user_id: number) {
         const room_names =  await this.roomService.getConnectedRooms(user_id)
         return (room_names)

@@ -59,7 +59,7 @@ model ChatRoom {
 model Messages {
   id         Int      @id @unique @default(autoincrement())
   sender_id  Int
-  sender_username String
+  //sender_username String
   created_at DateTime @default(now())
   message    String
 
