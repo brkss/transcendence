@@ -42,7 +42,7 @@ export class GatewayService {
             const payload = this.jwtService.verify(access_token)
             socket.data.user = payload;
             this.connectionSuccess(socket)
-            socket.join(String(payload.userId)) // for private chats
+            socket.join("private-chat-socket-" + String(payload.userID))
             //await this.joinPrevRooms(socket, payload.id)
 
         } catch (error) {

@@ -515,7 +515,7 @@ export class RoomService {
         const messageId = await this.prismaService.messages.create({
             data: {
                 sender_id: data.userId,
-                sender_username: data.sender_username,
+                //sender_username: data.sender_username,
                 chatRom_id: data.roomId,
                 recepient_id: data.recepient_id,
                 message: data.message
@@ -550,7 +550,8 @@ export class RoomService {
                 chatRom_id: roomId
             },
             select: {
-                sender_username: true,
+                //sender_username: true,
+                sender_id: true,
                 message: true,
                 created_at: true
             }

@@ -156,9 +156,8 @@ export class ChatService {
                 message: payload.message,
                 time: Date()
             }
-            socket.join(String(recepient_id))
-            socket.to(String(recepient_id)).emit("PrivateMessage", message)
-            socket.leave(String(recepient_id))
+            socket.to("private-chat-socket-" + String(recepient_id))
+                .emit("PrivateMessage", message)
             const data = {
                 userId: user.id,
                 roomId: null,
