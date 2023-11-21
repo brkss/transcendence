@@ -75,4 +75,10 @@ export class UserController {
         const user_rooms = await this.userService.getAllRooms(user.id)
         return (user_rooms)
     }
+    @Get("chats")
+    async getUserChats(@Req() request: any) {
+        const user = request.user
+        const user_chats = await this.userService.getUserChats(user.id)
+        return (user_chats)
+    }
 }

@@ -75,8 +75,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.chatService.SendPrivateChatMessage(socket, payload)
   }
 
-  @SubscribeMessage('myChats')
-  async getMychats(socket: Socket, payload) {
-    await this.chatService.getMyChats(socket)
-  }
+  // @SubscribeMessage('myChats')
+  // async getMychats(socket: Socket, payload) {
+  //   await this.chatService.getMyChats(socket)
+  // }
 }

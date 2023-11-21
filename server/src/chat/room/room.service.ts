@@ -334,7 +334,7 @@ export class RoomService {
                 }
             }
         })
-        return (all_chats)
+        return (all_chats.map((chat) => ( chat.dest )))
     }
     async getChatUsers(room_id: number) {
         const chat_users = await this.prismaService.roomMembers.findMany({

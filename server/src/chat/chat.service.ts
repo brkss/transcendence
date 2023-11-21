@@ -184,10 +184,6 @@ export class ChatService {
         return (false)
     }
 
-    async getMyChats(socket: Socket) {
-        const user = socket.data.user
-        const all_chats = await this.roomService.getAllUserChats(user.id)
-    }
     async getConnectedRooms(user_id: number) {
         const room_names =  await this.roomService.getConnectedRooms(user_id)
         return (room_names)
