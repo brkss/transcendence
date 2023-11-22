@@ -6,12 +6,12 @@ import {
     IsNumber,
     IsString,
     ValidateIf,
-
 } from 'class-validator'
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export class AdministrateDTO {
-    @Transform(value => Number.isNaN(+value) ? 0 : +value)
+    //@Transform(value => Number.isNaN(+value) ? 0 : +value)
+    
     @IsNumber()
     userId: number
 
@@ -25,10 +25,8 @@ export class AdministrateDTO {
 }
 
 export class RoomDTO {
-    @Transform(value => Number.isNaN(+value) ? 0 : +value)
     @IsNumber()
     room_id: number
-
 }
 export class findRoomDTO {
     @IsString()

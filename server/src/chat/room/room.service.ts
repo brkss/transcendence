@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { AdministrateDTO, BanDTO, JoinRoomDTO, MuteUserDTO, RoomDTO, createRoomDTO, findRoomDTO, kickDTO, setAdminDTO, updateRoomDTO } from "../dtos/chat.dto";
 import {RoomType } from '@prisma/client'
@@ -17,7 +17,7 @@ export class RoomService {
         if (room.roomType == "PROTECTED") {
             // hash password; compare the hash 
             if (! bcrypt.compare_password_hash(payload.password, room.password)) {
-                throw new UnauthorizedException("Invalid Password")
+                throw new ForbiddenException("Invalid Password")
             }
         }
         //either password correct or room is public

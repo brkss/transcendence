@@ -11,7 +11,8 @@ import {
 	Box,
     useDisclosure,
     Button,
-	Text
+	Text,
+	useToast
 } from '@chakra-ui/react'
 import { ChatBox } from './Item';
 import { RoomPasswordModal } from './RoomPasswordModal';
@@ -25,6 +26,7 @@ import { io } from 'socket.io-client';
 import { getUserRooms, joinRoomService, searchRooms } from '@/utils/services';
 import { SearchChatBox } from './SearchItem';
 
+
 interface Props {
 	isOpen: boolean;
 	onClose: () => void;
@@ -32,6 +34,7 @@ interface Props {
 
 export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 
+	const toast = useToast();
 	const [roomPassword, setRoomPassword]= React.useState("");
 	const [joinRoomId, setJoinRoomId] = React.useState(-1);
 	const [query, setQuery] = React.useState("");
@@ -97,8 +100,24 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 	}
 
 	const handleJoinRoom = async (roomID: number, roomType: string, password?: string) => {
-		const response = await joinRoomService({room_id: roomID, roomType: roomType, password: password || ""});
-		console.log("joim room response : ", response);
+		joinRoomService({room_id: roomID, roomType: roomType, password: password || ""}).then(res => {
+			console.log("join response : ", res);
+			toast({
+				title: 'Joined room successfuly',
+				status: 'success',
+				duration: 9000,
+				isClosable: true,
+			})	
+		}).catch(e => {
+			console.log("join exp : ", e);
+			toast({
+				title: 'Invalid Password',
+				status: 'error',
+				duration: 9000,
+				isClosable: true,
+			})	
+		})
+		
 	}
 
 	return (

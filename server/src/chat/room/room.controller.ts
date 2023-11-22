@@ -28,6 +28,7 @@ export class RoomController {
     }
     @Post('join')
     async joinRoom(@Req() request: any, @Body() body:  JoinRoomDTO) {
+      console.log("join body : ", body);
         return (await this.roomService.joinChatRoom(request.user, body))
     }
     @Post('/:id/leave')

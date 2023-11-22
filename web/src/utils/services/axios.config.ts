@@ -28,9 +28,9 @@ api.interceptors.request.use(
 			'Accept': `application/json`,
 		 	//'Content-Type': 'application/json',
 			//'Content-Type': 'application/x-www-form-urlencoded',
-			//...config.headers,
+			...config.headers,
 		}
-		console.log("config : ", config.headers);
+		
 		return config;
 	},
 	err => {
@@ -46,7 +46,7 @@ api.interceptors.response.use(
 		const originalRequest = err.config;
 		const token = getAccessToken();
 		const { exp } = jwtDecode(token) as any;
-		if(true && (err.response.status === 401 || Date.now() >= exp * 1000)){
+		if(err.response.status === 401 || Date.now() >= exp * 1000){
 			await refreshTokenBackground();
 			return api(originalRequest);
 		}
