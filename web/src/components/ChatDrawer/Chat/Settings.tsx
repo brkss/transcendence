@@ -10,7 +10,8 @@ import {
 	ModalBody,
 	ModalCloseButton,
 	Button,
-    Flex
+    Flex,
+	useToast
 } from '@chakra-ui/react';
 import { Avatar } from '../../Avatar'
 import { AiOutlineUserAdd, AiOutlineUserDelete, AiOutlineClockCircle } from 'react-icons/ai';
@@ -27,6 +28,7 @@ interface Props {
 
 export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId}) => {
 	
+	const toast = useToast();
 	const [members, setMembers] = React.useState<any []>([]);
 
 	React.useEffect(() => {
@@ -38,8 +40,23 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId}) => {
 	}, [roomId]);
 
 	const handleDeleteRoom = async () => {
-		const response = await deleteRoomService(roomId);
-		console.log('delete room response : ', response);
+		deleteRoomService(roomId).then(response => {
+			console.log("delete room response : ", response);
+			toast({
+				title: "Room Deleted Successfuly !",
+				status: "success",
+				duration: 9000,
+				isClosable: true
+			})
+		}).catch(e => {
+			console.log("deleting room error : ", e);
+			toast({
+				title: "Something went wrong deleting this room",
+				status: "error",
+				duration: 9000,
+				isClosable: true
+			})
+		})
 	}
 
 	const handleBanUser = () => {
@@ -60,7 +77,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId}) => {
 				<Text fontWeight={'bold'}>General</Text>
 				<Flex m={'10px 0'}>
 					<Button size={'sm'} colorScheme='red' variant={'outline'} mr={'10px'}>Leave Room</Button>
-					<Button size={'sm'} colorScheme='red' variant={'outline'} mr={'10px'}>Delete Room</Button>
+					<Button size={'sm'} colorScheme='red' variant={'outline'} mr={'10px'} onClick={() => handleDeleteRoom()} >Delete Room</Button>
 				</Flex>
 				<Text fontWeight={'bold'}>Members</Text>
 				{
@@ -70,7 +87,8 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId}) => {
 								<Avatar d={'40px'} src={member.avatar} />
 								<Text fontWeight={'bold'} ml={'10px'}>@{member.username}</Text>
 							</Flex>
-							{member.isAdmin && 
+							{/* check if current user id admin ! */}
+							{true && 
 								<Flex alignItems={'center'}>
 									<Button variant={'ghost'} p={0}>
 										<AiOutlineUserDelete />

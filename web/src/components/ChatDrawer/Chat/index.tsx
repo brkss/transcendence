@@ -84,6 +84,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId}) => {
 				<Flex w="100%" h={{base: "calc(100% - 81px)", md: "100%"}} justify="center" align="center" zIndex={9999}>
 					<Flex w="100%" h="100%" flexDir="column">
 						<ChatHeader openSettings={_settings.onOpen} />
+						
 						<ChatMessages messages={messages} />
 						<ChatFooter
 							inputMessage={inputMessage}

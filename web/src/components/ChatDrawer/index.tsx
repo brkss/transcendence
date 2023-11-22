@@ -120,6 +120,12 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 		
 	}
 
+	const openChatRoom = (id: number) => {
+		setSelectedRoomID(id);
+		setOpenChat(true);
+		_chat.onOpen();
+	}
+
 	return (
 		<Drawer
 			isOpen={isOpen}
@@ -146,7 +152,7 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 						{
 							searchRes.length === 0 && query.length == 0 ? ( rooms.map((item, key) => (
 								<>	
-									<ChatBox key={key} name={item.name} type={item.roomType}  enter={() => {}} />
+									<ChatBox key={key} name={item.name} type={item.roomType}  enter={() => openChatRoom(item.id)} />
 									<hr style={{marginTop: '10px', display: 'none'}} />	
 								</>
 							))) : (
