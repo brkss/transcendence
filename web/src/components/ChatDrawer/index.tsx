@@ -50,28 +50,21 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 
 	React.useEffect(() => {
 		(async () => {
-			const _data = await getUserRooms();	
-			console.log("rooms : ", _data);
-			setRooms(_data);
+			await fetchRooms();	
 		})();
 	}, []);
 
-	const handleEntringRoom = (id: number, isProtected: boolean) => {
+
+	const fetchRooms = async () => {
+		const _data = await getUserRooms();	
+		console.log("rooms : ", _data);
+		setRooms(_data);
+	}
+
+	const handleChatRoomPasswordModal = (id: number, isProtected: boolean) => {
 		setOpenModal(true);
 		_passDisclosure.onOpen();
 		setJoinRoomId(id);
-		//console.log("id : ", id, isProtected)
-		/*
-		if(isProtected){
-			setOpenModal(true);
-			_passDisclosure.onOpen();
-			setSelectedRoomID(id)
-		}else {
-			setOpenChat(true);
-			_chat.onOpen();
-			setSelectedRoomID(id)
-		}
-		*/
 	}
 
 	const handleSearch = async (query: string) => {
@@ -100,14 +93,18 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 	}
 
 	const handleJoinRoom = async (roomID: number, roomType: string, password?: string) => {
-		joinRoomService({room_id: roomID, roomType: roomType, password: password || ""}).then(res => {
+		joinRoomService({room_id: roomID, roomType: roomType, password: password || ""}).then(async res => {
 			console.log("join response : ", res);
 			toast({
 				title: 'Joined room successfuly',
 				status: 'success',
 				duration: 9000,
 				isClosable: true,
-			})	
+			});
+			// refetch rooms 
+			await fetchRooms();	
+			setQuery("");
+			setSearchRes([]);
 		}).catch(e => {
 			console.log("join exp : ", e);
 			toast({
@@ -118,6 +115,14 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 			})	
 		})
 		
+	}
+
+	const handleRemoveRoom = (id: number) => {
+		const index = rooms.findIndex(x => x.id === id);
+		if(index != -1){
+			const tmp = rooms.splice(index, 1);
+			setRooms([...rooms]);
+		}
 	}
 
 	const openChatRoom = (id: number) => {
@@ -145,7 +150,7 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 							Create new room
 						</Button>
 					</Box>
-					<SearchChat change={(v) => handleSearch(v)} />
+					<SearchChat val={query} change={(v) => handleSearch(v)} />
 					<Box>
 						
 						<Text fontWeight={'bold'}>{searchRes.length > 0 ? "Search Results" : query.length == 0  ? "" : "No Result Found"}</Text>
@@ -159,7 +164,7 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 								<>
 									{
 										searchRes.map((item, key) => (
-											<SearchChatBox key={key} name={item.name} type={item.roomType} join={() => {item.roomType === "PROTECTED" ? handleEntringRoom(item.id, item.roomType === "PROTECTED") : handleJoinRoom(item.id, item.roomType)}} />
+											<SearchChatBox key={key} name={item.name} type={item.roomType} join={() => {item.roomType === "PROTECTED" ? handleChatRoomPasswordModal(item.id, item.roomType === "PROTECTED") : handleJoinRoom(item.id, item.roomType)}} />
 										))
 									}
 								</>
@@ -172,7 +177,7 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 				</DrawerFooter>
 			</DrawerContent>
 			{ openModal && <RoomPasswordModal isOpen={_passDisclosure.isOpen} onClose={_passDisclosure.onClose} onOpen={_passDisclosure.onOpen} submit={() => requestJoinRoom()} onChange={(v) => setRoomPassword(v)} /> }
-			{ selectedRoomID && openChat && <Chat chatId={selectedRoomID} isOpen={_chat.isOpen} onClose={_chat.onClose} /> }
+			{ selectedRoomID && openChat && <Chat removeRoom={(id: number) => handleRemoveRoom(id)} chatId={selectedRoomID} isOpen={_chat.isOpen} onClose={_chat.onClose} /> }
 			{ _createRoomModal.isOpen && <CreateRoom updateRooms={(room: {name: string, roomType: string}) => setRooms([room, ...rooms])} isOpen={_createRoomModal.isOpen} onClose={_createRoomModal.onClose} /> }
 		</Drawer>
 	)

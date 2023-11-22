@@ -12,7 +12,8 @@ import {
 	FormControl,
 	FormLabel,
 	Box,
-	Text
+	Text,
+	useToast
 } from '@chakra-ui/react'
 import { Error } from '../General'
 import { CreateRoomInput } from '../../utils/types';
@@ -33,7 +34,8 @@ interface Props {
 
 export const CreateRoom : React.FC<Props> = ({isOpen, onClose, updateRooms}) => {
 
-	
+
+	const toast = useToast();
 	const [form, setForm] = React.useState<any>({});
 	const [error, setError] = React.useState("");
 	const [roomType, setRoomType] = React.useState(types[0]);
@@ -58,12 +60,26 @@ export const CreateRoom : React.FC<Props> = ({isOpen, onClose, updateRooms}) => 
 			roomType: roomType,
 			password: form.roomPassword 
 		}
-		const response = await createRoomService(data);
-		if(response){
+		createRoomService(data).then(_ => {
 			updateRooms({ name: form.roomName, roomType: roomType });
+			onClose();	
+			toast({
+				title: "chat room created successfuly",
+				duration: 9000,
+				isClosable: true,
+				status: "success"
+			})
+		}).catch(e => {
+			console.log("creating room error : ", e);
+			toast({
+				title: "something went wrong creating room chat",
+				duration: 9000,
+				isClosable: true,
+				status: "error"
+			})
 			onClose();
-		}
-		console.log("------- sending socket", response);
+		});
+		
 	}
 
 	return (

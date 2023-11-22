@@ -12,9 +12,10 @@ interface Props {
 	isOpen: boolean;
 	onClose: () => void;
 	chatId: number;
+	removeRoom: (id: number) => void;
 }
 
-export const Chat : React.FC<Props> = ({isOpen, onClose, chatId}) => {
+export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom}) => {
 
 	const _settings = useDisclosure();
 	const [messages, setMessages] = React.useState<any>([
@@ -94,7 +95,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId}) => {
 					</Flex>
 				</Flex>
 			</DrawerContent>
-			{ _settings.isOpen && <ChatSettings roomId={chatId} isOpen={_settings.isOpen} onClose={_settings.onClose} /> }
+			{ _settings.isOpen && <ChatSettings closeAll={() => {onClose(); removeRoom(chatId);}} roomId={chatId} isOpen={_settings.isOpen} onClose={_settings.onClose} /> }
 		</Drawer>
 	)
 }
