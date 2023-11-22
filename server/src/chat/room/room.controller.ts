@@ -65,14 +65,16 @@ export class RoomController {
       await this.roomService.Un_muteUser(request.user, body)
     }
 
-    @Get("users/banned")
+    @Post("users/banned")
     async getBannedUsers(@Req() request: any, @Body() body: RoomDTO) {
       return (await this.roomService.getBannedUsers(request.user, body))
     }
-    @Get("users/muted")
+
+    @Post("users/muted")
     async getMutedUsers(@Req() request: any, @Body() body: RoomDTO) {
       return (await this.roomService.getMutedUsers(request.user, body))
     }
+    
     @Get("/:room_id/users")
     async getRoomUsers(@Req() request: any , @Param('room_id', ParseIntPipe) room_id : number) {
       return (await this.roomService.getAllRoomUsers(request.user, room_id))
