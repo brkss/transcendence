@@ -141,5 +141,17 @@ export const unMuteMemberService = async (roomID: number, userID: number) => {
 	return response.data;
 }
 
+// kick room members 
+export const kickMemberService = async (roomID: number, userID: number) => {
+	const response = await api.post(`${API_URL}/room/users/kick`, {
+		room_id: roomID,
+		user_id: userID
+	}, {
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
+	return response.data;
+}
 
 

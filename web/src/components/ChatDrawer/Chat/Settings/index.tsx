@@ -17,12 +17,25 @@ import {
 	MenuList,
 	MenuItem,
 } from '@chakra-ui/react';
-import { Avatar } from '../../Avatar'
+import { Avatar } from '../../../Avatar'
 import { AiOutlineUserAdd, AiOutlineUserDelete, AiOutlineClockCircle } from 'react-icons/ai';
 import { API_URL } from '@/utils/constants';
 import { getAccessToken } from '@/utils/token';
 import { io } from 'socket.io-client';
-import { deleteRoomService, getRoomMembers, leaveRoomService } from '@/utils/services';
+import { 
+	banMemberService,
+	deleteRoomService, 
+	getBannedMembersService, 
+	getMutedMembersService, 
+	getRoomMembers, 
+	kickMemberService, 
+	leaveRoomService,
+	muteMemberService,
+	 
+} from '@/utils/services';
+import { BannedMembers } from './Banned';
+import { Members } from './Members';
+import { MutedMembers } from './Muted';
 
 interface Props {
 	isOpen: boolean;
@@ -35,8 +48,12 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 	
 	const toast = useToast();
 	const [members, setMembers] = React.useState<any []>([]);
+	const [banned, setBanned] = React.useState<any []>([]);
+	const [muted, setMuted] = React.useState<any []>([]);
 
 	React.useEffect(() => {
+		getBannedMembers();
+		getMutedMembers();
 		(async () => {
 			const response = await getRoomMembers(roomId);
 			console.log("room members : ", response);
@@ -89,12 +106,116 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 		})
 	}
 
-	const handleBanUser = () => {
-
+	const handleKickUser = (userID: number) => {
+		kickMemberService(roomId, userID).then(response => {
+			console.log("kick user response : ", response);
+			// update members;
+			const tmp = [...members]
+			const index = tmp.findIndex(x => x.id === userID);
+			if(index != -1){
+				tmp.splice(index, 1);
+				setMembers([...tmp]);
+			}
+			toast({
+				title: `you kicked ${members[index].username} lol`,
+				status: "success",
+				duration: 9000,
+				isClosable: true	
+			})
+		}).catch(e => {
+			console.log("error : ", e);
+			toast({
+				title: "Something went wrong: Can't kick user",
+				status: "error",
+				duration: 9000,
+				isClosable: true	
+			})
+		});
 	}
 
-	const handleMuteUser = () => {
+	const handleBanUser = (userID: number) => {
+		banMemberService(roomId, userID).then(response => {
+			console.log("ban user response : ", response);
+			// update members;
+			const tmp = [...members]
+			const index = tmp.findIndex(x => x.id === userID);
+			if(index != -1){
+				const bannedUser = tmp.splice(index, 1);
+				setMembers([...tmp]);
+				setBanned([bannedUser, ...banned]);
+			}
+			toast({
+				title: `hmm you banned ${members[index].username}`,
+				status: "success",
+				duration: 9000,
+				isClosable: true	
+			})
+		}).catch(e => {
+			console.log("error : ", e);
+			toast({
+				title: "Something went wrong: Can't ban user",
+				status: "error",
+				duration: 9000,
+				isClosable: true	
+			})
+		});
+	}
 
+	const handleMuteUser = (userID: number) => {
+		muteMemberService(roomId, userID, 10).then(response => {
+			console.log("mute user response : ", response);
+			// update members;
+			const tmp = [...members]
+			const index = tmp.findIndex(x => x.id === userID);
+			if(index != -1){
+				const bannedUser = tmp.splice(index, 1);
+				setMembers([...tmp]);
+				setBanned([bannedUser, ...banned]);
+			}
+			toast({
+				title: `hmm you banned ${members[index].username}`,
+				status: "success",
+				duration: 9000,
+				isClosable: true	
+			})
+		}).catch(e => {
+			console.log("error : ", e);
+			toast({
+				title: "Something went wrong: Can't mute user",
+				status: "error",
+				duration: 9000,
+				isClosable: true	
+			})
+		});
+	}
+
+	const getMutedMembers = () => {
+		getMutedMembersService(roomId).then(response => {
+			setMuted([...response.mutedUsers]);
+		}).catch(e => {
+			console.log("get muted members error : ", e);
+			toast({
+				title: "Something went wrong: Can't get muted users",
+				status: "error",
+				duration: 9000,
+				isClosable: true	
+			})
+		});
+	}
+
+	const getBannedMembers = () => {
+		getBannedMembersService(roomId).then(response => {
+			console.log("banned users response : ", response);
+			setMuted([...response.bannedUsers]);
+		}).catch(e => {
+			console.log("get banned members error : ", e);
+			toast({
+				title: "Something went wrong: Can't get banned users",
+				status: "error",
+				duration: 9000,
+				isClosable: true	
+			})
+		});
 	}
 
 	return (
@@ -133,13 +254,13 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 										<MenuItem >
 											Set Admin
 										</MenuItem>
-										<MenuItem >
+										<MenuItem onClick={() => handleBanUser(member.id)}>
 											Ban
 										</MenuItem>
-										<MenuItem  >
+										<MenuItem onClick={() => handleMuteUser(member.id)} >
 											Mute
 										</MenuItem>
-										<MenuItem  color={'red.500'}>
+										<MenuItem onClick={() => handleKickUser(member.id)} color={'red.500'}>
 											Kick
 										</MenuItem>
 									</MenuList>

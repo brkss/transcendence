@@ -835,7 +835,7 @@ export class RoomService {
         const banned_users = await this.getAllBannedUsers(room.id)
         const response = {
             status: "success",
-            banndUsers: banned_users
+            bannedUsers: banned_users
         }
         return (response)
     }
@@ -864,7 +864,7 @@ export class RoomService {
         const banned_users = await this.getAlMutedUsers(room.id)
         const response = {
             status: "success",
-            banndUsers: banned_users
+            mutedUsers: banned_users
         }
         return (response)
     }
