@@ -565,9 +565,12 @@ export class RoomService {
         if (duplicate_name) {
             throw new BadRequestException('Room With Same Name Already exits')
         }
+        
         // hash room password before insert 
-        const password_hash = await bcrypt.hash_password(payload.password)
-        payload.password = password_hash;
+        if(payload.roomType === "PROTECTED"){
+            const password_hash = await bcrypt.hash_password(payload.password)
+            payload.password = password_hash;
+        }
         // maybe encrypt it aftwerwards 
         const newRoom = await this.createChatRoom(user, payload);
         return (newRoom)

@@ -135,7 +135,7 @@ export class ChatService {
             }
             const data = {
                 userId: user.id,
-                sender_username: user.username,
+                //sender_username: user.username,
                 roomId: room.id,
                 recepient_id: null,
                 message: payload.message
