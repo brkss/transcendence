@@ -27,7 +27,13 @@ export const ChatMessages : React.FC<Props> = ({messages}) => {
 	return (
 		<Flex w="100%" h="100%" overflowY="scroll" flexDirection="column" p="20px">
 			{messages.map((item, index) => {
-				if (item.from === "me") {
+				if (item.from === "PongBot") {
+					return (
+						<Box w={'100%'} textAlign={'center'}>
+							<Text fontSize={'12px'} opacity={.8}>{item.text}</Text>
+						</Box>
+					)
+				} else if (item.from === "me") {
 					return (
 						<Flex key={index} w="100%" justify="flex-end">
 							<Flex
