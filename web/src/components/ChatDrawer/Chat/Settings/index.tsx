@@ -31,6 +31,9 @@ import {
 	kickMemberService, 
 	leaveRoomService,
 	muteMemberService,
+	setAdminService,
+	unBanMemberService,
+	unMuteMemberService,
 	 
 } from '@/utils/services';
 import { BannedMembers } from './Banned';
@@ -140,12 +143,13 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 			const tmp = [...members]
 			const index = tmp.findIndex(x => x.id === userID);
 			if(index != -1){
-				const bannedUser = tmp.splice(index, 1);
+				const bannedUser = tmp.splice(index, 1)[0];
+				console.log("banned user : ", bannedUser)
 				setMembers([...tmp]);
 				setBanned([bannedUser, ...banned]);
 			}
 			toast({
-				title: `hmm you banned ${members[index].username}`,
+				title: `you banned ${members[index].username}`,
 				status: "success",
 				duration: 9000,
 				isClosable: true	
@@ -161,19 +165,19 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 		});
 	}
 
-	const handleMuteUser = (userID: number) => {
-		muteMemberService(roomId, userID, 10).then(response => {
+	const handleMuteUser = (userID: number, duration: number) => {
+		muteMemberService(roomId, userID, duration * 60).then(response => {
 			console.log("mute user response : ", response);
 			// update members;
 			const tmp = [...members]
 			const index = tmp.findIndex(x => x.id === userID);
 			if(index != -1){
-				const bannedUser = tmp.splice(index, 1);
+				const mutedUser = tmp.splice(index, 1)[0];
 				setMembers([...tmp]);
-				setBanned([bannedUser, ...banned]);
+				setMuted([mutedUser, ...muted]);
 			}
 			toast({
-				title: `hmm you banned ${members[index].username}`,
+				title: `you muted ${members[index].username}`,
 				status: "success",
 				duration: 9000,
 				isClosable: true	
@@ -191,6 +195,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 
 	const getMutedMembers = () => {
 		getMutedMembersService(roomId).then(response => {
+			console.log("muted users : ", response);
 			setMuted([...response.mutedUsers]);
 		}).catch(e => {
 			console.log("get muted members error : ", e);
@@ -206,7 +211,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 	const getBannedMembers = () => {
 		getBannedMembersService(roomId).then(response => {
 			console.log("banned users response : ", response);
-			setMuted([...response.bannedUsers]);
+			setBanned([...response.bannedUsers]);
 		}).catch(e => {
 			console.log("get banned members error : ", e);
 			toast({
@@ -218,59 +223,117 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 		});
 	}
 
+	const handleUnmuteMember = (uid: number) => {
+		unMuteMemberService(roomId, uid).then(response => {
+			console.log("unmute user response : ", response);
+			const index = muted.findIndex(x => x.id === uid);
+			if(index != -1){
+				const tmp = [...muted];
+				const unMutedUser = tmp.splice(index, 1)[0];
+				setMembers([unMutedUser, ...members]);
+				setMuted([...tmp]);
+				toast({
+					title: `You unmuted ${unMutedUser.username} !`,
+					duration: 9000,
+					isClosable: true,
+					status: "success"
+				})
+			}
+			
+		}).catch(e => {
+			console.log("something went wrong unmuting user : ", e);
+			toast({
+				title: `Something went wrong: can't unmute user !`,
+				duration: 9000,
+				isClosable: true,
+				status: "error"
+			});
+		})
+	}
+
+	const handleUnbanMember = (uid: number) => {
+		unBanMemberService(roomId, uid).then(response => {
+			console.log("unban user response : ", response);
+			const index = banned.findIndex(x => x.id === uid);
+			if(index != -1){
+				const tmp = [...banned];
+				const unBannedUser = tmp.splice(index, 1)[0];
+				setMembers([unBannedUser, ...members]);
+				setBanned([...tmp]);
+				toast({
+					title: `You unbanned ${unBannedUser.username} !`,
+					duration: 9000,
+					isClosable: true,
+					status: "success"
+				})
+			}
+			
+		}).catch(e => {
+			console.log("something went wrong ubnaning user : ", e);
+			toast({
+				title: `Something went wrong: can't unban user !`,
+				duration: 9000,
+				isClosable: true,
+				status: "error"
+			});
+		})
+	}
+
+	// set admin 
+	const handleSetAdmin = (uid: number) => {
+		setAdminService(roomId, uid).then(response => {
+			console.log("set admin response : ", response);
+			const user = members.find(x => x.id === uid);
+			// update members 
+			setMembers(curr => curr.map(user => {
+				if(user.id === uid){
+					user.isAdmin = true
+				}
+				return user;
+			}))
+			toast({
+				title: `You've added ${user.username || ''} as an admin !`,
+				duration: 9000,
+				isClosable: true,
+				status: "success"
+			})
+		}).catch(e => {
+			console.log("something went wrong adding new admin : ", e);
+			const user = members.find(x => x.id === uid);
+			toast({
+				title: `Something went wrong: Can't add ${user.username || ''} as an admin !`,
+				duration: 9000,
+				isClosable: true,
+				status: "success"
+			})
+		})
+	}
+
 	return (
 		<Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Chat Settings</ModalHeader>
           <ModalCloseButton />
-          <ModalBody pt={'10px'}>
-				<Text fontWeight={'bold'}>General</Text>
-				<Flex m={'10px 0'}>
+          <ModalBody pt={'0px'}>
+				
+				<Flex m={'0px 0 20px'}>
 					<Button size={'sm'} colorScheme='red' variant={'outline'} mr={'10px'} onClick={() => handleLeavingRoom()}>Leave Room</Button>
 					<Button size={'sm'} colorScheme='red' variant={'outline'} mr={'10px'} onClick={() => handleDeleteRoom()} >Delete Room</Button>
 				</Flex>
-				<Text fontWeight={'bold'}>Members</Text>
+				<Members
+					members={members}
+					kick={(uid) => handleKickUser(uid)}
+					ban={(uid) => handleBanUser(uid)}
+					mute={(uid, duration) => handleMuteUser(uid, duration)}
+					setAdmin={(userID) => handleSetAdmin(userID)}
+				/>
 				{
-					members.map((member, key) => (
-						<Flex border={'2px solid transparent'} borderColor={member.isAdmin ? "gold" : "transparent"} key={key} alignItems={'center'} justifyContent={'space-between'} p={'10px'} m={'10px 0'} bg={'#f0f0f0'} rounded={'14px'}>
-							<Flex alignItems={'center'}>
-								<Avatar d={'40px'} src={member.avatar} />
-								<Text fontWeight={'bold'} ml={'10px'}>@{member.username}</Text>
-							</Flex>
-							{/* check if current user id admin ! */}
-							{true && 
-								
-								<Menu>
-									<MenuButton
-										aria-label='Options'
-										as={Button}
-										size={'sm'}
-										variant={'unstyled'}
-									>
-										options
-									</MenuButton>
-									<MenuList fontSize={'14px'} fontWeight={'bold'}>
-										<MenuItem >
-											Set Admin
-										</MenuItem>
-										<MenuItem onClick={() => handleBanUser(member.id)}>
-											Ban
-										</MenuItem>
-										<MenuItem onClick={() => handleMuteUser(member.id)} >
-											Mute
-										</MenuItem>
-										<MenuItem onClick={() => handleKickUser(member.id)} color={'red.500'}>
-											Kick
-										</MenuItem>
-									</MenuList>
-								</Menu>
-							}
-							
-						</Flex>			
-					))
+					banned.length > 0 && <BannedMembers banned={banned} unban={(uid) => handleUnbanMember(uid)} />
 				}
-				
+				{
+					muted.length > 0 && <MutedMembers muted={muted} unmute={(uid) => handleUnmuteMember(uid)} />
+				}	
 				
           </ModalBody>
 

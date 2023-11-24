@@ -6,20 +6,35 @@ import {
     MenuButton,
     MenuItem,
     MenuList,
-    Button
+    Button,
+    useDisclosure
 } from '@chakra-ui/react';
 import { Avatar } from '../../../Avatar'
+import { MuteDurationModal } from './MuteDuration';
 
 interface Props {
     members: any[];
     kick: (userID: number) => void;
     ban: (userID: number) => void;
-    mute: (userID: number) => void;
+    mute: (userID: number, duration: number) => void;
     setAdmin: (userID: number) => void;
 }
 
 export const Members : React.FC<Props> = ({members, ban, kick, mute, setAdmin}) => {
 
+    const _durationModal = useDisclosure();
+    const [selectedUser, setSelectedUser] = React.useState(-1);
+    const [duration, setDuration] = React.useState(5);
+
+    const handleMute = (uid: number) => {
+        setSelectedUser(uid);
+        _durationModal.onOpen();
+    }
+
+    const handleMuting = (duration: number) => {
+        mute(selectedUser, duration);
+        _durationModal.onClose();
+    }
 
     return (
         <>
@@ -44,13 +59,13 @@ export const Members : React.FC<Props> = ({members, ban, kick, mute, setAdmin}) 
                                     options
                                 </MenuButton>
                                 <MenuList fontSize={'14px'} fontWeight={'bold'}>
-                                    <MenuItem >
+                                    <MenuItem onClick={() => setAdmin(member.id)} >
                                         Set Admin
                                     </MenuItem>
                                     <MenuItem onClick={() => ban(member.id)}>
                                         Ban
                                     </MenuItem>
-                                    <MenuItem onClick={() => mute(member.id)} >
+                                    <MenuItem onClick={() => handleMute(member.id)} >
                                         Mute
                                     </MenuItem>
                                     <MenuItem onClick={() => kick(member.id)} color={'red.500'}>
@@ -63,6 +78,7 @@ export const Members : React.FC<Props> = ({members, ban, kick, mute, setAdmin}) 
                     </Flex>			
                 ))
             }
+            { selectedUser > -1 && <MuteDurationModal onClose={_durationModal.onClose} isOpen={_durationModal.isOpen} onMute={(duration: number) => handleMuting(duration) } /> }
         </>
     )
 }

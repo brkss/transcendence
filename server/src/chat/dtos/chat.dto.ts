@@ -69,6 +69,15 @@ export class MuteUserDTO extends RoomDTO {
     muteDuration: number
 
 }
+
+export class UnMuteUserDTO extends RoomDTO {
+   
+    @IsNumber()
+    user_id: number
+
+}
+
+
 export class BanDTO extends kickDTO {
 
 }

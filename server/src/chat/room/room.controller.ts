@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Req, UseGuards } from "@nestjs/common";
 import { RoomService } from "./room.service";
 import { JwtAuth } from "src/auth/guards/jwtauth.guard";
-import { BanDTO, JoinRoomDTO, MuteUserDTO, RoomDTO, createRoomDTO, findRoomDTO, kickDTO, setAdminDTO, updateRoomDTO } from "../dtos/chat.dto";
+import { BanDTO, JoinRoomDTO, MuteUserDTO, RoomDTO, createRoomDTO, findRoomDTO, kickDTO, setAdminDTO, updateRoomDTO, UnMuteUserDTO } from "../dtos/chat.dto";
 
 @Controller('room')
 @UseGuards(JwtAuth)
@@ -61,7 +61,7 @@ export class RoomController {
     }
   
     @Post("users/unmute")
-    async UnmuteUser(@Req() request: any, @Body() body: MuteUserDTO) {
+    async UnmuteUser(@Req() request: any, @Body() body: UnMuteUserDTO) {
       await this.roomService.Un_muteUser(request.user, body)
     }
 

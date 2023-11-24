@@ -1,6 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { AdministrateDTO, BanDTO, JoinRoomDTO, MuteUserDTO, RoomDTO, createRoomDTO, findRoomDTO, kickDTO, setAdminDTO, updateRoomDTO } from "../dtos/chat.dto";
+import { AdministrateDTO, BanDTO, JoinRoomDTO, MuteUserDTO, RoomDTO, createRoomDTO, findRoomDTO, kickDTO, setAdminDTO, updateRoomDTO, UnMuteUserDTO } from "../dtos/chat.dto";
 import {RoomType } from '@prisma/client'
 import * as bcrypt from "src/utils/bcrypt"
 
@@ -795,7 +795,7 @@ export class RoomService {
         return (resp)
     }
 
-    async Un_muteUser(user: any, payload: MuteUserDTO) {
+    async Un_muteUser(user: any, payload: UnMuteUserDTO) {
         const room = await this.getRoomById(payload.room_id)
         const is_muted = await this.IsUserMuted(user.id, room.id)
         if (!is_muted) {
@@ -835,7 +835,7 @@ export class RoomService {
         const banned_users = await this.getAllBannedUsers(room.id)
         const response = {
             status: "success",
-            bannedUsers: banned_users
+            bannedUsers: banned_users.map(bu => ({...bu.banned_user}))
         }
         return (response)
     }
@@ -861,10 +861,10 @@ export class RoomService {
         if (!user_is_admin) {
             throw new ForbiddenException()
         }
-        const banned_users = await this.getAlMutedUsers(room.id)
+        const muted_users = await this.getAlMutedUsers(room.id)
         const response = {
             status: "success",
-            mutedUsers: banned_users
+            mutedUsers: muted_users.map(bu => ({...bu.user}))
         }
         return (response)
     }

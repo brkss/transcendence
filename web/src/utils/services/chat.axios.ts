@@ -154,4 +154,3 @@ export const kickMemberService = async (roomID: number, userID: number) => {
 	return response.data;
 }
 
-
