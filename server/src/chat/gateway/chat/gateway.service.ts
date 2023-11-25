@@ -7,7 +7,6 @@ import { RoomService } from "src/chat/room/room.service";
 export class GatewayService {
     constructor(private jwtService: JwtService,
         private roomService: RoomService) {
-
     }
 
     UnauthorizedDisconnect(socket: Socket) {

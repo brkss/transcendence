@@ -28,6 +28,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom}) =>
 
 	const _settings = useDisclosure();
 	const [messages, setMessages] = React.useState<any>([]);
+
 	const [inputMessage, setInputMessage] = React.useState("");
 	
 	const handleSendMessage = () => {
@@ -90,6 +91,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom}) =>
 			<DrawerOverlay />
 			<DrawerContent className='afr'	>
 				<Flex w="100%" h={{base: "calc(100% - 81px)", md: "100%"}} justify="center" align="center" zIndex={9999}>
+				
 					<Flex w="100%" h="100%" flexDir="column">
 						<ChatHeader openSettings={_settings.onOpen} />
 						
