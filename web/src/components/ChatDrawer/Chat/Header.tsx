@@ -5,10 +5,11 @@ import { BsChatDots } from 'react-icons/bs'
 
 interface Props {
 	openSettings: () => void;
+	roomName: string;
 }
 
 
-export const ChatHeader : React.FC<Props> = ({openSettings}) => {
+export const ChatHeader : React.FC<Props> = ({openSettings, roomName}) => {
 
 	return (
 		<Flex justifyContent={'space-between'} p={'20px'} w="100%">
@@ -20,7 +21,7 @@ export const ChatHeader : React.FC<Props> = ({openSettings}) => {
 				</Avatar>
 				<Flex flexDirection="column" mx="5" justify="center">
 					<Text fontSize="lg" fontWeight="bold">
-						Ferin Patel
+						{roomName}
 					</Text>
 					
 				</Flex>

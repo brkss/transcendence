@@ -14,9 +14,10 @@ interface Props {
 	onClose: () => void;
 	chatId: number;
 	removeRoom: (id: number) => void;
+	name: string;
 }
 
-export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom}) => {
+export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, name}) => {
 
 	// init socket 
 	let socket = React.useMemo(() => io(API_URL, {
@@ -93,7 +94,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom}) =>
 				<Flex w="100%" h={{base: "calc(100% - 81px)", md: "100%"}} justify="center" align="center" zIndex={9999}>
 				
 					<Flex w="100%" h="100%" flexDir="column">
-						<ChatHeader openSettings={_settings.onOpen} />
+						<ChatHeader roomName={name} openSettings={_settings.onOpen} />
 						
 						<ChatMessages messages={messages} />
 						<ChatFooter
