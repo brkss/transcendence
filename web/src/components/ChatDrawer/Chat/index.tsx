@@ -1,5 +1,5 @@
 import React from 'react';
-import { Drawer, DrawerOverlay, DrawerContent, Flex, Box, Text, Button, Input, DrawerCloseButton, useDisclosure } from '@chakra-ui/react';
+import { Drawer, DrawerOverlay, DrawerContent, Flex, Box, Text, Button, Input, DrawerCloseButton, useDisclosure, useToast } from '@chakra-ui/react';
 import { ChatFooter } from './Footer';
 import { ChatHeader } from './Header';
 import { ChatMessages } from './Messages'
@@ -25,7 +25,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom}) =>
 		}
 	}), []); 
 
-
+	const toast = useToast();
 	const _settings = useDisclosure();
 	const [messages, setMessages] = React.useState<any>([]);
 

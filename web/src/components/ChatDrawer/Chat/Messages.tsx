@@ -63,7 +63,7 @@ export const ChatMessages : React.FC<Props> = ({messages}) => {
 							</Flex>
 						</Flex>
 						);
-				} else {
+				} else if(item.from && item.text) {
 					return (
 						<Flex key={index} w="100%" alignItems={'center'}>
 							<Avatar
