@@ -13,21 +13,26 @@ export class authController {
     @Get('sync')
     @UseGuards(auth42Guard)
     async userLogin(@Req() req: any, @Res({passthrough: true}) resp: Response) {
-        // add user to database or get his id 
-        const userID = await this.auth_service.getUserID(req.user);
-		const refresh_token = generateRefreshToken(userID);
-		const auth2fa_active = await this.auth_service.auth2faActive(userID)
-        if (auth2fa_active){
-            const auth2fa_token = await this.auth_service.login2fa(req)
-            resp.cookie('auth2fa_token', auth2fa_token)
-            resp.redirect("/2fa/otp")
-            // TODO: redirect user to 2fa page!!
-            // POST opt code to /2fa/opt 
+        try {
+             // add user to database or get his id 
+            const userID = await this.auth_service.getUserID(req.user);
+            const refresh_token = generateRefreshToken(userID);
+            const auth2fa_active = await this.auth_service.auth2faActive(userID)
+            if (auth2fa_active){
+                const auth2fa_token = await this.auth_service.login2fa(req)
+                resp.cookie('auth2fa_token', auth2fa_token)
+                resp.redirect("/2fa/otp")
+                // TODO: redirect user to 2fa page!!
+                // POST opt code to /2fa/opt 
+            }
+            else {
+                resp.cookie('refresh_token', refresh_token, {maxAge: 7 * 24 * 3600 * 1000, httpOnly: true});
+                resp.redirect("http://localhost:8000/")
+            }
+        } catch (error) {
+            console.log('ERROR: ', error)
         }
-        else {
-            resp.cookie('refresh_token', refresh_token, {maxAge: 7 * 24 * 3600 * 1000, httpOnly: true});
-            resp.redirect("http://localhost:8000/")
-        }
+       
     }
 
 	@Post("refresh-token")

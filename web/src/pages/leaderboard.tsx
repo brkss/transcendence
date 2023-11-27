@@ -10,13 +10,10 @@ import {
 import { Layout, Avatar, withAuth } from '../components'
 
 
-function Leaderboard(){
-
-
-
+function Leaderboard() {
 	return (
 		<Layout>
-		<Box>
+			<Box>
 				<Text mb={'20px'} fontSize={'25px'} fontWeight={'bold'}>Leaderboard</Text>
 				<TableContainer>
 					<Table variant='striped' size={'sm'}>
@@ -37,11 +34,11 @@ function Leaderboard(){
 								<Td fontWeight={'bold'}>@keye</Td>
 								<Td fontWeight={'bold'} isNumeric>122 Match</Td>
 							</Tr>
-							
+
 						</Tbody>
 					</Table>
 				</TableContainer>
-		</Box>
+			</Box>
 		</Layout>
 	)
 }

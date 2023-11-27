@@ -20,13 +20,17 @@ const refreshTokenBackground = async () => {
 api.interceptors.request.use(
 	async (config: any) => {
 
+		await refreshTokenBackground();
 		const token = getAccessToken();
-		
+
 		config.headers = {
 			'Authorization': `${token}`,
 			'Accept': `application/json`,
-			'Content-Type': 'application/x-www-form-urlencoded'
+		 	//'Content-Type': 'application/json',
+			//'Content-Type': 'application/x-www-form-urlencoded',
+			...config.headers,
 		}
+		
 		return config;
 	},
 	err => {
