@@ -157,16 +157,16 @@ export class ChatService {
                 time: Date()
             }
             socket.to("private-chat-socket-" + String(recepient_id))
-                .emit("PrivateMessage", message)
+                .emit("privateMessage", message)
             const data = {
                 userId: user.id,
                 roomId: null,
                 recepient_id: recepient_id,
                 message: payload.message
             }
-            this.roomService.saveMessageInDB(data)
+            await this.roomService.saveMessageInDB(data)
             // this saves user in chat history
-            this.roomService.saveUserInChats(user.id, recepient_id)
+            await this.roomService.saveUserInChats(user.id, recepient_id)
         } else {
             socket.emit("Error", "User Not found")
         }

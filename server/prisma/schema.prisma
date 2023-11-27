@@ -96,7 +96,7 @@ model RoomMembers {
   isAdmin     Boolean @default(false)
   inChat      Boolean @default(false)
   mutedUntile BigInt?
-
+  isBanned Boolean @default(false)
 
   user user     @relation(fields: [userId], references: [id], onDelete: Cascade)
   room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)

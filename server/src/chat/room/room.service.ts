@@ -214,7 +214,12 @@ export class RoomService {
     private async getRoomUsers(roomId: number) {
         const roomMembers = await this.prismaService.roomMembers.findMany({
             where: {
-                roomId: roomId
+                roomId: roomId,
+                isBanned: false,
+                OR : [
+                    { mutedUntile:null},
+                    { mutedUntile: {lt:  Date.now() }}
+                ],
             },
             select: {
                 isAdmin: true,
@@ -257,6 +262,17 @@ export class RoomService {
                     user_id: true
                 }
             })
+            const member = await this.prismaService.roomMembers.update({
+                where: {
+                    userId_roomId: {
+                        userId: userId,
+                        roomId: roomId,
+                    }
+                },
+                data: {
+                    isBanned: true,
+                }
+            })
         } catch (error) {
             console.log(error)
             return (false)
@@ -276,6 +292,17 @@ export class RoomService {
                 },
                 select: {
                     user_id: true
+                }
+            })
+            const member = await this.prismaService.roomMembers.update({
+                where: {
+                    userId_roomId: {
+                        userId: userId,
+                        roomId: roomId,
+                    }
+                },
+                data: {
+                    isBanned: true,
                 }
             })
         } catch (error) {
@@ -469,7 +496,7 @@ export class RoomService {
     }
 
     async muteUserFor(userId: number, roomId: number, muteDuration: number) {
-        const mute_duration = Date.now() + muteDuration
+        const mute_duration = Date.now() + (muteDuration * 1000) // ms to seconds
         const entry = await this.prismaService.roomMembers.update({
             where: {
                 userId_roomId: {
@@ -551,10 +578,11 @@ export class RoomService {
             },
             select: {
                 //sender_username: true,
+                id: true,
                 sender_id: true,
                 message: true,
                 created_at: true
-            }
+            },
         })
         return (chat_messages)
     }
@@ -802,7 +830,7 @@ export class RoomService {
         const room = await this.getRoomById(payload.room_id)
         const is_muted = await this.IsUserMuted(user.id, room.id)
         if (!is_muted) {
-            throw new BadRequestException()
+            throw new BadRequestException("User not muted")
         }
 
         const operation_data: AdministrateDTO = {
