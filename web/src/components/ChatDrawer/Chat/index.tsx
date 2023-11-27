@@ -57,6 +57,8 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 		socket.on('connect', () => {
 			console.log("socket connected");
 		})
+
+		setMessages([]);
 		
 		socket.connect()
 		
@@ -79,7 +81,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 			socket.off("success")
 			socket.disconnect()
 		}
-	}, [socket])
+	}, [socket, chatId])
 
 
 	return (
