@@ -27,14 +27,15 @@ interface Props {
 
 export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId}) => {
 	
-	const [members, setMembers] = React.useState([]);
+	const [members, setMembers] = React.useState<any []>([]);
 
 	React.useEffect(() => {
 		(async () => {
 			const response = await getRoomMembers(roomId);
 			console.log("room members : ", response);
+			setMembers([...response]);
 		})();
-	});
+	}, [roomId]);
 
 	const handleDeleteRoom = async () => {
 		const response = await deleteRoomService(roomId);
@@ -62,23 +63,31 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId}) => {
 					<Button size={'sm'} colorScheme='red' variant={'outline'} mr={'10px'}>Delete Room</Button>
 				</Flex>
 				<Text fontWeight={'bold'}>Members</Text>
-				<Flex alignItems={'center'} justifyContent={'space-between'} p={'10px'} m={'10px 0'} bg={'#f0f0f0'} rounded={'14px'}>
-					<Flex alignItems={'center'}>
-						<Avatar d={'40px'} />
-						<Text fontWeight={'bold'} ml={'10px'}>@avocado</Text>
-					</Flex>
-					<Flex alignItems={'center'}>
-						<Button variant={'ghost'} p={0}>
-							<AiOutlineUserDelete />
-						</Button>
-						<Button variant={'ghost'} p={0}>
-							<AiOutlineClockCircle />
-						</Button>
-						<Button variant={'ghost'} p={0}>
-							<AiOutlineUserAdd />
-						</Button>
-					</Flex>
-				</Flex>
+				{
+					members.map((member, key) => (
+						<Flex key={key} alignItems={'center'} justifyContent={'space-between'} p={'10px'} m={'10px 0'} bg={'#f0f0f0'} rounded={'14px'}>
+							<Flex alignItems={'center'}>
+								<Avatar d={'40px'} src={member.avatar} />
+								<Text fontWeight={'bold'} ml={'10px'}>@{member.username}</Text>
+							</Flex>
+							{member.isAdmin && 
+								<Flex alignItems={'center'}>
+									<Button variant={'ghost'} p={0}>
+										<AiOutlineUserDelete />
+									</Button>
+									<Button variant={'ghost'} p={0}>
+										<AiOutlineClockCircle />
+									</Button>
+									<Button variant={'ghost'} p={0}>
+										<AiOutlineUserAdd />
+									</Button>
+								</Flex>
+							}
+							
+						</Flex>			
+					))
+				}
+				
 				
           </ModalBody>
 

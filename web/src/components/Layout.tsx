@@ -49,7 +49,7 @@ export const Layout : React.FC<any> = ({children}) => {
 				showFriends.onOpen()
 				break;
 			case "game":
-				showGame.onOpen()
+				router.push("/game")
 				break;
 			case "settings":
 				showSettings.onOpen()

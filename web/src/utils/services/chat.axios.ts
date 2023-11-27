@@ -2,6 +2,12 @@ import { API_URL } from '../constants';
 import { api } from './axios.config';
 import { CreateRoomInput, UpdateRoomInput, JoinRoomInput } from '../types';
 
+// search rooms
+export const searchRooms = async (query: string) => {
+	const response = await api.post(`${API_URL}/room/search`, { room_name: query }, { headers: { 'Content-Type': 'application/json' }});
+	return response.data;
+}
+
 // room members 
 export const getRoomMembers = async (roomID: number) => {
 	const response = await api.get(`${API_URL}/room/${roomID}/users`);
@@ -37,6 +43,7 @@ export const updateRoomService = async (input: UpdateRoomInput) => {
 
 // join room
 export const joinRoomService = async (input: JoinRoomInput) => {
+	console.log("join input : ", input);
 	const response = await api.post(`${API_URL}/room/join`, {...input}, {
 		headers: { 'Content-Type': 'application/json' }
 	});
