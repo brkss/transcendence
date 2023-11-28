@@ -1,17 +1,6 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { RoomService } from 'src/chat/room/room.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-
-import  {createRoomDTO,
-        JoinRoomDTO,
-        LeaveRoomDTO,
-        chatMessageDTO,
-        updateRoomDTO,
-        kickDTO,
-        setAdminDTO,
-        RoomDTO,
-        MuteUserDTO,
-        PrivateMessageDTO} from "src/chat/dtos/chat.dto"
 
 @Injectable()
 export class UserService {
@@ -143,8 +132,8 @@ export class UserService {
 			where: {
 				status: "pending", 
 				OR: [
-					{ user_id: userId }, 
-					{ friend_id: userId }
+					{ user_id: userId, friend_id: friendId }, 
+					{ user_id: friendId, friend_id: userId }, 
 		 		]
 			},
 			select: {
