@@ -27,7 +27,7 @@ export class authController {
             }
             else {
                 resp.cookie('refresh_token', refresh_token, {maxAge: 7 * 24 * 3600 * 1000, httpOnly: true});
-                resp.redirect("http://localhost:8000/")
+                resp.redirect("http://localhost:3000/")
             }
         } catch (error) {
             console.log('ERROR: ', error)
