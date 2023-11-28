@@ -34,12 +34,12 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 			return;
 		}
 		const data = inputMessage;
-		/*
-		socket.emit("chatMessage", {
-			room_id: chatId,
+		
+		socket.emit("privateMessage", {
+			userId,
 			message: data
 		});
-		*/
+		
 		setMessages((old: any) => [...old, { from: "me", text: data }]);
 		setInputMessage("");
 	};
@@ -60,7 +60,7 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 		
 		socket.connect()
 		
-		socket.on("message", handleRecievingMessage);
+		socket.on("privateMessage", handleRecievingMessage);
 
 		socket.on("Error", (data) => {
 			console.log("got new error : ", data);

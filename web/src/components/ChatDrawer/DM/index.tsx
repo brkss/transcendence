@@ -21,7 +21,7 @@ import { getUserChats } from '@/utils/services';
 export const Dms : React.FC = () => {
 
     const [dms, setDms] = React.useState<any[]>([
-        {name: "brahim", username: "brkss", image: ""},
+        //{name: "brahim", username: "brkss", image: ""},
     ]);
     const [selectedUserId, setSelectedUserId] = React.useState(-1);
     const _chat = useDisclosure();

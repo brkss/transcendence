@@ -48,6 +48,5 @@ export const getRelationship = async (username: string) => {
 
 export const getUserChats = async () => {
 	const response = await api.get(`${API_URL}/user/chats`);
-	console.log("got these chats : ", response);
 	return response.data;
 }
