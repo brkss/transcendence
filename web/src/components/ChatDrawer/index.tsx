@@ -20,6 +20,7 @@ import { Chat } from './Chat'
 import {  AiOutlinePlusCircle } from 'react-icons/ai';
 import { CreateRoom } from './CreateRoom'
 import { ChatRooms } from './Room';
+import { Dms } from './DM';
 
 interface Props {
 	isOpen: boolean;
@@ -50,11 +51,11 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 								<Tab>Private Messages</Tab>
 							</TabList>
 							<TabPanels>
-								<TabPanel>
+								<TabPanel p={0}>
 									<ChatRooms />
 								</TabPanel>
-								<TabPanel>
-								<p>two!</p>
+								<TabPanel p={0}>
+									<Dms />	
 								</TabPanel>
 							</TabPanels>
 						</Tabs>

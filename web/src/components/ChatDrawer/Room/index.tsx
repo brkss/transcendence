@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react'
 import { ChatBox } from './Item';
 import { RoomPasswordModal } from './RoomPasswordModal';
-import { Chat } from '../Chat'
+import { Chat } from './Chat'
 import { SearchChat } from './Search';
 import {  AiOutlinePlusCircle } from 'react-icons/ai';
 import { CreateRoom } from '../CreateRoom'
