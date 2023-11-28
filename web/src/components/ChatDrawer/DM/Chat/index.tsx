@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { Drawer, DrawerOverlay, DrawerContent, Flex, Box, Text, Button, Input, DrawerCloseButton, useDisclosure, useToast } from '@chakra-ui/react';
 import { ChatFooter } from './Footer';
 import { ChatHeader } from './Header';
@@ -7,6 +7,8 @@ import { API_URL } from '@/utils/constants';
 import { getAccessToken } from '@/utils/token';
 import { io } from 'socket.io-client';
 import decode from 'jwt-decode';
+import { getUserInfo } from '@/utils/services';
+import { Loading } from '@/components/General';
 
 interface Props {
 	isOpen: boolean;
@@ -21,13 +23,22 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 		extraHeaders: {
 			Authorization: getAccessToken()
 		}
-	}), []); 
-
+	}), []);
 	const toast = useToast();
 	const _settings = useDisclosure();
 	const [messages, setMessages] = React.useState<any>([]);
-
 	const [inputMessage, setInputMessage] = React.useState("");
+	const [user, setUser] = React.useState<any>();
+
+	const getUser = () => {
+		getUserInfo(userId).then(response => {
+			console.log("get user info response : ", response);
+			setUser(response);
+		}).catch(e => {
+			console.log("something went wrong getting user : ", e);
+			onClose();
+		})
+	}
 	
 	const handleSendMessage = () => {
 		if (!inputMessage.trim().length) {
@@ -54,7 +65,9 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 
 		socket.on('connect', () => {
 			console.log("socket connected");
-		})
+		});
+
+		getUser();
 
 		setMessages([]);
 		
@@ -82,6 +95,10 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 	}, [socket, userId])
 
 
+	if(!user){
+		return <Loading />
+	}
+
 	return (
 		<Drawer
 			isOpen={isOpen}
@@ -94,7 +111,7 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 				<Flex w="100%" h={{base: "calc(100% - 81px)", md: "100%"}} justify="center" align="center" zIndex={9999}>
 				
 					<Flex w="100%" h="100%" flexDir="column">
-						<ChatHeader name={"Brahim Berkasse" + userId} />
+						<ChatHeader name={user.fullName} image={user.avatar} />
 						
 						<ChatMessages messages={messages} />
 						<ChatFooter

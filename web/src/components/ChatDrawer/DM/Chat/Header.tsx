@@ -5,17 +5,18 @@ import { BsChatDots } from 'react-icons/bs'
 
 interface Props {
 	name: string;
+	image: string;
 }
 
 
-export const ChatHeader : React.FC<Props> = ({name}) => {
+export const ChatHeader : React.FC<Props> = ({name, image}) => {
 
 	return (
 		<Flex justifyContent={'space-between'} p={'20px'} w="100%">
 			<DrawerCloseButton />
 			<Flex>
 				
-				<Avatar size="md" src="https://i.pinimg.com/1200x/42/c4/4b/42c44bc8c1351887c834e8cce3d45bf0.jpg">
+				<Avatar size="md" src={image}>
 					<AvatarBadge boxSize="20px" bg="green.500" />
 				</Avatar>
 				<Flex flexDirection="column" mx="5" justify="center">

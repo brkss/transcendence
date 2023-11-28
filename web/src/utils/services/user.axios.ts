@@ -50,3 +50,8 @@ export const getUserChats = async () => {
 	const response = await api.get(`${API_URL}/user/chats`);
 	return response.data;
 }
+
+export const getUserInfo = async (uid: number) => {
+	const response = await api.get(`${API_URL}/user/user/${uid}`);
+	return response.data;
+}
