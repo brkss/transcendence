@@ -94,7 +94,7 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 				<Flex w="100%" h={{base: "calc(100% - 81px)", md: "100%"}} justify="center" align="center" zIndex={9999}>
 				
 					<Flex w="100%" h="100%" flexDir="column">
-						<ChatHeader name={"Brahim Berkasse"} />
+						<ChatHeader name={"Brahim Berkasse" + userId} />
 						
 						<ChatMessages messages={messages} />
 						<ChatFooter
