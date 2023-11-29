@@ -149,7 +149,6 @@ export class ChatService {
         const recepient_id = payload.userId
         const recepient = await this.userService.getUserByID(payload.userId)
         const user = socket.data.user;
-
         if (recepient?.id == recepient_id) { // user exists 
             const message = {
                 user: user.username,
