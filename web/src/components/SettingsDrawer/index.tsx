@@ -13,8 +13,11 @@ import {
     FormControl,
     FormLabel,
 	Input,
-    Button
+    Button,
+	Grid,
+	GridItem,
 } from '@chakra-ui/react'
+import { Avatar } from '../Avatar';
 
 interface Props {
 	isOpen: boolean;
@@ -36,17 +39,29 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 				<DrawerHeader></DrawerHeader>
 
 				<DrawerBody>
-					<Heading>Settings</Heading>
+					<Heading>Edit Profile</Heading>
 					<Center h={'100%'}>
-						<Box>
-							<FormControl>
-								<FormLabel fontSize={'15px'} fontWeight={'bold'} mb={'5px'}>Name</FormLabel>
-								<Input variant={'filled'} />
-							</FormControl>
-							<FormControl>
-								<FormLabel>Username</FormLabel>
-								<Input variant={'filled'} />
-							</FormControl>
+						<Box w={'100%'}>
+							<Center h={'200px'} textAlign={'center'}>
+								<Avatar />
+							</Center>
+							<Grid templateColumns={'repeat(12, 1fr)'} gap={3}>
+								<GridItem colSpan={{md: 12, base: 12}}>
+									<FormControl>
+										<FormLabel fontSize={'15px'} fontWeight={'bold'} mb={'5px'}>Name</FormLabel>
+										<Input variant={'filled'} />
+									</FormControl>
+								</GridItem>
+								<GridItem colSpan={{md: 12, base: 12}}>
+									<FormControl mt={'0'}>
+										<FormLabel fontSize={'15px'} fontWeight={'bold'} mb={'5px'}>Username</FormLabel>
+										<Input variant={'filled'} />
+									</FormControl>
+								</GridItem>
+							</Grid>
+							
+							
+							
 						</Box>						
 					</Center>
 					

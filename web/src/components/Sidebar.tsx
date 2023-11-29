@@ -41,10 +41,23 @@ interface Props {
 }
 //FIXME: RESPONSIVENESS ISSUE
 export const SideBar: React.FC<Props> = ({ signal }) => {
+	
 	const [isShown, setIsShown] = React.useState(false)
 
 	return (
-		<Box sx={{ position: 'absolute', left: 0, top: '60px', height: '80vh' }} display={'flex'} flexDir={'column'} alignItems={'center'} pos="relative" zIndex={9999} flexDirection={{ md: 'column', base: 'row' }} justifyContent={{ md: 'inherit', base: 'space-between' }} p={'10px 20px'} bg={{ md: "transparent", base: 'white' }} bottom={0}>
+		<Box 
+			sx={{ position: 'absolute', left: 0, top: '60px', height: '80vh' }} 
+			display={'flex'} 
+			flexDir={'column'} 
+			alignItems={'center'} 
+			pos="relative" 
+			zIndex={9999} 
+			flexDirection={{ md: 'column', base: 'row' }} 
+			justifyContent={{ md: 'inherit', base: 'space-between' }} 
+			p={'10px 20px'} 
+			bg={{ md: "transparent", base: 'white' }} 
+			bottom={0}
+		>
 			<Box onClick={() => setIsShown(!isShown)} textAlign={'center'} mb={{ md: '20px', base: '0' }} transition={'.3s'} cursor={'pointer'} _hover={{ transform: 'scale(.95)', transition: '.3s' }}>
 				<Center h={'45px'} w={'45px'} rounded={'16px'} bg={{ md: 'black', base: "white" }} m={'auto'} color={{ md: 'white', base: "black" }} >
 					<motion.div animate={{ rotate: !isShown ? '180deg' : '0deg' }}>

@@ -31,7 +31,7 @@ export const FriendBox: React.FC<Props> = ({name, username, image, sendMessage})
 						</MenuButton>
 						<MenuList>
 							<MenuItem onClick={sendMessage}>
-								New Message
+								Send Message
 							</MenuItem>
 							<MenuItem >
 								Invite to game
