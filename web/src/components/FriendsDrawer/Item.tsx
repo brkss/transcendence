@@ -8,9 +8,10 @@ interface Props {
 	username: string;
 	image: string;
 	sendMessage: () => void;
+	blockUser: () => void;
 }
 
-export const FriendBox: React.FC<Props> = ({name, username, image, sendMessage}) => {
+export const FriendBox: React.FC<Props> = ({name, username, image, sendMessage, blockUser}) => {
 
 	return (
 		<Box mt={'30px'}>
@@ -36,7 +37,7 @@ export const FriendBox: React.FC<Props> = ({name, username, image, sendMessage})
 							<MenuItem >
 								Invite to game
 							</MenuItem>
-							<MenuItem  >
+							<MenuItem onClick={blockUser} >
 								Block
 							</MenuItem>
 						</MenuList>

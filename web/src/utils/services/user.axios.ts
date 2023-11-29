@@ -55,3 +55,31 @@ export const getUserInfo = async (uid: number) => {
 	const response = await api.get(`${API_URL}/user/user/${uid}`);
 	return response.data;
 }
+
+export const blockUser = async (uid: number) => {
+	const response = await api.post(`${API_URL}/user/block`, {
+		user_id: uid
+	},{
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
+
+	return response.data;
+}
+
+export const unblockUser = async (uid: number) => {
+	const response = await api.post(`${API_URL}/user/unblock`, {
+		user_id: uid,
+	},{
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
+	return response.data;
+}
+
+export const userChatHistory = async (uid: number) => {
+	const response = await api.get(`${API_URL}/user/${uid}/chathistory`);
+	return response.data;
+}

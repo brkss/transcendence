@@ -7,8 +7,9 @@ import { API_URL } from '@/utils/constants';
 import { getAccessToken } from '@/utils/token';
 import { io } from 'socket.io-client';
 import decode from 'jwt-decode';
-import { getUserInfo } from '@/utils/services';
+import { getUserInfo, userChatHistory } from '@/utils/services';
 import { Loading } from '@/components/General';
+import jwtDecode from 'jwt-decode';
 
 interface Props {
 	isOpen: boolean;
@@ -60,6 +61,21 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 		setMessages((old: any) => [...old, { from: data.user, text: data.message}])
 	}
 
+	const fetchChatHistory = () => {
+		userChatHistory(userId).then(response => {
+			const me = jwtDecode(getAccessToken()) as any;
+			if(me){
+				setMessages([...messages, ...response.map((msg: any) => (
+					{ from: msg.sender.username === me.username ? "me" : msg.sender.username, text: msg.message }
+				))])
+			}
+			
+			//console.log("chat hostory dm response : ", response);
+		}).catch(e => {
+			console.log("getting chat history error : ", e);
+		}) 
+	}
+
 	
 	React.useEffect(() => {
 
@@ -68,6 +84,7 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 		});
 
 		getUser();
+		fetchChatHistory();
 
 		setMessages([]);
 		
@@ -76,7 +93,12 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 		socket.on("privateMessage", handleRecievingMessage);
 
 		socket.on("Error", (data) => {
-			console.log("got new error : ", data);
+			toast({
+				status: 'error',
+				duration: 9000,
+				isClosable: true,
+				title: data
+			})
 		});
 
 		socket.on("success", (data) => {

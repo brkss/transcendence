@@ -65,7 +65,12 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 		socket.on("message", handleRecievingMessage);
 
 		socket.on("Error", (data) => {
-			console.log("got new error : ", data);
+			toast({
+				status: 'error',
+				duration: 9000,
+				isClosable: true,
+				title: data
+			})
 		});
 
 		socket.on("success", (data) => {
