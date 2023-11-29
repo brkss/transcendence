@@ -95,9 +95,7 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 	}, [socket, userId])
 
 
-	if(!user){
-		return <Loading />
-	}
+	
 
 	return (
 		<Drawer
@@ -108,19 +106,21 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 		>
 			<DrawerOverlay />
 			<DrawerContent className='afr'	>
-				<Flex w="100%" h={{base: "calc(100% - 81px)", md: "100%"}} justify="center" align="center" zIndex={9999}>
-				
-					<Flex w="100%" h="100%" flexDir="column">
-						<ChatHeader name={user.fullName} image={user.avatar} />
-						
-						<ChatMessages messages={messages} />
-						<ChatFooter
-							inputMessage={inputMessage}
-							setInputMessage={setInputMessage}
-							handleSendMessage={handleSendMessage}
-						/>
-					</Flex>
-				</Flex>
+				{ user ?
+					(<Flex w="100%" h={{base: "calc(100% - 81px)", md: "100%"}} justify="center" align="center" zIndex={9999}>
+						<Flex w="100%" h="100%" flexDir="column">
+							<ChatHeader name={user.fullName} image={user.avatar} />
+							
+							<ChatMessages messages={messages} />
+							<ChatFooter
+								inputMessage={inputMessage}
+								setInputMessage={setInputMessage}
+								handleSendMessage={handleSendMessage}
+							/>
+						</Flex>
+					</Flex>) :
+					<Loading />
+				}
 			</DrawerContent>
 		</Drawer>
 	)

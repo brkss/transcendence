@@ -60,7 +60,7 @@ export const Dms : React.FC = () => {
                 }
 			</Box>
 			
-			{ selectedUserId && <PrivateChat userId={selectedUserId}  isOpen={_chat.isOpen} onClose={_chat.onClose} /> }
+			{ selectedUserId > 0 && <PrivateChat userId={selectedUserId}  isOpen={_chat.isOpen} onClose={_chat.onClose} /> }
         </>
     )
 }

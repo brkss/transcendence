@@ -16,7 +16,6 @@ import {
 	Tabs,
 	TabList, TabPanels, Tab, TabPanel
 } from '@chakra-ui/react'
-import { Chat } from './Chat'
 import {  AiOutlinePlusCircle } from 'react-icons/ai';
 import { CreateRoom } from './CreateRoom'
 import { ChatRooms } from './Room';
