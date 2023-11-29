@@ -39,8 +39,8 @@ export const Dms : React.FC = () => {
         })
     }
 
-    const handleEnterChat = () => {
-        setSelectedUserId(1);
+    const handleEnterChat = (uid: number) => {
+        setSelectedUserId(uid);
         _chat.onOpen();
     }
 
@@ -53,7 +53,7 @@ export const Dms : React.FC = () => {
                 {
                     dms.map((item, key) => (
                         <Box key={key}>
-                            <DMBox name={item.fullName} username={item.username} image={item.avatar} enterChat={handleEnterChat} />
+                            <DMBox name={item.fullName} username={item.username} image={item.avatar} enterChat={() => handleEnterChat(item.id)} />
                             {/*<ChatBox  name={item.name} type={item.roomType}  enter={() => openChatRoom(item.id)} />*/}
                             <hr style={{marginTop: '10px', display: 'none'}} />	
                         </Box>
