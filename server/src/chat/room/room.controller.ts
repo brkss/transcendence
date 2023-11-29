@@ -79,4 +79,9 @@ export class RoomController {
     async getRoomUsers(@Req() request: any , @Param('room_id', ParseIntPipe) room_id : number) {
       return (await this.roomService.getAllRoomUsers(request.user, room_id))
     }
+
+    @Get("/:room_id/chathistory")
+    async getRoomChatHistory(@Req() request: any , @Param('room_id', ParseIntPipe) room_id : number) {
+      return (await this.roomService.getRoomMessagess(request.user.id, room_id))
+    }
 }

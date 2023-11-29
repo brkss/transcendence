@@ -1,8 +1,8 @@
 import { UserService } from "./user.service";
-import {Controller, Get, Param, Req, UseGuards, Post, Body } from "@nestjs/common"
+import {Controller, Get, Param, Req, UseGuards, Post, Body, ParseIntPipe, BadRequestException, NotFoundException } from "@nestjs/common"
 import { JwtAuth } from "src/auth/guards/jwtauth.guard";
 import { Request } from 'express'
-import { addFriendDTO } from "./user.dto";
+import { addFriendDTO, blockUserDTO, unblockUserDTO } from "./user.dto";
 
 @Controller('user')
 @UseGuards(JwtAuth)
@@ -19,6 +19,20 @@ export class UserController {
 		const results = this.userService.searchFriends(query);
 		return results;
 	}
+
+    @Post("block")
+    async blockUser(@Req() req: any, @Body() body: blockUserDTO) {
+        const user_id = req.user.userID
+        const blockee_id = body.user_id
+        return (await this.userService.blockUser(user_id, blockee_id))
+    }
+
+    @Post("unblock")
+    async unblockUser(@Req() req, @Body() body: unblockUserDTO) {
+        const user_id = req.user.userID
+        const blockee_id = body.user_id
+        return (await this.userService.unblockUser(user_id, blockee_id))
+    }
 
 	@Post('friends/add')
     async addFriend(@Req() req, @Body() body: addFriendDTO) {
@@ -87,5 +101,11 @@ export class UserController {
         const user = request.user
         const user_chats = await this.userService.getUserChats(user.id)
         return (user_chats)
+    }
+    @Get("/:user_id/chathistory")
+    async getChatHistory(@Req() request: any, @Param('user_id', ParseIntPipe) end_user_id : number) {
+        const user = request.user
+        const history = await this.userService.getChatHistory(user.id, end_user_id);
+        return (history)
     }
 }

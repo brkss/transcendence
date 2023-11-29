@@ -579,11 +579,44 @@ export class RoomService {
             },
             select: {
                 //sender_username: true,
-                id: true,
-                sender_id: true,
+                sender: {
+                    select: {
+                        id: true,
+                        username: true, 
+                        avatar: true
+                    }
+                },
                 message: true,
                 created_at: true
             },
+            orderBy: {
+                created_at: 'asc'
+            }
+        })
+        return (chat_messages)
+    }
+    async fetch_chat_messages(user_id: number, recepient_id: number) {
+        const chat_messages = await this.prismaService.messages.findMany({
+            where: {
+                OR : [
+                 {recepient_id: recepient_id , sender_id: user_id},
+                 {recepient_id: user_id , sender_id: recepient_id}
+                ]
+            },
+            select: {
+                //sender_username: true,
+                sender: {
+                    select: {
+                        id: true,
+                        username: true, 
+                        avatar: true
+                    }
+                },
+                message: true,
+                created_at: true
+            },orderBy : {
+                created_at: "asc"
+            }
         })
         return (chat_messages)
     }
@@ -917,5 +950,21 @@ export class RoomService {
     async findRoomByName(payload: findRoomDTO) {
         const matched_rooms = await this.getMatchingRooms(payload.room_name)
         return (matched_rooms)
+    }
+
+    async getRoomMessagess(user_id: number, room_id:  number) {
+        const room = await this.getRoomById(room_id)
+        if (room == undefined) {
+            throw new BadRequestException("Room does not exist")
+        }
+        const is_membeer = await this.isRoomMember(room.id, user_id)
+        if (!is_membeer) {
+            throw new ForbiddenException()
+        }
+        const is_banned = await this.isBannedFromRoom(user_id, room.id)
+        if (is_banned) {
+            throw new ForbiddenException()
+        }
+        return (await this.fetch_room_messages(room.id));
     }
 }

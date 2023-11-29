@@ -149,7 +149,19 @@ export class ChatService {
         const recepient_id = payload.userId
         const recepient = await this.userService.getUserByID(payload.userId)
         const user = socket.data.user;
+
         if (recepient?.id == recepient_id) { // user exists 
+
+            const is_blocked  = await this.userService.isBlocked(user.id, recepient_id)
+            if (is_blocked) {
+                socket.emit("Error", "User blocked this user :(")
+                return 
+            }
+            const user_is_blocked = await this.userService.isBlocked(recepient_id, user.id)
+            if (user_is_blocked) {
+                socket.emit("Error", "User blocked you :(")
+                return 
+            }
             const message = {
                 user: user.username,
                 message: payload.message,
@@ -186,5 +198,12 @@ export class ChatService {
     async getConnectedRooms(user_id: number) {
         const room_names =  await this.roomService.getConnectedRooms(user_id)
         return (room_names)
+    }
+    async isUserBlocked(user_id: number, blockee_id: number) {
+        const block_id = await this.userService.isBlocked(user_id, blockee_id)
+        if (block_id === null) {
+            return (false)
+        }
+        return (true)
     }
 }

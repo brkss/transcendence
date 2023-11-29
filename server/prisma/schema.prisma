@@ -33,6 +33,7 @@ model user {
   memberRooms RoomMembers[]
   bannedRooms RoomBan[]
   messages    Messages[]
+  //messages_recv    Messages[] @relation("recived")
   //mutedInRooms RoomMute[]
 
   sent_friendship     Friendship[] @relation("SentFriendShip")
@@ -55,6 +56,13 @@ model ChatRoom {
   messages   Messages[]
   //mutedUserRef   RoomMute[]
 }
+model Block {
+  id Int @unique() @default(autoincrement())
+  blocker Int
+  blockee Int
+
+  @@unique([blockee, blocker])
+}
 
 model Messages {
   id         Int      @id @unique @default(autoincrement())
@@ -67,7 +75,8 @@ model Messages {
   recepient_id Int?
   chatRom_id   Int?
 
-  recepient user?     @relation(fields: [recepient_id], references: [id])
+  sender user?     @relation(fields: [sender_id], references: [id])
+  //recepient user?     @relation("sent", fields: [recepient_id], references: [id])
   chatroom  ChatRoom? @relation(fields: [chatRom_id], references: [id])
 }
 
