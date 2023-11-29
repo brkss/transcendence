@@ -96,7 +96,7 @@ export class UserController {
         return (user_chats)
     }
     @Get("/:user_id/chathistory")
-    async getChatHistory(@Req() request: any, @Param('room_id', ParseIntPipe) end_user_id : number) {
+    async getChatHistory(@Req() request: any, @Param('user_id', ParseIntPipe) end_user_id : number) {
         const user = request.user
         const history = await this.userService.getChatHistory(user.id, end_user_id);
         return (history)

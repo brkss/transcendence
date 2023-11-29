@@ -613,7 +613,9 @@ export class RoomService {
                 },
                 message: true,
                 created_at: true
-            },
+            },orderBy : {
+                created_at: "asc"
+            }
         })
         return (chat_messages)
     }

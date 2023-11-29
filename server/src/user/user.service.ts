@@ -421,7 +421,6 @@ export class UserService {
 		return all_chats
 	}
 	async getChatHistory(user_id: number, end_user_id: number) {
-
 		const chat_history = await this.roomService.fetch_chat_messages(user_id, end_user_id);
 		return (chat_history);
 	}
