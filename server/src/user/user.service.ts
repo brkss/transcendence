@@ -63,17 +63,17 @@ export class UserService {
 				}
 			})
 			return (id)
-		} catch(error) {
+		} catch (error) {
 			// entry exists 
 			return undefined
-		} 
+		}
 	}
 
 	async unblock(blocker_id: number, blockee_id: number) {
 		try {
 			const id = await this.prismaService.block.delete({
 				where: {
-					blockee_blocker : {
+					blockee_blocker: {
 						blocker: blocker_id,
 						blockee: blockee_id
 					}
@@ -83,10 +83,10 @@ export class UserService {
 				}
 			})
 			return (id)
-		} catch(error) {
+		} catch (error) {
 			// entry does not exists exists 
 			return undefined
-		} 
+		}
 	}
 
 	async updateField(data: any): Promise<any> {
@@ -425,6 +425,22 @@ export class UserService {
 		const chat_history = await this.roomService.fetch_chat_messages(user_id, end_user_id);
 		return (chat_history);
 	}
+	async isBlocked(user_id: number, blockee_id: number) {
+		try {
+			await this.prismaService.block.findUniqueOrThrow({
+				where: {
+					blockee_blocker : {
+						blocker: user_id,
+						blockee: blockee_id
+					}
+				}
+			})
+			return (true)
+		} catch(error) {
+			console.log(error)
+			return (false)
+		}
+	}
 	async blockUser(user_id: number, blockee_id: number) {
 		if (user_id === blockee_id)
 			throw new ForbiddenException()
@@ -432,14 +448,14 @@ export class UserService {
 		if (user?.id != blockee_id) {
 			throw new ForbiddenException()
 		}
-		const id = await this.block(user_id, blockee_id)	
+		const id = await this.block(user_id, blockee_id)
 		if (id === undefined) {
 			throw new ForbiddenException()
 		}
-        const resp = {
-            status: "success",
-            message: "User has been blocked!"
-        }
+		const resp = {
+			status: "success",
+			message: "User has been blocked!"
+		}
 		return (resp);
 	}
 	async unblockUser(user_id: number, blockee_id: number) {
@@ -451,27 +467,27 @@ export class UserService {
 			await this.prismaService.block.findUniqueOrThrow({
 				where: {
 					blockee_blocker: {
-						blocker : user_id,
+						blocker: user_id,
 						blockee: blockee_id
 					}
 				},
 				select: {
 					blocker: true
 				}
-			})		
+			})
 		}
 		catch (error) {
 			console.log(error)
 			throw new ForbiddenException()
 		}
-		const block_id = await this.unblock(user_id, blockee_id)	
+		const block_id = await this.unblock(user_id, blockee_id)
 		if (block_id === undefined) {
 			throw new NotFoundException()
 		}
-        const resp = {
-            status: "success",
-            message: "User has been unblocked!"
-        }
+		const resp = {
+			status: "success",
+			message: "User has been unblocked!"
+		}
 		return (resp);
 	}
 }
