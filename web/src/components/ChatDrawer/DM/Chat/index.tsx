@@ -69,7 +69,6 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 					{ from: msg.sender.username === me.username ? "me" : msg.sender.username, text: msg.message }
 				))])
 			}
-			
 			//console.log("chat hostory dm response : ", response);
 		}).catch(e => {
 			console.log("getting chat history error : ", e);

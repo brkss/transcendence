@@ -145,10 +145,10 @@ export const ChatRooms: React.FC<Props> = ({}) => {
 				<Text fontWeight={'bold'}>{searchRes.length > 0 ? "Search Results" : query.length == 0  ? "" : "No Result Found"}</Text>
 				{
 					searchRes.length === 0 && query.length == 0 ? ( rooms.map((item, key) => (
-						<>	
+						<Box key={key}>	
 							<ChatBox key={key} name={item.name} type={item.roomType}  enter={() => openChatRoom(item.id)} />
 							<hr style={{marginTop: '10px', display: 'none'}} />	
-						</>
+						</Box>
 					))) : (
 						<>
 							{

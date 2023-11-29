@@ -8,6 +8,8 @@ import { API_URL } from '@/utils/constants';
 import { getAccessToken } from '@/utils/token';
 import { io } from 'socket.io-client';
 import decode from 'jwt-decode';
+import { getChatHistory } from '@/utils/services';
+import jwtDecode from 'jwt-decode';
 
 interface Props {
 	isOpen: boolean;
@@ -51,6 +53,19 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 		setMessages((old: any) => [...old, { from: data.user, text: data.message}])
 	}
 
+	const fetchChatHostory = async () => {
+		getChatHistory(chatId).then(response => {
+			const me = jwtDecode(getAccessToken()) as any;
+			if(me){
+				const {username} = me;
+				setMessages([...messages, ...response.map((msg: any) => (
+					{ from: msg.sender.username === username ? "me" : msg.sender.username, text: msg.message }
+				))])
+			}
+		}).catch(e => {
+			console.log("something went getting chat history : ", e);
+		}); 
+	}
 	
 	React.useEffect(() => {
 
@@ -58,6 +73,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 			console.log("socket connected");
 		})
 
+		fetchChatHostory();
 		setMessages([]);
 		
 		socket.connect()
