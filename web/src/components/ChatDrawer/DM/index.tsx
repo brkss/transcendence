@@ -33,6 +33,7 @@ export const Dms : React.FC = () => {
     const fetchChats = () => {
         getUserChats().then(response => {
             console.log("get chats response : ", response);
+            setDms(response);
         }).catch(e => {
             console.log("something wrong geting chats : ", e);
         })
@@ -52,7 +53,7 @@ export const Dms : React.FC = () => {
                 {
                     dms.map((item, key) => (
                         <Box key={key}>
-                            <DMBox name={item.name} username={item.username} image={item.image} enterChat={handleEnterChat} />
+                            <DMBox name={item.fullName} username={item.username} image={item.avatar} enterChat={handleEnterChat} />
                             {/*<ChatBox  name={item.name} type={item.roomType}  enter={() => openChatRoom(item.id)} />*/}
                             <hr style={{marginTop: '10px', display: 'none'}} />	
                         </Box>

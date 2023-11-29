@@ -13,7 +13,7 @@ interface Props {
 export const DMBox: React.FC<Props> = ({name, username, image, enterChat}) => {
 
 	return (
-		<Box p={'10px'} bg={'#e9e9e97a'} rounded={'14px'} mt={'30px'} onClick={enterChat}>
+		<Box p={'10px'} bg={'#e9e9e97a'} rounded={'14px'} mt={'30px'} onClick={enterChat} cursor={'pointer'} transition={'.3s'} _hover={{bg: '#dcd9d97a', transition: '.3s'}}>
 			<Stack direction={['column', 'row']} spacing={'10px'}>
 				<Avatar d={'50px'} src={image} />
 				<Box>
