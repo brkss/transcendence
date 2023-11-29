@@ -1,5 +1,5 @@
 import React from 'react';
-import { Drawer, DrawerOverlay, DrawerContent, Flex, Box, Text, Button, Input, DrawerCloseButton, useDisclosure } from '@chakra-ui/react';
+import { Drawer, DrawerOverlay, DrawerContent, Flex, Box, Text, Button, Input, DrawerCloseButton, useDisclosure, useToast } from '@chakra-ui/react';
 import { ChatFooter } from './Footer';
 import { ChatHeader } from './Header';
 import { ChatMessages } from './Messages'
@@ -7,72 +7,83 @@ import { ChatSettings } from './Settings';
 import { API_URL } from '@/utils/constants';
 import { getAccessToken } from '@/utils/token';
 import { io } from 'socket.io-client';
+import decode from 'jwt-decode';
 
 interface Props {
 	isOpen: boolean;
 	onClose: () => void;
 	chatId: number;
 	removeRoom: (id: number) => void;
+	name: string;
 }
 
-export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom}) => {
+export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, name}) => {
 
+	// init socket 
+	let socket = React.useMemo(() => io(API_URL, {
+		extraHeaders: {
+			Authorization: getAccessToken()
+		}
+	}), []); 
+
+	const toast = useToast();
 	const _settings = useDisclosure();
-	const [messages, setMessages] = React.useState<any>([
-		/*{ from: "computer", text: "Hi, My Name is HoneyChat" },
-		{ from: "me", text: "Hey there" },
-		{ from: "me", text: "Myself Ferin Patel" },
-		{
-			from: "computer",
-			text: "Nice to meet you. You can send me message and i'll reply you with same message.",
-		},*/
-	]);
+	const [messages, setMessages] = React.useState<any>([]);
+
 	const [inputMessage, setInputMessage] = React.useState("");
+	
 	const handleSendMessage = () => {
 		if (!inputMessage.trim().length) {
 			return;
 		}
 		const data = inputMessage;
-
+		console.log("sending message : ", { room_id: chatId, message: data });
+		socket.emit("chatMessage", {
+			room_id: chatId,
+			message: data
+		});
 		setMessages((old: any) => [...old, { from: "me", text: data }]);
 		setInputMessage("");
-
-		setTimeout(() => {
-			setMessages((old: any) => [...old, { from: "computer", text: data }]);
-		}, 1000);
 	};
 
-	let socket = io(API_URL, {
-		extraHeaders: {
-			Authorization: getAccessToken()
-		}
-	})
+	const handleRecievingMessage = (data: { user: string, message: string, time: string }) => {
+		console.log("recieved message : ", data, messages);
+		setMessages((old: any) => [...old, { from: data.user, text: data.message}])
+	}
 
+	
 	React.useEffect(() => {
 
 		socket.on('connect', () => {
 			console.log("socket connected");
 		})
+
+		setMessages([]);
 		
 		socket.connect()
-		socket.on("users", (data) => {
-			console.log("users chat data : ", data);
+		
+		socket.on("message", handleRecievingMessage);
+
+		socket.on("Error", (data) => {
+			console.log("got new error : ", data);
 		});
 
-		socket.on("history", (data) => {
-			console.log("history chat data : ", data);
+		socket.on("success", (data) => {
+			console.log("got success : ", data);
 		});
 		
 
-		socket.emit("joinChat")
+		socket.emit("joinChat", {room_id: chatId, roomType: "PUBLIC"});
 		return () => {
 			socket.off("connect")
-			socket.off("users")
-			socket.off("history")
+			socket.off("message")
+			socket.off("Error")
+			socket.off("success")
 			socket.disconnect()
 		}
+	}, [socket, chatId])
 
-	}, [socket])
+
 	return (
 		<Drawer
 			isOpen={isOpen}
@@ -83,8 +94,9 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom}) =>
 			<DrawerOverlay />
 			<DrawerContent className='afr'	>
 				<Flex w="100%" h={{base: "calc(100% - 81px)", md: "100%"}} justify="center" align="center" zIndex={9999}>
+				
 					<Flex w="100%" h="100%" flexDir="column">
-						<ChatHeader openSettings={_settings.onOpen} />
+						<ChatHeader roomName={name} openSettings={_settings.onOpen} />
 						
 						<ChatMessages messages={messages} />
 						<ChatFooter

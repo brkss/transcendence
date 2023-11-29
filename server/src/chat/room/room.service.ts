@@ -357,6 +357,7 @@ export class RoomService {
                         id: true,
                         username: true,
                         avatar: true,
+                        fullName: true
                     }
                 }
             }

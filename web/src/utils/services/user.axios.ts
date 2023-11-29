@@ -45,3 +45,13 @@ export const getRelationship = async (username: string) => {
 	console.log("user's relationship : ", response);
 	return response.data;
 } 
+
+export const getUserChats = async () => {
+	const response = await api.get(`${API_URL}/user/chats`);
+	return response.data;
+}
+
+export const getUserInfo = async (uid: number) => {
+	const response = await api.get(`${API_URL}/user/user/${uid}`);
+	return response.data;
+}

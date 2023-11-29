@@ -9,6 +9,9 @@ import { FriendsDrawer } from './FriendsDrawer';
 import { ChatDrawer } from './ChatDrawer';
 import { SettingsDrawer } from './SettingsDrawer';
 
+// private chat --
+import { PrivateChat } from './ChatDrawer/DM/Chat';
+
 const _singnals = [
 	{
 		name: "friends"
@@ -41,6 +44,9 @@ export const Layout: React.FC<any> = ({ children, disablePadding }) => {
 	const showSettings = useDisclosure();
 	const showChat = useDisclosure();
 
+	const privateChatDrawer = useDisclosure();
+	const [chatUID, setChatUID] = React.useState<number>(-1);
+
 	const handleSig = (sig: string) => {
 
 		console.log("handle sig : ", sig);
@@ -65,6 +71,11 @@ export const Layout: React.FC<any> = ({ children, disablePadding }) => {
 		}
 	}
 
+	const handlePrivateMessageChat = (userID: number) => {
+		setChatUID(userID);
+		privateChatDrawer.onOpen();
+	}
+
 	return (
 		<Box>
 			<TopBar />
@@ -78,9 +89,11 @@ export const Layout: React.FC<any> = ({ children, disablePadding }) => {
 			</div>
 			{/* </GridItem> */}
 			{/* </Grid> */}
-			{<FriendsDrawer isOpen={showFriends.isOpen} onClose={showFriends.onClose} />}
+			{<FriendsDrawer sendMessage={(uid: number) => handlePrivateMessageChat(uid)} isOpen={showFriends.isOpen} onClose={showFriends.onClose} />}
 			{<ChatDrawer isOpen={showChat.isOpen} onClose={showChat.onClose} />}
 			{<SettingsDrawer isOpen={showSettings.isOpen} onClose={showSettings.onClose} />}
+			
+			{<PrivateChat onClose={privateChatDrawer.onClose} isOpen={privateChatDrawer.isOpen} userId={chatUID} />}
 		</Box>
 	)
 }

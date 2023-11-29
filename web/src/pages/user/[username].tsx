@@ -1,11 +1,12 @@
 import React from 'react';
-import { Box, Text, Center } from '@chakra-ui/react';
+import { Box, Text, Center, useDisclosure } from '@chakra-ui/react';
 import { PersonalInfo, Stats, Layout, Badges, withAuth, Loading } from '../../components'; 
 import { useRouter } from 'next/router';
 import { profile, getRelationship } from '@/utils/services/'
 import { getAccessToken } from '@/utils/token';
 import jwtDecode from "jwt-decode";
 import { io } from 'socket.io-client';
+import { SettingsDrawer } from '../../components/SettingsDrawer';
 
 const GET_USERNAME_TOKEN = () => {
 	const _token = getAccessToken();
@@ -23,6 +24,7 @@ function Profile(){
 	const [loading, setLoading] = React.useState(true);
 	const [error, setError] = React.useState("");
 	const [relationship, setRelationship] = React.useState("none");
+	const { onOpen, onClose, isOpen } = useDisclosure();
 
 	
 
@@ -81,9 +83,10 @@ function Profile(){
 		<Layout>
 			<Box pos="absolute" h={"27%"} w={"100%"} top="-40px" left="0" width={"100%"} background={"linear-gradient(180deg, rgba(0,0,0,0.7343531162464986) 0%, rgba(0,0,0,0.5214679621848739) 22%, rgba(255,255,255,0) 100%);"} />
 			<Box>
-				<PersonalInfo image={data.avatar} username={data.username} name={data.fullName} relationship={relationship} />
+				<PersonalInfo editProfile={onOpen} image={data.avatar} username={data.username} name={data.fullName} relationship={relationship} />
 				<Stats />
 			</Box>
+			<SettingsDrawer onClose={onClose} isOpen={isOpen} />
 		</Layout>
 	)
 }

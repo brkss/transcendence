@@ -17,9 +17,10 @@ import { getFriends, getRequests } from '@/utils/services';
 interface Props {
 	isOpen: boolean;
 	onClose: () => void;
+	sendMessage: (uid: number) => void;
 }
 
-export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
+export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) => {
 
 	const [requests, setRequests] = React.useState<any>([]);
 	const [friends, setFriends] = React.useState<any>([]);
@@ -61,7 +62,7 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 					<Box>
 						{
 							friends.map((friend: any, key: number) => (
-								<FriendBox key={key} name={friend.name} username={friend.username} image={friend.avatar} />
+								<FriendBox sendMessage={() => sendMessage(friend.id)} key={key} name={friend.name} username={friend.username} image={friend.avatar} />
 							))
 						}
 					</Box>
