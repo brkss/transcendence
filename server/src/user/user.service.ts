@@ -291,6 +291,16 @@ export class UserService {
 		})
 		return (user_friends)
 	}
+	async updateUserAvatar(user_id : number, avatar: string) {
+		const avatar_link = await this.prismaService.user.update({
+			where: {
+				id: user_id
+			},
+			data: {
+				avatar: avatar
+			}
+		})
+	}
 	async getUserProfile(username: string) {
 		interface UserProfile extends Record<string, any> {
 			username: string,
