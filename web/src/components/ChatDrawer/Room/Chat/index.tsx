@@ -60,7 +60,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 				const {username} = me;
 				setMessages([...messages, ...response.map((msg: any) => (
 					{ from: msg.sender.username === username ? "me" : msg.sender.username, text: msg.message }
-				))])
+				))]);
 			}
 		}).catch(e => {
 			console.log("something went getting chat history : ", e);
@@ -68,7 +68,6 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 	}
 	
 	React.useEffect(() => {
-
 		socket.on('connect', () => {
 			console.log("socket connected");
 		})
@@ -79,7 +78,6 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 		socket.connect()
 		
 		socket.on("message", handleRecievingMessage);
-
 		socket.on("Error", (data) => {
 			toast({
 				status: 'error',
