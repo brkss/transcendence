@@ -83,3 +83,12 @@ export const userChatHistory = async (uid: number) => {
 	const response = await api.get(`${API_URL}/user/${uid}/chathistory`);
 	return response.data;
 }
+
+export const uploadAvatar = async (data: FormData) => {
+	const response = await api.post(`${API_URL}/user/upload`, data, {
+		headers: {
+			'Content-Type': 'multipart/form-data'
+		}
+	});
+	return response.data;
+}

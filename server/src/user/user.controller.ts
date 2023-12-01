@@ -140,6 +140,6 @@ export class UserController {
         const user_id : number = req.user.id
         const avatar_link : string = "http://localhost:8000/user/avatar/" + file.filename;
         await this.userService.updateUserAvatar(user_id, avatar_link); 
-        return
+        return { status: true }
     }
 }
