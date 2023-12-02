@@ -116,10 +116,11 @@ model Friendship {
   @@unique([user_id, friend_id])
 }
 
-model game {
-  id            Int @id @unique @default(autoincrement())
-  opponentId    Int @unique
-  userScore     Int
-  oppenentScore Int
-  startedAt DateTime @db.Date
+model Game {
+  id             Int @id @unique @default(autoincrement())
+  firtPlayer_id  Int
+  secondPlayer   Int
+  user_score     Int
+  opponent_score Int
+  startedAt	 DateTime @db.Date
 }
