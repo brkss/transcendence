@@ -331,6 +331,8 @@ export class UserService {
 		return (profile) // profile is const WTF!
 	}
 
+	
+
 	async updateLastLogin(user_id: number) {
 		await this.prismaService.user.update({
 			where: {

@@ -68,7 +68,7 @@ export class AuthService {
 			}
 		}
 		const user = await this.userService.getUserByID(payload.userID);
-		if(user?.id === payload.userID)
+		if(user === payload.userID)
 			return { status: false, access_token: "", refresh_token: "" }
 		const access_token_payload = {
             id: user.id,

@@ -13,8 +13,13 @@ import {
     FormControl,
     FormLabel,
 	Input,
-    Button
+    Button,
+	Grid,
+	GridItem,
+	useToast,
 } from '@chakra-ui/react'
+import { Avatar } from '../Avatar';
+import { uploadAvatar } from '@/utils/services'
 
 interface Props {
 	isOpen: boolean;
@@ -22,6 +27,47 @@ interface Props {
 }
 
 export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
+
+	const avatarInputRef = React.useRef<any>();
+	const [avatar, setAvatar] = React.useState<File | null>(null);
+	const toast = useToast();
+	
+	const chnageAvatar = () => {
+		if(!avatarInputRef.current)
+			return;
+		avatarInputRef.current.click();
+	}
+
+	const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		e.preventDefault();
+		if(e.currentTarget.files){
+			setAvatar(e.currentTarget.files[0])
+		}
+	}
+
+	const handleSave = () => {
+		if(avatar){
+			const fd = new FormData();
+			fd.append('file', avatar);
+			uploadAvatar(fd).then(response => {
+				console.log("change avatar response : ", response);
+				toast({
+					status: 'success',
+					title: "You've changed your avatar",
+					duration: 9000,
+					isClosable: true
+				})
+			}).catch(e => {
+				console.log("change user avatar error : ", e);
+				toast({
+					status: 'error',
+					title: "Something went wrong can't change user's avatar",
+					duration: 9000,
+					isClosable: true
+				})
+			})
+		}
+	}
 
 	return (
 		<Drawer
@@ -36,24 +82,38 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 				<DrawerHeader></DrawerHeader>
 
 				<DrawerBody>
-					<Heading>Settings</Heading>
+					<Heading>Edit Profile</Heading>
 					<Center h={'100%'}>
-						<Box>
-							<FormControl>
-								<FormLabel fontSize={'15px'} fontWeight={'bold'} mb={'5px'}>Name</FormLabel>
-								<Input variant={'filled'} />
-							</FormControl>
-							<FormControl>
-								<FormLabel>Username</FormLabel>
-								<Input variant={'filled'} />
-							</FormControl>
+						<Box w={'100%'}>
+							<Center h={'200px'} textAlign={'center'}>
+								<Avatar src={avatar ? URL.createObjectURL(avatar) : ""} clicked={chnageAvatar} />
+								<input type="file" onChange={handleAvatarChange} hidden ref={avatarInputRef} />
+							</Center>
+							<Grid templateColumns={'repeat(12, 1fr)'} gap={3}>
+								<GridItem colSpan={{md: 12, base: 12}}>
+									<FormControl>
+										<FormLabel fontSize={'15px'} fontWeight={'bold'} mb={'5px'}>Name</FormLabel>
+										
+										<Input variant={'filled'} />
+									</FormControl>
+								</GridItem>
+								<GridItem colSpan={{md: 12, base: 12}}>
+									<FormControl mt={'0'}>
+										<FormLabel fontSize={'15px'} fontWeight={'bold'} mb={'5px'}>Username</FormLabel>
+										<Input variant={'filled'} />
+									</FormControl>
+								</GridItem>
+							</Grid>
+							
+							
+							
 						</Box>						
 					</Center>
 					
 				</DrawerBody>
 
 				<DrawerFooter>
-					<Button mr={'10px'}>Save</Button>
+					<Button mr={'10px'} onClick={handleSave}>Save</Button>
 					<Button variant={'ghost'}>Cancel</Button>
 				</DrawerFooter>
 			</DrawerContent>

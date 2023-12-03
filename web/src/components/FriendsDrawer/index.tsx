@@ -8,19 +8,22 @@ import {
 	DrawerContent,
 	DrawerCloseButton,
 	Heading,
-	Box
+	Box,
+	useToast
 } from '@chakra-ui/react'
 import { FriendBox } from './Item';
 import { RequestItem } from './RequestItem'
-import { getFriends, getRequests } from '@/utils/services';
+import { blockUser, getFriends, getRequests } from '@/utils/services';
 
 interface Props {
 	isOpen: boolean;
 	onClose: () => void;
+	sendMessage: (uid: number) => void;
 }
 
-export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
+export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) => {
 
+	const toast = useToast();
 	const [requests, setRequests] = React.useState<any>([]);
 	const [friends, setFriends] = React.useState<any>([]);
 
@@ -36,6 +39,25 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 		}
 	}, [isOpen]);
 
+	const handleBlockingUser = (uid: number) => {
+		blockUser(uid).then(response => {
+			console.log("block user response : ", response);
+			toast({
+				status: 'success',
+				title: "You blocked user successfuly",
+				isClosable: true,
+				duration: 9000,
+			});
+		}).catch(e => {
+			console.log("got an error : ", e);
+			toast({
+				status: 'error',
+				title: "Error: Can't block user !",
+				isClosable: true,
+				duration: 9000
+			});
+		})
+	}
 
 	return (
 		<Drawer
@@ -61,7 +83,7 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 					<Box>
 						{
 							friends.map((friend: any, key: number) => (
-								<FriendBox key={key} name={friend.name} username={friend.username} image={friend.avatar} />
+								<FriendBox blockUser={() => handleBlockingUser(friend.id)} sendMessage={() => sendMessage(friend.id)} key={key} name={friend.name} username={friend.username} image={friend.avatar} />
 							))
 						}
 					</Box>
