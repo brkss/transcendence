@@ -9,7 +9,7 @@ export class CreateGameDTO
 	secondPlayer_id: number;
 }
 
-export class AddPlayerScore
+export class AddPlayerScoreDTO
 {
 	@IsNumber()
 	game_id: number;
