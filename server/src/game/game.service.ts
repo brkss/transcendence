@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service'
-import { Game } from 'src/game/game.model';
+import { Game , Score } from 'src/game/game.model';
 
 @Injectable()
 export class GameService {
@@ -15,14 +15,14 @@ export class GameService {
 	async getGame(game_id : number) : Promise<Game | null>
 	{
 		return await this.prismaService.game.findUnique({
-			where : {id : game_id}
+			where : {id : game_id,}
 		});
 	}
 
-	async createGame(data : Game) : Promise<Game>
+	async createGame(game : Game) : Promise<Game>
 	{
 		return await this.prismaService.game.create({
-			data,
+			game,
 		});
 	}
 
@@ -31,16 +31,47 @@ export class GameService {
 		return await this.prismaService.game.delete({where: {id : game_id}});
 	}
 
-	async addPlayersScore(game_id : number, firstPlayer_score: Score, secondPlayer_score : Score) : Promise<Game>
+	async createScore() : Promise<Score>
 	{
-		return await this.prismaService.game.update({
-			where: {id : game_id},
-			date: {
-				firstPlayer_score: game.firstPlayer_score,
-				secondPlayer_score: game.secondPlayer_score,
-
-			}
+		return await this.prismaService.score.create({
+			score,
 		});
 	}
+
+	async getAllScores(game_id: number) : Promise<Score>
+	{
+		return await this.prismaService.game.findUnique({
+
+			where: {
+				id: game_id,
+			},
+			select: {
+				scores: true,
+			},
+		});
+	}
+
+	async getPlayerScore(game_id: number, player_id: number)
+	{
+		return 	this.prismaService.game.findUnique({
+
+			where: {
+				id: game_id,
+			},
+			select: {
+				scores:{
+					where:{
+						player_id: player_id,
+					},
+					select: {
+						score: true,
+					},
+				}	
+			},
+		});
+
+	}
+
+	//addScore
 }
 
