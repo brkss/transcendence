@@ -3,12 +3,11 @@ import { Strategy, VerifyCallback } from 'passport-oauth2'
 import { ConfigService } from "@nestjs/config"
 import { Injectable } from "@nestjs/common"
 import axios from 'axios'
+import { constrainedMemory } from "process"
 
 @Injectable()
 export class auth42Strategy extends PassportStrategy(Strategy, '42-auth2') {
     constructor(private configService: ConfigService) {
-        console.log(configService.get('CALLBACK_URL'))
-        console.log("see call back")
         super({
             authorizationURL: configService.get('AUTHORIZATION_URL'),
             tokenURL: configService.get('TOKEN_URL'),
@@ -19,11 +18,8 @@ export class auth42Strategy extends PassportStrategy(Strategy, '42-auth2') {
     }
     async userProfile(accessToken: string, done: VerifyCallback): Promise<void> {
         try {
-            console.log("getting user profile")
             const response = await axios.get(this.configService.get('USER_INFO_URL'), {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
+                headers: { Authorization: `Bearer ${accessToken}`,}
             });
             done(null, response.data)
         }
@@ -40,7 +36,7 @@ export class auth42Strategy extends PassportStrategy(Strategy, '42-auth2') {
             usual_full_name: profile.usual_full_name,
             image: profile.image.versions.small
         }
-        console.log(user)
+        console.log("current User: ", user);
         done(null, user);
      }
 }

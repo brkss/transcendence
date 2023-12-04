@@ -1,12 +1,10 @@
+import * as cookieParser from 'cookie-parser';
+import * as cors from 'cors';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as cookieParser from 'cookie-parser';
-import { UseGuards, ValidationPipe } from '@nestjs/common';
-import * as cors from 'cors';
+import { ValidationPipe } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import path = require('path')
-import { JwtAuth } from './auth/guards/jwtauth.guard';
-
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);

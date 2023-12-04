@@ -48,7 +48,7 @@ export class RoomService {
         const mute_entry = await this.getMuteEntry(userId, roomId)
         if (mute_entry) { // an entry exists on table
             const mute_time = mute_entry.mutedUntile
-            if (mute_time > Date.now())
+            if (mute_time > ( 60000 * Date.now()))
                 return (true)
             await this.UnmuteUser(userId, roomId)
             console.log(mute_entry)
@@ -497,7 +497,7 @@ export class RoomService {
     }
 
     async muteUserFor(userId: number, roomId: number, muteDuration: number) {
-        const mute_duration = Date.now() + (muteDuration * 1000) // ms to seconds
+        const mute_duration = (Date.now() * 60000) + muteDuration //in seconds
         const entry = await this.prismaService.roomMembers.update({
             where: {
                 userId_roomId: {
