@@ -9,10 +9,10 @@ import { UserModule } from 'src/user/user.module'
 
 @Module({
     imports: [
-        //PrismaModule,
         UserModule,
-        
-        PassportModule.register({ defaultStrategy: '42-auth2'}),
+        PassportModule.register({
+            defaultStrategy: '42-auth2'
+        }),
         JwtModule.registerAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
@@ -22,6 +22,7 @@ import { UserModule } from 'src/user/user.module'
             }),
           }),
         ],
+
     controllers: [authController],
     providers: [AuthService, auth42Strategy],
     exports: [JwtModule]

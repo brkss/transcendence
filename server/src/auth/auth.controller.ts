@@ -1,8 +1,9 @@
-import { UseGuards, Controller, Get,Req, Res, Post } from '@nestjs/common'
+import { UseGuards, Controller, Get,Req, Res, Post, InternalServerErrorException } from '@nestjs/common'
 import { AuthService } from './auth.service';
 import { auth42Guard } from './guards/auth.guard';
 import { Response, Request } from 'express';
 import { generateRefreshToken } from './token';
+import { PrismaClientInitializationError } from '@prisma/client/runtime/library';
 
 @Controller('auth')
 export class authController {
@@ -15,6 +16,7 @@ export class authController {
     async userLogin(@Req() req: any, @Res({passthrough: true}) resp: Response) {
         try {
              // add user to database or get his id 
+            console.log(req.user);
             const userID = await this.auth_service.getUserID(req.user);
             const refresh_token = generateRefreshToken(userID);
             const auth2fa_active = await this.auth_service.auth2faActive(userID)
@@ -26,13 +28,17 @@ export class authController {
                 // POST opt code to /2fa/opt 
             }
             else {
+                console.log("refresh_token_set")
                 resp.cookie('refresh_token', refresh_token, {maxAge: 7 * 24 * 3600 * 1000, httpOnly: true});
                 resp.redirect("http://localhost:3000/")
             }
         } catch (error) {
-            console.log('ERROR: ', error)
+            if (error instanceof PrismaClientInitializationError) {
+                //console.log('Database Error: ', error)
+                resp.redirect("http://localhost:3000/error")
+                throw new InternalServerErrorException();
+            }
         }
-       
     }
 
 	@Post("refresh-token")

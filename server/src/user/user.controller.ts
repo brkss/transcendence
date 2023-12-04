@@ -7,6 +7,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { uid } from 'uid'
 import path = require("path") // exported form  path (re checkit!!)
+import { updateNameDTO, updateRoomDTO } from "src/chat/dtos/chat.dto";
 
 const upload_config = {
     storage: diskStorage({
@@ -141,5 +142,15 @@ export class UserController {
         const avatar_link : string = "http://localhost:8000/user/avatar/" + file.filename;
         await this.userService.updateUserAvatar(user_id, avatar_link); 
         return { status: true }
+    }
+    @Post("/updatename")
+    async updateUsername(@Req() request: any ,@Body() body: updateNameDTO) {
+        const user = request.user
+        await this.userService.updateUserName(user.id, body)
+        const resp = {
+            status: "success",
+            message: "successfully updated"
+        }
+        return (resp)
     }
 }

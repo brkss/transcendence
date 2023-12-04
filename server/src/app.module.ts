@@ -14,7 +14,6 @@ import { RoomController } from './chat/room/room.controller';
 import { RoomService } from './chat/room/room.service';
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
 import path = require('path')
-import { JwtAuth } from './auth/guards/jwtauth.guard';
 export const app_root: string = process.cwd()
 
 @Module({

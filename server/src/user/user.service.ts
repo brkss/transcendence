@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { updateNameDTO } from 'src/chat/dtos/chat.dto';
 import { RoomService } from 'src/chat/room/room.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -92,6 +93,19 @@ export class UserService {
 	async updateField(data: any): Promise<any> {
 		const user = await this.prismaService.user.update(data)
 		return user
+	}
+	async updateUserName(user_id: number, names: updateNameDTO) {
+		const user_names = await this.prismaService.user.update({
+			where: {
+				id: user_id
+			},
+			data: names,
+			select: {
+				username: true,
+				fullName: true
+			}
+		})
+		return (user_names)
 	}
 
 	async get2faSecret(user_id: number) {
