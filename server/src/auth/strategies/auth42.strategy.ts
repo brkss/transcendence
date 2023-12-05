@@ -36,7 +36,6 @@ export class auth42Strategy extends PassportStrategy(Strategy, '42-auth2') {
             usual_full_name: profile.usual_full_name,
             image: profile.image.versions.small
         }
-        console.log("current User: ", user);
         done(null, user);
      }
 }

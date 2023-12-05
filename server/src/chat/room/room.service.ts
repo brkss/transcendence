@@ -51,7 +51,6 @@ export class RoomService {
             if (mute_time > ( 60000 * Date.now()))
                 return (true)
             await this.UnmuteUser(userId, roomId)
-            console.log(mute_entry)
             return (false)
         }
         return (false)
@@ -75,7 +74,6 @@ export class RoomService {
             return (true)
 
         } catch (error) {
-            //console.log(error)
             return null
         }
     }
@@ -130,7 +128,6 @@ export class RoomService {
             return (newRoom)
 
         } catch (error) {
-            //console.log(error)
             return (undefined)
         }
     }
@@ -146,7 +143,6 @@ export class RoomService {
             })
             return (room)
         } catch (error) {
-            console.log(error)
             return (null)
         }
     }
@@ -160,7 +156,6 @@ export class RoomService {
             return room;
         }
         catch (error) {
-            //console.log(error)
             return undefined
         }
 
@@ -189,7 +184,6 @@ export class RoomService {
             return room;
         }
         catch (error) {
-            //console.log(error)
             return undefined
         }
 
@@ -274,7 +268,6 @@ export class RoomService {
                 }
             })
         } catch (error) {
-            console.log(error)
             return (false)
         }
         return (true)

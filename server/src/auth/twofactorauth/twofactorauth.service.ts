@@ -15,7 +15,6 @@ export class TwofactorauthService {
             return (isValid)
         }
         catch (err){
-            console.log(err)
             return (false)
         }
     }

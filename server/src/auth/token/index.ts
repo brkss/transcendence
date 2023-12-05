@@ -9,7 +9,6 @@ export const generateAccessToken = (userID: string) => {
 
 export const generateRefreshToken = (userID: number) => {
 	const config = new ConfigService();
-	console.log("conf : ", config)
 	if(!userID) return;
 
 	const _token = sign(

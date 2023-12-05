@@ -1,7 +1,13 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import * as fs from 'node:fs';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { updateNameDTO } from 'src/chat/dtos/chat.dto';
 import { RoomService } from 'src/chat/room/room.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { validateMIMEType } from "validate-image-type";
+import path = require("path") // exported form  path (re checkit!!)
+// ES module error: ?
+//import { fileTypeFromFile } from 'file-type';
+//import imageType from "image-type"
 
 @Injectable()
 export class UserService {
@@ -514,5 +520,48 @@ export class UserService {
 			message: "User has been unblocked!"
 		}
 		return (resp);
+	}
+
+	async getOldAavarName(user_id: number): Promise<string | null>  {
+		const avatar_url = (await this.getUserByID(user_id)).avatar
+		const uri = avatar_url.split("/")
+		let old_file_path = null
+		console.log(uri)
+		if (uri.at(0) == "http:") { // self hosted
+			old_file_path = path.join(process.cwd(), "/uploads/images/", uri.at(-1))
+		}
+		console.log("old_path " , old_file_path)
+		return (old_file_path)
+	}
+
+	async updateAvatar(user_id: number, file: Express.Multer.File) {
+        const avatar_link : string = "http://localhost:8000/user/avatar/" + file.filename
+		const is_valid_image = await this.validateImageType(file)
+
+		if (is_valid_image == false){
+			console.log("invalid image")
+			fs.unlink(file.path, (err) => { /* skip/ignore */ });
+			throw new BadRequestException("Invalid Image")
+		}
+        const old_file_name = await this.getOldAavarName(user_id)
+		if (old_file_name){
+			fs.unlink(old_file_name, (err) => { /* skip/ignore */ });
+		}
+        await this.updateUserAvatar(user_id, avatar_link)
+		const resp = {
+			status: "success",
+			message: "User avatar updated!"
+		}
+		return (resp)
+	}
+	async validateImageType(file: Express.Multer.File): Promise<boolean> {
+		const file_type = await validateMIMEType(file.path, {
+			allowMimeTypes: ["image/jpeg", "image/png"]
+		})
+		if (!file_type.ok){
+			console.log(file_type.error)
+			return (false)
+		}
+		return (true)
 	}
 }
