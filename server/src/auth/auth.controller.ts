@@ -22,7 +22,7 @@ export class authController {
             if (auth2fa_active){
                 const auth2fa_token = await this.auth_service.login2fa(req)
                 resp.cookie('auth2fa_token', auth2fa_token)
-                resp.redirect("/2fa/otp")
+                resp.redirect("http://localhost:3000/2fa/otp")
                 // TODO: redirect user to 2fa page!!
                 // POST opt code to /2fa/opt 
             }
