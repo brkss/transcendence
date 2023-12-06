@@ -73,7 +73,7 @@ export const Layout: React.FC<any> = ({ children, disablePadding }) => {
 			<SideBar signal={(sig: string) => handleSig(sig)} />
 
 			{/* <GridItem colSpan={{ md: 12, base: 12 }} p={{ md: '40px', base: '15px' }} sx={{ paddingLeft: '90px' }}> */}
-			<div style={{ paddingLeft: disablePadding ? '0px' : '95px' }}>
+			<div style={{ padding: '10px', paddingLeft: disablePadding ? '0px' : '95px' }}>
 				{children}
 			</div>
 			{/* </GridItem> */}

@@ -6,32 +6,68 @@ import { getAccessToken } from "@/utils/token";
 import { FiSend, FiSettings } from "react-icons/fi";
 import { Menu, MenuList, MenuItem, MenuButton, Switch } from "@chakra-ui/react";
 import ChatBox from "@/components/Game/chat/ChatBox";
+import { getPayload } from "@/utils/helpers";
+import { Socket } from "socket.io";
+
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
+
+export interface IConnectedUser {
+  id: number;
+  userID: number;
+  username: string;
+  socketId: string;
+}
 
 export default function Index() {
-  const socket = io("http://localhost:8000/", {
-    extraHeaders: {
-      Authorization: getAccessToken(),
-    },
-  });
+  console.log("initsocket");
 
   const [gameMode, setGameMode] = React.useState(false);
+  const [isNotAllowed, setIsNotAllowed] = React.useState(false);
+  const [winner, setWinner] = React.useState<IConnectedUser | null>(null);
+  const [userRoomData, setRoomData] = React.useState<{ hostUserId: number }>();
+  const [socketIo, setSocketIo] = React.useState<any>(
+    io("http://localhost:8000/game", {
+      extraHeaders: {
+        Authorization: getAccessToken(),
+      },
+    })
+  );
+  const user: IConnectedUser = getPayload() as IConnectedUser;
+
+  console.log("user", socketIo);
 
   useEffect(() => {
-    socket.on("connect", () => {
+    console.log("joinQueue emit", socketIo.id);
+    socketIo.on("connect", () => {
       console.log("Connected to WebSocket server");
-      socket.send("Hello, WebSocket server!");
+      // socket.send("Hello, WebSocket server!");
+      socketIo.emit("joinQueue");
+    });
+    socketIo.on("winner", (data: any) => {
+      setWinner(data);
+    });
+    socketIo.on("moveX", () => console.log("movex"));
+    socketIo.on("joinedQueue", (data: any) => {
+      console.log("queue joined", data);
+    });
+    socketIo.on("notAllowed", (data: any) => {
+      setIsNotAllowed(true);
     });
 
-    socket.on("message", (data: any) => {
+    socketIo.on("currentRoomDetails", (data: any) => {
+      setRoomData(data);
+    });
+
+    socketIo.on("message", (data: any) => {
       console.log("Message from server:", data);
     });
 
-    socket.on("disconnect", () => {
+    socketIo.on("disconnect", () => {
       console.log("Disconnected from WebSocket server");
     });
 
     return () => {
-      socket.disconnect();
+      socketIo.disconnect();
     };
   }, []);
 
@@ -56,10 +92,34 @@ export default function Index() {
         </Menu>
       </div>
 
-      <div className="flex flex-row justify-center w-full">
-        <PongSketch isSecondaryModeOn={!gameMode} />
-      </div>
-      <ChatBox />
+      {isNotAllowed ? (
+        <div className="flex flex-row justify-center w-full">
+          <p>User not allowed to play (needs further handling)</p>
+        </div>
+      ) : (
+        <>
+          {winner?.id === user?.id ? (
+            <div className="flex flex-row justify-center w-full">
+              <p>YOU WON</p>
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-row justify-center w-full">
+                {userRoomData?.hostUserId !== null ? (
+                  <PongSketch
+                    isHost={user.userID === userRoomData?.hostUserId}
+                    socket={socketIo}
+                    isSecondaryModeOn={!gameMode}
+                  />
+                ) : (
+                  "notReady"
+                )}
+              </div>
+              <ChatBox />
+            </>
+          )}
+        </>
+      )}
     </Layout>
   );
 }

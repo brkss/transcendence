@@ -1,5 +1,6 @@
 class Particle {
-  constructor(x, y, p5) {
+  constructor(x, y, p5, socket) {
+    this.socket = socket;
     this.x = x;
     this.y = y;
     this.p5 = p5;
@@ -36,7 +37,9 @@ export class Puck {
     canvasHeight,
     p5,
     sound,
-    servingPlayer
+    servingPlayer,
+    socket,
+    isHost
   ) {
     this.r = 12;
     this.canvasWidth = canvasWidth;
@@ -44,10 +47,25 @@ export class Puck {
     this.p5 = p5;
     this.isGameOver = false;
     this.sound = new Audio(sound);
-    this.servingPlayer = servingPlayer; 
+    this.servingPlayer = servingPlayer;
     this.particles = [];
-    this.reset();
-   
+    this.reset(isHost);
+    this.socket = socket;
+    console.log("isHost:", this.x, isHost);
+    this.isHost = isHost;
+    if (isHost) {
+      socket.emit("initPuck", {
+        x: this.x,
+        y: this.y,
+        servingPlayer: this.servingPlayer,
+      });
+    } else {
+      socket.on("initPuck", (data) => {
+        this.x = data.x;
+        this.y = data.y;
+        this.servingPlayer = data.servingPlayer;
+      });
+    }
   }
 
   checkPaddleLeft(p) {
@@ -83,8 +101,17 @@ export class Puck {
   }
 
   update() {
-    this.x += this.xspeed;
-    this.y += this.yspeed;
+    if (this.isHost) {
+      this.x += this.xspeed;
+      this.y += this.yspeed;
+
+      this.socket.emit("initPuck", {
+        x: this.x,
+        y: this.y,
+        servingPlayer: this.servingPlayer,
+      });
+    }
+
     for (let i = 0; i < 1; i++) {
       this.particles.push(new Particle(this.x, this.y, this.p5));
     }
@@ -102,16 +129,22 @@ export class Puck {
   }
 
   reset(serving) {
-   
-      this.x = this.canvasWidth / 2;
-      this.y = this.canvasHeight / 2;
-      console.log(this.servingPlayer);
-      if (this.servingPlayer === "left") {
-        this.xspeed = 5; // Serve to the left
-      } else {
-        this.xspeed = -5; // Serve to the right
-      }
-      this.yspeed = Math.random() < 0.5 ? -5 : 5;
+    this.x = this.canvasWidth / 2;
+    this.y = this.canvasHeight / 2;
+    console.log(this.servingPlayer);
+    if (this.servingPlayer === "left") {
+      this.xspeed = 5; // Serve to the left
+    } else {
+      this.xspeed = -5; // Serve to the right
+    }
+    this.yspeed = Math.random() < 0.5 ? -5 : 5;
+    if (this.isHost) {
+      this.socket.emit("initPuck", {
+        x: this.x,
+        y: this.y,
+        servingPlayer: this.servingPlayer,
+      });
+    }
   }
 
   getServingPlayer() {
@@ -119,8 +152,7 @@ export class Puck {
   }
 
   edges(serving) {
-    if (this.isGameOver === false) 
-    {
+    if (this.isGameOver === false) {
       if (this.y < 0 || this.y > this.canvasHeight) {
         this.yspeed *= -1;
       }
@@ -141,16 +173,13 @@ export class Puck {
     }
   }
 
-
   show() {
-    if(this.isGameOver)
-      return ;
+    if (this.isGameOver) return;
     this.p5.fill(255);
     this.p5.ellipse(this.x, this.y, this.r * 2);
     this.showParticles();
   }
-  destroy()
-  {
-    this.isGameOver=true;
+  destroy() {
+    this.isGameOver = true;
   }
 }

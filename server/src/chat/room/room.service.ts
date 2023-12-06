@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { AdministrateDTO, BanDTO, JoinRoomDTO, MuteUserDTO, RoomDTO, createRoomDTO, findRoomDTO, kickDTO, setAdminDTO, updateRoomDTO } from "../dtos/chat.dto";
+import { AdministrateDTO, BanDTO, JoinRoomDTO, MuteUserDTO, RoomDTO, createRoomDTO, findRoomDTO, kickDTO, setAdminDTO, updateRoomDTO, UnMuteUserDTO } from "../dtos/chat.dto";
 import {RoomType } from '@prisma/client'
+import * as bcrypt from "src/utils/bcrypt"
 
 @Injectable()
 export class RoomService {
@@ -14,8 +15,9 @@ export class RoomService {
         if (room.roomType === "PRIVATE")
             return (false)
         if (room.roomType == "PROTECTED") {
-            if (room.password != payload.password) {
-                throw new UnauthorizedException("Invalid Password")
+            // hash password; compare the hash 
+            if (! bcrypt.compare_password_hash(payload.password, room.password)) {
+                throw new ForbiddenException("Invalid Password")
             }
         }
         //either password correct or room is public
@@ -212,7 +214,12 @@ export class RoomService {
     private async getRoomUsers(roomId: number) {
         const roomMembers = await this.prismaService.roomMembers.findMany({
             where: {
-                roomId: roomId
+                roomId: roomId,
+                isBanned: false,
+                OR : [
+                    { mutedUntile:null},
+                    { mutedUntile: {lt:  Date.now() }}
+                ],
             },
             select: {
                 isAdmin: true,
@@ -255,6 +262,17 @@ export class RoomService {
                     user_id: true
                 }
             })
+            const member = await this.prismaService.roomMembers.update({
+                where: {
+                    userId_roomId: {
+                        userId: userId,
+                        roomId: roomId,
+                    }
+                },
+                data: {
+                    isBanned: true,
+                }
+            })
         } catch (error) {
             console.log(error)
             return (false)
@@ -274,6 +292,17 @@ export class RoomService {
                 },
                 select: {
                     user_id: true
+                }
+            })
+            const member = await this.prismaService.roomMembers.update({
+                where: {
+                    userId_roomId: {
+                        userId: userId,
+                        roomId: roomId,
+                    }
+                },
+                data: {
+                    isBanned: true,
                 }
             })
         } catch (error) {
@@ -332,7 +361,7 @@ export class RoomService {
                 }
             }
         })
-        return (all_chats)
+        return (all_chats.map((chat) => ( chat.dest )))
     }
     async getChatUsers(room_id: number) {
         const chat_users = await this.prismaService.roomMembers.findMany({
@@ -467,7 +496,7 @@ export class RoomService {
     }
 
     async muteUserFor(userId: number, roomId: number, muteDuration: number) {
-        const mute_duration = Date.now() + muteDuration
+        const mute_duration = Date.now() + (muteDuration * 1000) // ms to seconds
         const entry = await this.prismaService.roomMembers.update({
             where: {
                 userId_roomId: {
@@ -513,7 +542,7 @@ export class RoomService {
         const messageId = await this.prismaService.messages.create({
             data: {
                 sender_id: data.userId,
-                sender_username: data.sender_username,
+                //sender_username: data.sender_username,
                 chatRom_id: data.roomId,
                 recepient_id: data.recepient_id,
                 message: data.message
@@ -548,10 +577,12 @@ export class RoomService {
                 chatRom_id: roomId
             },
             select: {
-                sender_username: true,
+                //sender_username: true,
+                id: true,
+                sender_id: true,
                 message: true,
                 created_at: true
-            }
+            },
         })
         return (chat_messages)
     }
@@ -562,6 +593,13 @@ export class RoomService {
         if (duplicate_name) {
             throw new BadRequestException('Room With Same Name Already exits')
         }
+        
+        // hash room password before insert 
+        if(payload.roomType === "PROTECTED"){
+            const password_hash = await bcrypt.hash_password(payload.password)
+            payload.password = password_hash;
+        }
+        // maybe encrypt it aftwerwards 
         const newRoom = await this.createChatRoom(user, payload);
         return (newRoom)
     }
@@ -577,8 +615,10 @@ export class RoomService {
         only room owner can update it
         */
         if (room.owner != user.id) {
-            throw new UnauthorizedException()
+            throw new ForbiddenException()
         }
+        if (payload.roomType == "PRETECTED")
+            payload.password = await bcrypt.hash_password(payload.password)
         const data = {
             roomType: payload.roomType,
             password: (payload.roomType === "PROTECTED") ? payload.password : null
@@ -593,7 +633,7 @@ export class RoomService {
             throw new BadRequestException("Chat Room Not Found!")
         }
         if (room.owner != user.id) {
-            throw new UnauthorizedException()
+            throw new ForbiddenException()
         }
         await this.deleteRoom(room_id);
         const response = {
@@ -612,7 +652,7 @@ export class RoomService {
         const authorized = this.verifyAccess(room, payload)
         const is_banned = await this.isBannedFromRoom(user.id, room.id)
         if (!authorized || is_banned) {
-            throw new UnauthorizedException()
+            throw new ForbiddenException()
         }
         // adding user to RoomMember table
         const roomId = await this.addMemberTORoom(user.id, room.id, false)
@@ -663,7 +703,7 @@ export class RoomService {
             memberId: payload.user_id
         }
         if (! await this.canAdminstrate(payload_administer))
-            throw new UnauthorizedException()
+            throw new ForbiddenException()
         if (! await this.removeUserFromRoom(payload.user_id, room.id))
             throw new BadRequestException("User is not room member")
 
@@ -686,10 +726,10 @@ export class RoomService {
         }
         const is_membeer = await this.isRoomMember(room.id, payload.user_id)
         if (!is_membeer) {
-            throw new UnauthorizedException()
+            throw new ForbiddenException()
         }
         if (! await this.canAdminstrate(administrate_payload)) {
-            throw new UnauthorizedException()
+            throw new ForbiddenException()
         }
         const is_banned = await this.isBannedFromRoom(payload.user_id, room.id)
         if (is_banned) {
@@ -717,7 +757,7 @@ export class RoomService {
             memberId: payload.user_id
         }
         if (! await this.canAdminstrate(administrate_payload)) {
-            throw new UnauthorizedException()
+            throw new ForbiddenException()
         }
         if (! await this.UnbanUserFromRoom(payload.user_id, room.id)) {
             throw new BadRequestException("User not a room member")
@@ -744,7 +784,7 @@ export class RoomService {
             memberId: payload.user_id
         }
         if (! await this.canAdminstrate(administrate_payload)) {
-            throw new UnauthorizedException()
+            throw new ForbiddenException()
         }
         const is_member = await this.isRoomMember(room.id, payload.user_id)
         if (!is_member) {
@@ -774,10 +814,10 @@ export class RoomService {
             memberId: payload.user_id
         }
         if (! await this.canAdminstrate(operation_data)) {
-            throw new UnauthorizedException()
+            throw new ForbiddenException()
         }
         if (!await this.muteUserFor(payload.user_id, room.id, payload.muteDuration)) {
-            throw new UnauthorizedException()
+            throw new ForbiddenException()
         }
         const resp = {
             status: "success",
@@ -786,11 +826,11 @@ export class RoomService {
         return (resp)
     }
 
-    async Un_muteUser(user: any, payload: MuteUserDTO) {
+    async Un_muteUser(user: any, payload: UnMuteUserDTO) {
         const room = await this.getRoomById(payload.room_id)
         const is_muted = await this.IsUserMuted(user.id, room.id)
         if (!is_muted) {
-            throw new BadRequestException()
+            throw new BadRequestException("User not muted")
         }
 
         const operation_data: AdministrateDTO = {
@@ -799,7 +839,7 @@ export class RoomService {
             memberId: payload.user_id
         }
         if (!await this.canAdminstrate(operation_data)) {
-            throw new UnauthorizedException()
+            throw new ForbiddenException()
         }
         if (await this.UnmuteUser(payload.user_id, room.id)) {
             throw new BadRequestException()
@@ -821,12 +861,12 @@ export class RoomService {
         }
         const user_is_admin = await this.IsRoomAdmin(user.id, room.id)
         if (!user_is_admin) {
-            throw new UnauthorizedException()
+            throw new ForbiddenException()
         }
         const banned_users = await this.getAllBannedUsers(room.id)
         const response = {
             status: "success",
-            banndUsers: banned_users
+            bannedUsers: banned_users.map(bu => ({...bu.banned_user}))
         }
         return (response)
     }
@@ -837,7 +877,7 @@ export class RoomService {
         }
         const is_membeer = await this.isRoomMember(room.id, user.id)
         if (!is_membeer) {
-            throw new UnauthorizedException()
+            throw new ForbiddenException()
         }
         const room_users = await this.getRoomUsers(room.id)
         return (room_users)
@@ -850,12 +890,12 @@ export class RoomService {
         }
         const user_is_admin = await this.IsRoomAdmin(user.id, room.id)
         if (!user_is_admin) {
-            throw new UnauthorizedException()
+            throw new ForbiddenException()
         }
-        const banned_users = await this.getAlMutedUsers(room.id)
+        const muted_users = await this.getAlMutedUsers(room.id)
         const response = {
             status: "success",
-            banndUsers: banned_users
+            mutedUsers: muted_users.map(bu => ({...bu.user}))
         }
         return (response)
     }

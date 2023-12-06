@@ -6,13 +6,20 @@ import {
     IsNumber,
     IsString,
     ValidateIf,
-
 } from 'class-validator'
+import { Transform, Type } from 'class-transformer';
+
 export class AdministrateDTO {
+    //@Transform(value => Number.isNaN(+value) ? 0 : +value)
+    
     @IsNumber()
     userId: number
+
+   
     @IsNumber()
     roomId: number
+
+   
     @IsNumber()
     memberId: number 
 }
@@ -20,7 +27,6 @@ export class AdministrateDTO {
 export class RoomDTO {
     @IsNumber()
     room_id: number
-
 }
 export class findRoomDTO {
     @IsString()
@@ -43,6 +49,7 @@ export class createRoomDTO {
 }
 
 export class kickDTO extends RoomDTO{ 
+
     @IsNumber()
     user_id: number
 }
@@ -52,14 +59,25 @@ export class MuteUserDTO extends RoomDTO {
     // @IsNotEmpty()
     // user: string // not necessary! 
 
+   
     @IsNumber()
     user_id: number
 
     // mute duration in seconds 
+   
     @IsNumber()
     muteDuration: number
 
 }
+
+export class UnMuteUserDTO extends RoomDTO {
+   
+    @IsNumber()
+    user_id: number
+
+}
+
+
 export class BanDTO extends kickDTO {
 
 }
@@ -72,6 +90,7 @@ export class chatMessageDTO extends RoomDTO{
 }
 
 export class PrivateMessageDTO {
+   
     @IsNumber()
     userId: number
 

@@ -11,7 +11,7 @@ export interface UpdateRoomInput {
 }
 
 export interface JoinRoomInput {
-	room_id: number;
+	room_id: 	number;
 	roomType: 	string;
 	password?:	string;
 }
