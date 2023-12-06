@@ -1,26 +1,17 @@
-import { UserService } from "./user.service";
-import { Controller, Get, Param, Req, UseGuards, Post, Body, ParseIntPipe,  UseInterceptors, UploadedFile, Res, NotFoundException } from "@nestjs/common"
-import { JwtAuth } from "src/auth/guards/jwtauth.guard";
 import { Request } from 'express'
-import { addFriendDTO, blockUserDTO, unblockUserDTO } from "./user.dto";
+import { upload_config } from 'src/utils/upload_config'; // config for mutter module
+import { UserService } from "./user.service";
+import { JwtAuth } from "src/auth/guards/jwtauth.guard";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { diskStorage } from "multer";
-import { uid } from 'uid'
-import path = require("path") // exported form  path (re checkit!!)
-import { updateNameDTO, updateRoomDTO } from "src/chat/dtos/chat.dto";
+import { updateNameDTO } from "src/chat/dtos/chat.dto";
+import { addFriendDTO, blockUserDTO, unblockUserDTO } from "./user.dto";
+import { Controller, Get, Param
+        , Req, UseGuards, Post
+        , Body, ParseIntPipe
+        , UseInterceptors, UploadedFile
+    } from "@nestjs/common"
 
-const upload_config = {
-    storage: diskStorage({
-        destination: path.join(process.cwd(), "/uploads/images/"),
-        filename: (req, file, callback) => {
-            const parsed_file = path.parse(file.originalname)
-            const file_name = parsed_file.name + uid(12) + parsed_file.ext
-            console.log("file name: >> ", file_name);
-            // validate extention type before callback !!1
-            callback(null, file_name)
-        }
-    }),
-}
+
 @Controller('user')
 @UseGuards(JwtAuth)
 export class UserController {
@@ -119,30 +110,13 @@ export class UserController {
         return (history)
     }
 
-    // @Get("/avatar/:filename")
-    // async getUserAvatar(@Param('filename') filename: string, @Res() res){
-    //     console.log(filename)
-    //     const file: path.ParsedPath = path.parse(filename)
-    //     const secure_name = file.name + file.ext
-    //     const abs_path = process.cwd() + "/uploads/images/" + secure_name
-    //     const stream  = createReadStream(abs_path)
-    //     stream.on('error', (error)=> {
-    //         console.log(error)
-    //         stream.close()
-    //     })
-    //     //stream.pipe(res);
-    // }
-
     @Post("/upload")
     @UseInterceptors(FileInterceptor('file', upload_config))
-    async uploadAvatar(@UploadedFile() file: any, @Req() req: any) {
-        console.log(file)
-        console.log(process.cwd())
-        const user_id : number = req.user.id
-        const avatar_link : string = "http://localhost:8000/user/avatar/" + file.filename;
-        await this.userService.updateUserAvatar(user_id, avatar_link); 
-        return { status: true }
+    async uploadAvatar(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
+        const user = req.user
+        return (await this.userService.updateAvatar(user.id, file))
     }
+
     @Post("/updatename")
     async updateUsername(@Req() request: any ,@Body() body: updateNameDTO) {
         const user = request.user

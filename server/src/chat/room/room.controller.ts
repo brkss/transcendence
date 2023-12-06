@@ -9,7 +9,6 @@ export class RoomController {
     constructor(private roomService: RoomService){
 
     }
-
     @Delete('/:room_id')
     async handleDeleteRoom(@Req() request: any, @Param('room_id', ParseIntPipe) room_id : number) {
         return (await this.roomService.DeleteChatRoom(request.user, room_id))
