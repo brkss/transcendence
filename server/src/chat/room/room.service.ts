@@ -48,7 +48,7 @@ export class RoomService {
         const mute_entry = await this.getMuteEntry(userId, roomId)
         if (mute_entry) { // an entry exists on table
             const mute_time = mute_entry.mutedUntile
-            if (mute_time > Date.now())
+            if (mute_time > Date.now() / 1000)
                 return (true)
             await this.UnmuteUser(userId, roomId)
             console.log(mute_entry)
