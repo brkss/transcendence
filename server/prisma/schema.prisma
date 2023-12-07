@@ -125,10 +125,19 @@ model Friendship {
   @@unique([user_id, friend_id])
 }
 
-model game {
-  id            Int @id @unique @default(autoincrement())
-  opponentId    Int @unique
-  userScore     Int
-  oppenentScore Int
-  startedAt DateTime @db.Date
+model Score {
+  id        Int @id @unique @default(autoincrement())
+  game_id   Int
+  player_id Int
+  score     Int
+  game      Game @relation(fields: [game_id], references: [id])
 }
+
+model Game {
+  id             	Int @id @unique @default(autoincrement())
+  firstPlayer_id  Int
+  secondPlayer_id Int
+  scores          Score[]
+  startedAt       DateTime @db.Date
+}
+
