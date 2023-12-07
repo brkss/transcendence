@@ -52,7 +52,7 @@ export const getUserChats = async () => {
 }
 
 export const getUserInfo = async (uid: number) => {
-	const response = await api.get(`${API_URL}/user/user/${uid}`);
+	const response = await api.get(`${API_URL}/user/profile/${uid}`);
 	return response.data;
 }
 
