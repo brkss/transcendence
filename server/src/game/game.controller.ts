@@ -1,35 +1,30 @@
-import { Get, Param } from '@nestjs/common';
+import { Get, Param, Post, Body } from '@nestjs/common';
 import { GameService } from 'src/game/game.service';
-import { Game } from 'src/game/game.model';
+import { CreateGameDTO, AddPlayerScoreDTO } from './game.dto';
 
 export class GameController {
 	constructor(private readonly gameService: GameService) { };
 
 	@Get()
-	async getAllGames() : Promise<Game[]>
-	{
+	async getAllGames(): Promise<any> {
 		return this.gameService.getAllGames();
 	}
 
 	@Get(':id')
-	async getGame(@Param('id') id : number) : Promise<Game>
-	{
+	async getGame(@Param('id') id: number): Promise<any> {
 		return this.gameService.getGame(id);
 	}
 
 	@Post()
-	async CreateGame(@Body() createGameDTO: CreateGameDTO) : Promise<Game>
-	{
-		const game: Game = {
-			firstPlayer_id : createGameDTO.firstPlayer_id,
-			secondPlayer_id : createGameDTO.secondPlayer_id,
-			startedAt : Date(),
-		}
-		return this.gameService.createGame(game);
+	async CreateGame(@Body() createGameDTO: CreateGameDTO): Promise<any> {
+		return this.gameService.createGame(createGameDTO);
 	}
 
 	@Post(':id')
-	async addPlayersScores(@Param('id') id: number, @Body() addPlayersScoreDTO: AddPlayersScoreDTO) : Promise<Game>{
+	async addPlayerScores(@Param('id') id: number, @Body() firstPlayer_score: AddPlayerScoreDTO, secondPlayer_score: AddPlayerScoreDTO): Promise<any> {
+		const firstScore = this.gameService.addScore(id, firstPlayer_score);
+		const secondScore = this.gameService.addScore(id, secondPlayer_score);
+		return [firstScore , secondScore];
 	}
 }
 
