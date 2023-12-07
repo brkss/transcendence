@@ -5,7 +5,7 @@ export class CreateGameDTO
 	@IsNumber()
 	firstPlayer_id : number;
 
-	@Isnumer()
+	@IsNumber()
 	secondPlayer_id: number;
 }
 
@@ -17,7 +17,12 @@ export class AddPlayerScoreDTO
 	@IsNumber()
 	player_id : number;
 
-
 	@IsNumber()
 	player_score: number;
+}
+
+export class CreateScoreDTO	
+{
+	@IsNumber()
+	game_id: number;
 }
