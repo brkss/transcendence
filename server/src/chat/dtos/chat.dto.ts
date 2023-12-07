@@ -7,6 +7,7 @@ import {
     IsNotEmpty,
     IsNumber,
     IsString,
+    Matches,
     ValidateIf,
 } from 'class-validator'
 
@@ -39,14 +40,17 @@ export class updateNameDTO {
 }
 
 export class createRoomDTO {
-    @IsString()
+
     @IsNotEmpty()
+    @Matches(/^[^\s].*[^\s]$/, {
+        message: 'No trailing or leading white spaces are allowed',
+      })
     roomName: string
 
     @IsIn(["PUBLIC", "PRIVATE", "PROTECTED"])
     roomType: string
 
-    @ValidateIf(object => object.roomType === 'PROTECTED')
+ @ValidateIf(object => object.roomType === 'PROTECTED')
     @IsAscii()
     @IsByteLength(8, 32)
     password?: string
