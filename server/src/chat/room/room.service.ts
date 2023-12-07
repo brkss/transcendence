@@ -51,7 +51,6 @@ export class RoomService {
             if (mute_time > Date.now() / 1000)
                 return (true)
             await this.UnmuteUser(userId, roomId)
-            console.log(mute_entry)
             return (false)
         }
         return (false)
@@ -75,7 +74,6 @@ export class RoomService {
             return (true)
 
         } catch (error) {
-            //console.log(error)
             return null
         }
     }
@@ -130,7 +128,6 @@ export class RoomService {
             return (newRoom)
 
         } catch (error) {
-            //console.log(error)
             return (undefined)
         }
     }
@@ -146,7 +143,6 @@ export class RoomService {
             })
             return (room)
         } catch (error) {
-            console.log(error)
             return (null)
         }
     }
@@ -160,7 +156,6 @@ export class RoomService {
             return room;
         }
         catch (error) {
-            //console.log(error)
             return undefined
         }
 
@@ -189,7 +184,6 @@ export class RoomService {
             return room;
         }
         catch (error) {
-            //console.log(error)
             return undefined
         }
 
@@ -274,7 +268,6 @@ export class RoomService {
                 }
             })
         } catch (error) {
-            console.log(error)
             return (false)
         }
         return (true)
@@ -497,7 +490,7 @@ export class RoomService {
     }
 
     async muteUserFor(userId: number, roomId: number, muteDuration: number) {
-        const mute_duration = Date.now() + (muteDuration * 1000) // ms to seconds
+        const mute_duration = (Date.now() * 60000) + muteDuration //in seconds
         const entry = await this.prismaService.roomMembers.update({
             where: {
                 userId_roomId: {

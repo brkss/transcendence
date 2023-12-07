@@ -1,14 +1,13 @@
 import { PassportStrategy } from "@nestjs/passport"
 import { Strategy, VerifyCallback } from 'passport-oauth2'
 import { ConfigService } from "@nestjs/config"
-import { Injectable } from "@nestjs/common"
+import { Injectable, UnauthorizedException } from "@nestjs/common"
 import axios from 'axios'
+
 
 @Injectable()
 export class auth42Strategy extends PassportStrategy(Strategy, '42-auth2') {
     constructor(private configService: ConfigService) {
-        console.log(configService.get('CALLBACK_URL'))
-        console.log("see call back")
         super({
             authorizationURL: configService.get('AUTHORIZATION_URL'),
             tokenURL: configService.get('TOKEN_URL'),
@@ -17,13 +16,18 @@ export class auth42Strategy extends PassportStrategy(Strategy, '42-auth2') {
             callbackURL: configService.get('CALLBACK_URL'),
         })
     }
+
+    async authenticate(req: any, options: any): Promise<void> {
+        if (req.query && req.query.error) {
+            this.redirect("http://localhost:3000/")
+        }
+        return super.authenticate(req, options);
+    }
+
     async userProfile(accessToken: string, done: VerifyCallback): Promise<void> {
         try {
-            console.log("getting user profile")
             const response = await axios.get(this.configService.get('USER_INFO_URL'), {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
+                headers: { Authorization: `Bearer ${accessToken}`, }
             });
             done(null, response.data)
         }
@@ -31,16 +35,16 @@ export class auth42Strategy extends PassportStrategy(Strategy, '42-auth2') {
             done(error, false)
         }
     }
+
     async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback): Promise<any> {
         const user = {
-            email: profile.email, 
+            email: profile.email,
             login: profile.login,
             first_name: profile.first_name,
             last_name: profile.last_name,
             usual_full_name: profile.usual_full_name,
             image: profile.image.versions.small
         }
-        console.log(user)
         done(null, user);
-     }
+    }
 }

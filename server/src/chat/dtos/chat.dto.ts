@@ -1,4 +1,6 @@
 import {
+    IsAlpha,
+    IsAlphanumeric,
     IsAscii,
     IsByteLength,
     IsIn,
@@ -7,19 +9,12 @@ import {
     IsString,
     ValidateIf,
 } from 'class-validator'
-import { Transform, Type } from 'class-transformer';
 
 export class AdministrateDTO {
-    //@Transform(value => Number.isNaN(+value) ? 0 : +value)
-    
     @IsNumber()
     userId: number
-
-   
     @IsNumber()
     roomId: number
-
-   
     @IsNumber()
     memberId: number 
 }
@@ -32,6 +27,15 @@ export class findRoomDTO {
     @IsString()
     @IsNotEmpty()
     room_name: string
+}
+export class updateNameDTO {
+    @IsString()
+    @IsAlpha()
+    fullname: string
+
+    @IsString()
+    @IsAlphanumeric()
+    username: string
 }
 
 export class createRoomDTO {
@@ -120,7 +124,6 @@ export class LeaveRoomDTO extends RoomDTO {
 export class updateRoomDTO extends RoomDTO {
     @IsIn(["PUBLIC", "PRIVATE", "PROTECTED"])
     roomType: string
-
     @ValidateIf(object => object.roomType === 'PROTECTED')
     @IsAscii()
     @IsByteLength(8, 32)

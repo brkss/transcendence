@@ -1,8 +1,9 @@
-import { UseGuards, Controller, Get,Req, Res, Post } from '@nestjs/common'
+import { UseGuards, Controller, Get,Req, Res, Post, InternalServerErrorException } from '@nestjs/common'
 import { AuthService } from './auth.service';
 import { auth42Guard } from './guards/auth.guard';
 import { Response, Request } from 'express';
 import { generateRefreshToken } from './token';
+import { PrismaClientInitializationError } from '@prisma/client/runtime/library';
 
 @Controller('auth')
 export class authController {
@@ -21,7 +22,7 @@ export class authController {
             if (auth2fa_active){
                 const auth2fa_token = await this.auth_service.login2fa(req)
                 resp.cookie('auth2fa_token', auth2fa_token)
-                resp.redirect("/2fa/otp")
+                resp.redirect("http://localhost:3000/2fa/otp")
                 // TODO: redirect user to 2fa page!!
                 // POST opt code to /2fa/opt 
             }
@@ -30,9 +31,11 @@ export class authController {
                 resp.redirect("http://localhost:3000/")
             }
         } catch (error) {
-            console.log('ERROR: ', error)
+            if (error instanceof PrismaClientInitializationError) {
+                resp.redirect("http://localhost:3000/error")
+                throw new InternalServerErrorException();
+            }
         }
-       
     }
 
 	@Post("refresh-token")

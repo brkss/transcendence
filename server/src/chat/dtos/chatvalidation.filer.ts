@@ -6,7 +6,8 @@ export class ValidationExceptionFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
     // you have to check if exception is from ValidationClass
     if (true){
-      console.log(exception)
+      console.log("validatoin ****: ", exception)
+
     }
     const ctx = host.switchToWs();
     const client = ctx.getClient<Socket>();
