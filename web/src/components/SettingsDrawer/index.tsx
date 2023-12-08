@@ -30,6 +30,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 
 	const avatarInputRef = React.useRef<any>();
 	const [avatar, setAvatar] = React.useState<File | null>(null);
+	const [user, setUser] = React.useState<any>(null);
 	const toast = useToast();
 	
 	const chnageAvatar = () => {
@@ -44,6 +45,18 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 			setAvatar(e.currentTarget.files[0])
 		}
 	}
+
+	React.useEffect(() => {
+		(() => {
+			const user = JSON.parse(localStorage.getItem("ME") || "");
+			if(user){
+				setUser(user);
+				console.log("me : ", user);
+			}
+		})()
+	}, []);
+
+	
 
 	const handleSave = () => {
 		if(avatar){
@@ -86,7 +99,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 					<Center h={'100%'}>
 						<Box w={'100%'}>
 							<Center h={'200px'} textAlign={'center'}>
-								<Avatar src={avatar ? URL.createObjectURL(avatar) : ""} clicked={chnageAvatar} />
+								<Avatar src={avatar ? URL.createObjectURL(avatar) : user?.avatar} clicked={chnageAvatar} />
 								<input type="file" onChange={handleAvatarChange} hidden ref={avatarInputRef} />
 							</Center>
 							<Grid templateColumns={'repeat(12, 1fr)'} gap={3}>
@@ -104,9 +117,6 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 									</FormControl>
 								</GridItem>
 							</Grid>
-							
-							
-							
 						</Box>						
 					</Center>
 					
