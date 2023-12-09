@@ -17,6 +17,7 @@ import {
 	Grid,
 	GridItem,
 	useToast,
+	Text
 } from '@chakra-ui/react'
 import { Avatar } from '../Avatar';
 import { updateUserProfile, uploadAvatar } from '@/utils/services'
@@ -100,6 +101,8 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 					duration: 9000,
 					isClosable: true
 				})
+			}).catch(e => {
+				console.log("err : ", e);
 			})
 		}
 	}
@@ -141,6 +144,11 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 									</FormControl>
 								</GridItem>
 							</Grid>
+							<hr style={{marginTop: '30px'}} />
+							<Box mt={'20px'}>
+								<Text fontSize={'20px'} fontWeight={'bold'} mb={'10px'}>Security</Text>
+								<Button>Activate 2 Factor Authentication</Button>
+							</Box>
 						</Box>						
 					</Center>
 					
