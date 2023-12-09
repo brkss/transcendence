@@ -84,6 +84,7 @@ export class Puck {
       }
     }
   }
+  
   checkPaddleRight(p) {
     if (
       this.y - this.r < p.y + p.h / 2 &&
@@ -137,7 +138,7 @@ export class Puck {
     } else {
       this.xspeed = -5; // Serve to the right
     }
-    this.yspeed = Math.random() < 0.5 ? -5 : 5;
+    this.yspeed = Math.random() < 5 ? -5 : 5;
     if (this.isHost) {
       this.socket.emit("initPuck", {
         x: this.x,
@@ -183,3 +184,4 @@ export class Puck {
     this.isGameOver = true;
   }
 }
+``

@@ -100,7 +100,11 @@ export default function Index() {
         <>
           {winner?.id === user?.id ? (
             <div className="flex flex-row justify-center w-full">
-              <p>YOU WON</p>
+            <p className="text-5xl font-extrabold text-indigo-700 bg-gradient-to-r from-yellow-300 to-pink-500 p-6 rounded-md shadow-lg hover:shadow-xl transform transition duration-300 hover:scale-105">
+  YOU WON
+</p>
+
+
             </div>
           ) : (
             <>

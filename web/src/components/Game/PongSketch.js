@@ -23,18 +23,24 @@ const keyReleased = (p5, socket) => {
   socket.emit("moveRightRelease");
 };
 
-const keyPressed = (p5, event, socket) => {
-  if (event.key === "A" || event.key.toLowerCase() === "a") {
+const keyPressed = (p5, event, socket,puck) => {
+  if(puck.isHost)
+  {
+    if (event.key === "A" || event.key.toLowerCase() === "a") {
     socket.emit("moveLeft", { value: -10 });
   } else if (event.key === "Z" || event.key.toLowerCase() === "z") {
     socket.emit("moveLeft", { value: 10 });
   }
-
+  }
+  else
+{
   if (event.key === "J" || event.key.toLowerCase() === "j") {
     right.move(-10);
   } else if (event.key === "M" || event.key.toLowerCase() === "m") {
     right.move(10);
   }
+}
+ 
 };
 let pucks = [];
 
@@ -90,7 +96,7 @@ const setup = (p5, canvasParentRef, isSecondaryModeOn, socket, isHost) => {
   });
 
   window.addEventListener("keydown", (ev) => {
-    keyPressed(p5, ev, socket);
+    keyPressed(p5, ev, socket,puck);
     if (ev.key === "Enter") {
       socket.emit("userReady");
     }
@@ -124,7 +130,7 @@ const handleDrawSecondaryMode = (p5) => {
   const c = p5.color(255, 0, 0);
   p5.fill(c);
   p5.textSize(20);
-  p5.text("CRAZY MODE", 350, 20);
+  p5.text("ARCADE MODE", 350, 20);
 };
 const resetGame = (p5, isSecondaryModeOn, socket) => {
   isGameStarted = false;
@@ -168,13 +174,15 @@ const draw = (p5, isSecondaryModeOn, socket) => {
     );
   }
   if (crazyModePuck && isSecondaryModeOn) {
+    console.log("ACRADE MODE!");
     crazyModePuck.checkPaddleRight(right);
     crazyModePuck.checkPaddleLeft(left);
-    crazyModePuck.show();
+    //crazyModePuck.show();
     crazyModePuck.update();
     const goal = crazyModePuck.edges(
-      crazyModePuck?.getServingPlayer() === "left" ? "right" : "left"
+      crazyModePuck?.getServingPlayer() === "right" ? "left" : "right"
     );
+    console.log("Serving player:" ,crazyModePuck.getServingPlayer());
     if (goal) {
       if (crazyModePuck.getServingPlayer() === "left") leftscore++;
       else if (crazyModePuck.getServingPlayer() === "right") rightscore++;
