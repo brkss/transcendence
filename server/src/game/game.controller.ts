@@ -1,9 +1,11 @@
-import { Get, Param, Post, Body } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body } from '@nestjs/common';
 import { GameService } from 'src/game/game.service';
 import { CreateGameDTO, AddPlayerScoreDTO } from './game.dto';
 
+@Controller('game')
 export class GameController {
 	constructor(private readonly gameService: GameService) { };
+
 
 	@Get()
 	async getAllGames(): Promise<any> {
