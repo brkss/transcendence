@@ -35,7 +35,6 @@ export class TwofactorauController {
     async verify_OTP(@Req() req: any,
                     @Body() body: OnetimePasswordDTO,
                     @Res({passthrough: true}) resp: any) {
-
         const token: string = req.body.token
         const user = req.user
         const isValidCode = await this.twofaservice.isValidOTP(token, user.userID)

@@ -92,3 +92,16 @@ export const uploadAvatar = async (data: FormData) => {
 	});
 	return response.data;
 }
+
+export const updateUserProfile = async (name: string, username: string) => {
+	const response = await api.post(`${API_URL}/user/updatename`, {
+		fullname: name,
+		username: username
+	}, {
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
+	console.log("update user data response : ", response);
+	return response.data;
+}

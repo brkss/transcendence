@@ -105,7 +105,10 @@ export class UserService {
 			where: {
 				id: user_id
 			},
-			data: names,
+			data: {
+				fullName: names.fullname,
+				username: names.username
+			},
 			select: {
 				username: true,
 				fullName: true

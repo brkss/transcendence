@@ -19,7 +19,7 @@ import {
 	useToast,
 } from '@chakra-ui/react'
 import { Avatar } from '../Avatar';
-import { uploadAvatar } from '@/utils/services'
+import { updateUserProfile, uploadAvatar } from '@/utils/services'
 
 interface Props {
 	isOpen: boolean;
@@ -31,6 +31,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 	const avatarInputRef = React.useRef<any>();
 	const [avatar, setAvatar] = React.useState<File | null>(null);
 	const [user, setUser] = React.useState<any>(null);
+	const [form, setForm] = React.useState<any>({});
 	const toast = useToast();
 	
 	const chnageAvatar = () => {
@@ -56,6 +57,13 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 		})()
 	}, []);
 
+	const handleForm = (key: string, val: string) => {
+		setForm({
+			...form,
+			[key]: val
+		})
+	}
+
 	
 
 	const handleSave = () => {
@@ -80,7 +88,23 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 				})
 			})
 		}
+		
+		if(form && form.username && form.name){
+			updateUserProfile(form.name, form.username).then(response => {
+				console.log("update user profile : ", response);
+			}).then(e => {
+				console.log("error : ", e);
+				toast({
+					status: 'error',
+					title: "Something went wrong can't change user's data",
+					duration: 9000,
+					isClosable: true
+				})
+			})
+		}
 	}
+
+	
 
 	return (
 		<Drawer
@@ -107,13 +131,13 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 									<FormControl>
 										<FormLabel fontSize={'15px'} fontWeight={'bold'} mb={'5px'}>Name</FormLabel>
 										
-										<Input variant={'filled'} />
+										<Input value={form.name || user?.fullName || ""} onChange={(e) => handleForm("name", e.currentTarget.value)} variant={'filled'} />
 									</FormControl>
 								</GridItem>
 								<GridItem colSpan={{md: 12, base: 12}}>
 									<FormControl mt={'0'}>
 										<FormLabel fontSize={'15px'} fontWeight={'bold'} mb={'5px'}>Username</FormLabel>
-										<Input variant={'filled'} />
+										<Input value={form.username || user?.username || ""} onChange={(e) => handleForm("username", e.currentTarget.value)} variant={'filled'} />
 									</FormControl>
 								</GridItem>
 							</Grid>
