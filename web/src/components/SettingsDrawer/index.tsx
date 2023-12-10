@@ -17,10 +17,12 @@ import {
 	Grid,
 	GridItem,
 	useToast,
-	Text
+	Text,
+	useDisclosure
 } from '@chakra-ui/react'
 import { Avatar } from '../Avatar';
 import { updateUserProfile, uploadAvatar } from '@/utils/services'
+import { TwoFASettings } from './2fa'
 
 interface Props {
 	isOpen: boolean;
@@ -29,6 +31,7 @@ interface Props {
 
 export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 
+	const _tfa = useDisclosure();
 	const avatarInputRef = React.useRef<any>();
 	const [avatar, setAvatar] = React.useState<File | null>(null);
 	const [user, setUser] = React.useState<any>(null);
@@ -147,7 +150,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 							<hr style={{marginTop: '30px'}} />
 							<Box mt={'20px'}>
 								<Text fontSize={'20px'} fontWeight={'bold'} mb={'10px'}>Security</Text>
-								<Button>Activate 2 Factor Authentication</Button>
+								<Button onClick={() => _tfa.onOpen()}>Activate 2 Factor Authentication</Button>
 							</Box>
 						</Box>						
 					</Center>
@@ -159,6 +162,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 					<Button variant={'ghost'}>Cancel</Button>
 				</DrawerFooter>
 			</DrawerContent>
+			{_tfa.isOpen && <TwoFASettings onClose={() => _tfa.onClose()} isOpen={_tfa.isOpen} />}
 		</Drawer>
 	)
 }
