@@ -119,4 +119,29 @@ export class GameService {
 			console.error('Error: Can\'t add the player\'s score', error);
 		}
 	}
+
+	async GetOpponentId(game_id: number, player_id: number)
+	{
+		try
+		{
+			const gameExist = await this.prismaService.game.findUnique({where: {id : game_id,}});
+			if (!gameExist)
+				throw new NotFoundException('Game with ID: ${game_id} not found!');
+			const {firstPlayer_id, secondPlayer_id} =  await this.prismaService.game.findUnique({
+				where: { id: game_id },
+				select:{
+					firstPlayer_id : true,
+					secondPlayer_id : true,
+				},	
+			});
+
+			if (player_id == firstPlayer_id) 
+				return (secondPlayer_id);
+			else
+				return (firstPlayer_id);
+		}catch(error)
+		{
+			console.error(error);
+		}
+	}
 }
