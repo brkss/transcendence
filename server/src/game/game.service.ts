@@ -120,7 +120,28 @@ export class GameService {
 		}
 	}
 
-	async GetOpponentId(game_id: number, player_id: number)
+	  async addGameToPlayer(game_id: number, firstPlayer_id: number, secondPlayer_id: number)
+        {
+                try{
+                        const game = this.getGame(game_id);
+                        if (!game)
+                                throw new NotFoundException('Game with ID: ${game_id} not found!');
+                        return this.prismaService.user.create({
+                                data: {
+                                        firstPlayer : {connect: {id : firstPlayer_id,}},
+                                        secondPlayer : {connect: {id : secondPlayer_id,}},
+                                        game: game,
+                                },
+                        }
+                                                             );
+                }catch(error)
+                {
+                        console.error(error);
+                }
+
+        }
+
+/*	async GetOpponentId(game_id: number, player_id: number)
 	{
 		try
 		{
@@ -143,5 +164,5 @@ export class GameService {
 		{
 			console.error(error);
 		}
-	}
+	}*/
 }
