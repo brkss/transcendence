@@ -9,7 +9,7 @@ export class GameService {
 	async getAllGames(): Promise<any> {
 		return await this.prismaService.game.findMany({
 			include:
-			{
+				{
 				scores: true,
 			},
 		});
@@ -18,19 +18,25 @@ export class GameService {
 	async getGame(game_id: number): Promise<any> {
 		return await this.prismaService.game.findUnique({
 			where: { id: game_id, },
-			include: { scores: true, },
+			include: {
+				scores: true,
+				players: true,
+			},
 		});
 	}
 
-	async createGame(game: CreateGameDTO): Promise<any> {
+	async createGame(game: CreateGameDTO): Promise<any>
+	{
 		return await this.prismaService.game.create({
 			data: {
-				firstPlayer_id: game.firstPlayer_id,
-				secondPlayer_id: game.secondPlayer_id,
+				players: {
+					connect: [{ id: game.firstPlayer_id }, { id: game.secondPlayer_id }],
+				},
 				startedAt: Date(),
 			},
 			include: {
 				scores: true,
+
 			},
 		});
 	}
@@ -72,14 +78,14 @@ export class GameService {
 
 	}
 
-	async getPlayerScore(game_id: number, player_id: number): Promise<any> {
+	async getPlayerScore(game_id: number, player_id: number): Promise<number> {
 		try {
 			const gameExist = await this.prismaService.game.findUnique({ where: { id: game_id, } });
 
 			if (!gameExist)
 				throw new NotFoundException('Can\'t find game with ID: ${game_id}');
 
-			return await this.prismaService.game.findUnique({
+			const result = await this.prismaService.game.findUnique({
 				where: {
 					id: game_id,
 				},
@@ -94,13 +100,16 @@ export class GameService {
 					}
 				},
 			});
+			const player_score = result.scores[0].score;
+			return player_score;
 		}
 		catch (error) {
 			console.error(error);
 		}
 	}
 
-	async addScore(game_id: number, score: AddPlayerScoreDTO): Promise<any> {
+	async addScore(game_id: number, score: AddPlayerScoreDTO): Promise<any>
+	{
 		try {
 			const gameExist = await this.prismaService.game.findUnique({ where: { id: game_id, } });
 
@@ -120,49 +129,34 @@ export class GameService {
 		}
 	}
 
-	  async addGameToPlayer(game_id: number, firstPlayer_id: number, secondPlayer_id: number)
-        {
-                try{
-                        const game = this.getGame(game_id);
-                        if (!game)
-                                throw new NotFoundException('Game with ID: ${game_id} not found!');
-                        return this.prismaService.user.create({
-                                data: {
-                                        firstPlayer : {connect: {id : firstPlayer_id,}},
-                                        secondPlayer : {connect: {id : secondPlayer_id,}},
-                                        game: game,
-                                },
-                        }
-                                                             );
-                }catch(error)
-                {
-                        console.error(error);
-                }
-
-        }
-
-/*	async GetOpponentId(game_id: number, player_id: number)
+	async GetOpponentId(game_id: number, player_id: number) : Promise<number>
 	{
 		try
 		{
 			const gameExist = await this.prismaService.game.findUnique({where: {id : game_id,}});
 			if (!gameExist)
 				throw new NotFoundException('Game with ID: ${game_id} not found!');
-			const {firstPlayer_id, secondPlayer_id} =  await this.prismaService.game.findUnique({
+			const id =  await this.prismaService.game.findUnique({
 				where: { id: game_id },
 				select:{
-					firstPlayer_id : true,
-					secondPlayer_id : true,
+					players:
+						{
+						where: {
+							id: {not: player_id},
+						},
+						select:{
+							id: true,
+						},
+					}
 				},	
+
 			});
 
-			if (player_id == firstPlayer_id) 
-				return (secondPlayer_id);
-			else
-				return (firstPlayer_id);
+			const opponent_id: number = id.players[0].id;
+			return opponent_id;
 		}catch(error)
 		{
 			console.error(error);
 		}
-	}*/
+	}
 }
