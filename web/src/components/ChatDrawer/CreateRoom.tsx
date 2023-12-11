@@ -29,7 +29,7 @@ const types = [
 interface Props {
 	isOpen: boolean;
 	onClose: () => void;
-	updateRooms: (room: { name: string, roomType: string }) => void;
+	updateRooms: (room: { id: number, name: string, roomType: string }) => void;
 }
 
 export const CreateRoom : React.FC<Props> = ({isOpen, onClose, updateRooms}) => {
@@ -60,8 +60,9 @@ export const CreateRoom : React.FC<Props> = ({isOpen, onClose, updateRooms}) => 
 			roomType: roomType,
 			password: form.roomPassword 
 		}
-		createRoomService(data).then(_ => {
-			updateRooms({ name: form.roomName, roomType: roomType });
+		createRoomService(data).then(response => {
+			console.log("create room data : ", response);
+			updateRooms({ id: response.id, name: form.roomName, roomType: roomType });
 			onClose();	
 			toast({
 				title: "chat room created successfuly",

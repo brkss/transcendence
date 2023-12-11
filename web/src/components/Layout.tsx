@@ -11,6 +11,7 @@ import { SettingsDrawer } from './SettingsDrawer';
 
 // private chat --
 import { PrivateChat } from './ChatDrawer/DM/Chat';
+import { setAccessToken } from '@/utils/token';
 
 const _singnals = [
 	{
@@ -66,6 +67,10 @@ export const Layout: React.FC<any> = ({ children, disablePadding }) => {
 			case "board":
 				router.push("/leaderboard")
 				break;
+			case "logout":
+				console.log("log out !")
+				setAccessToken("");
+				router.push('/auth/login')
 			default:
 				break;
 		}

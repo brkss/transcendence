@@ -162,8 +162,8 @@ export const ChatRooms: React.FC<Props> = ({}) => {
 			</Box>
 			
 			{ openModal && <RoomPasswordModal isOpen={_passDisclosure.isOpen} onClose={_passDisclosure.onClose} onOpen={_passDisclosure.onOpen} submit={() => requestJoinRoom()} onChange={(v) => setRoomPassword(v)} /> }
-			{ selectedRoomID && openChat && <Chat removeRoom={(id: number) => handleRemoveRoom(id)} chatId={selectedRoomID}  isOpen={_chat.isOpen} onClose={_chat.onClose} name={rooms.find(x  => x.id === selectedRoomID)?.name || "unkown"} /> }
-			{ _createRoomModal.isOpen && <CreateRoom updateRooms={(room: {name: string, roomType: string}) => setRooms([room, ...rooms])} isOpen={_createRoomModal.isOpen} onClose={_createRoomModal.onClose} /> }
+			{ selectedRoomID && openChat && <Chat removeRoom={(id: number) => handleRemoveRoom(id)} chatId={selectedRoomID}  isOpen={_chat.isOpen} onClose={() => {setSelectedRoomID(null); _chat.onClose()}} name={rooms.find(x  => x.id === selectedRoomID)?.name || "unkown"} /> }
+			{ _createRoomModal.isOpen && <CreateRoom updateRooms={(room: {id: number, name: string, roomType: string}) => setRooms([room, ...rooms])} isOpen={_createRoomModal.isOpen} onClose={_createRoomModal.onClose} /> }
 		</>
 	)
 }

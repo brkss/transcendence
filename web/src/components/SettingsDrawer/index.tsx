@@ -17,9 +17,12 @@ import {
 	Grid,
 	GridItem,
 	useToast,
+	Text,
+	useDisclosure
 } from '@chakra-ui/react'
 import { Avatar } from '../Avatar';
-import { uploadAvatar } from '@/utils/services'
+import { updateUserProfile, uploadAvatar } from '@/utils/services'
+import { TwoFASettings } from './2fa'
 
 interface Props {
 	isOpen: boolean;
@@ -28,8 +31,11 @@ interface Props {
 
 export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 
+	const _tfa = useDisclosure();
 	const avatarInputRef = React.useRef<any>();
 	const [avatar, setAvatar] = React.useState<File | null>(null);
+	const [user, setUser] = React.useState<any>(null);
+	const [form, setForm] = React.useState<any>({});
 	const toast = useToast();
 	
 	const chnageAvatar = () => {
@@ -44,6 +50,25 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 			setAvatar(e.currentTarget.files[0])
 		}
 	}
+
+	React.useEffect(() => {
+		(() => {
+			const user = JSON.parse(localStorage.getItem("ME") || "");
+			if(user){
+				setUser(user);
+				console.log("me : ", user);
+			}
+		})()
+	}, []);
+
+	const handleForm = (key: string, val: string) => {
+		setForm({
+			...form,
+			[key]: val
+		})
+	}
+
+	
 
 	const handleSave = () => {
 		if(avatar){
@@ -67,7 +92,25 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 				})
 			})
 		}
+		
+		if(form && form.username && form.name){
+			updateUserProfile(form.name, form.username).then(response => {
+				console.log("update user profile : ", response);
+			}).then(e => {
+				console.log("error : ", e);
+				toast({
+					status: 'error',
+					title: "Something went wrong can't change user's data",
+					duration: 9000,
+					isClosable: true
+				})
+			}).catch(e => {
+				console.log("err : ", e);
+			})
+		}
 	}
+
+	
 
 	return (
 		<Drawer
@@ -86,7 +129,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 					<Center h={'100%'}>
 						<Box w={'100%'}>
 							<Center h={'200px'} textAlign={'center'}>
-								<Avatar src={avatar ? URL.createObjectURL(avatar) : ""} clicked={chnageAvatar} />
+								<Avatar src={avatar ? URL.createObjectURL(avatar) : user?.avatar} clicked={chnageAvatar} />
 								<input type="file" onChange={handleAvatarChange} hidden ref={avatarInputRef} />
 							</Center>
 							<Grid templateColumns={'repeat(12, 1fr)'} gap={3}>
@@ -94,19 +137,21 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 									<FormControl>
 										<FormLabel fontSize={'15px'} fontWeight={'bold'} mb={'5px'}>Name</FormLabel>
 										
-										<Input variant={'filled'} />
+										<Input value={form.name || user?.fullName || ""} onChange={(e) => handleForm("name", e.currentTarget.value)} variant={'filled'} />
 									</FormControl>
 								</GridItem>
 								<GridItem colSpan={{md: 12, base: 12}}>
 									<FormControl mt={'0'}>
 										<FormLabel fontSize={'15px'} fontWeight={'bold'} mb={'5px'}>Username</FormLabel>
-										<Input variant={'filled'} />
+										<Input value={form.username || user?.username || ""} onChange={(e) => handleForm("username", e.currentTarget.value)} variant={'filled'} />
 									</FormControl>
 								</GridItem>
 							</Grid>
-							
-							
-							
+							<hr style={{marginTop: '30px'}} />
+							<Box mt={'20px'}>
+								<Text fontSize={'20px'} fontWeight={'bold'} mb={'10px'}>Security</Text>
+								<Button onClick={() => _tfa.onOpen()}>Activate 2 Factor Authentication</Button>
+							</Box>
 						</Box>						
 					</Center>
 					
@@ -117,6 +162,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 					<Button variant={'ghost'}>Cancel</Button>
 				</DrawerFooter>
 			</DrawerContent>
+			{_tfa.isOpen && <TwoFASettings onClose={() => _tfa.onClose()} isOpen={_tfa.isOpen} />}
 		</Drawer>
 	)
 }

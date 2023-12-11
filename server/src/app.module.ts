@@ -14,10 +14,14 @@ import { RoomController } from './chat/room/room.controller';
 import { RoomService } from './chat/room/room.service';
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
 import path = require('path')
+import { GameService } from 'src/game/game.service'
+import { GameModule } from 'src/game/game.module'
+import { GameController } from 'src/game/game.controller'
+
 export const app_root: string = process.cwd()
 
 @Module({
-  imports: [AuthModule, PrismaModule, UserModule,
+  imports: [AuthModule, PrismaModule, UserModule, GameModule,
     ConfigModule.forRoot({
             isGlobal:true
   }),
@@ -26,8 +30,8 @@ export const app_root: string = process.cwd()
         serveRoot: '/user/avatar/'
     }),
     ChatModule],
-  controllers: [TwofactorauController, UserController, RoomController],
-  providers: [AuthService, TwofactorauthService, RoomService],
+  controllers: [TwofactorauController, UserController, RoomController, GameController],
+  providers: [AuthService, TwofactorauthService, RoomService, GameService],
 })
 
 export class AppModule {

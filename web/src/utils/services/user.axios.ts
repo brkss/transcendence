@@ -52,7 +52,7 @@ export const getUserChats = async () => {
 }
 
 export const getUserInfo = async (uid: number) => {
-	const response = await api.get(`${API_URL}/user/user/${uid}`);
+	const response = await api.get(`${API_URL}/user/profile/${uid}`);
 	return response.data;
 }
 
@@ -90,5 +90,18 @@ export const uploadAvatar = async (data: FormData) => {
 			'Content-Type': 'multipart/form-data'
 		}
 	});
+	return response.data;
+}
+
+export const updateUserProfile = async (name: string, username: string) => {
+	const response = await api.post(`${API_URL}/user/updatename`, {
+		fullname: name,
+		username: username
+	}, {
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
+	console.log("update user data response : ", response);
 	return response.data;
 }

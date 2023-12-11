@@ -4,10 +4,17 @@ import { Avatar } from '../Avatar';
 import { useRouter } from 'next/router';
 import { SearchSug } from './SearchSug';
 import { getPayload } from '@/utils/helpers';
+import jwtDecode from 'jwt-decode';
+import { getAccessToken } from '@/utils/token';
+import { profile } from '@/utils/services';
+import { Loading } from '../General';
+
 
 export const TopBar : React.FC = () => {
 
+	const [loading, setLoading] = React.useState(true);
 	const [query, setQuery] = React.useState<string>("");
+	const [user, setUser] = React.useState<any>(null);
 	const router = useRouter();
 
 	const payload : any= getPayload();
@@ -16,6 +23,26 @@ export const TopBar : React.FC = () => {
 		e.preventDefault()
 		setQuery(e.currentTarget.value)
 	}
+
+	React.useEffect(() => {
+		// fetch user's info 
+		const _payload = jwtDecode(getAccessToken()) as any;
+		if(_payload && _payload.username){
+			profile(_payload.username).then(response => {
+				setLoading(false);
+				setUser(response);
+				// save user's info
+				localStorage.removeItem("ME");
+				localStorage.setItem("ME", JSON.stringify(response));
+				console.log("user's profile response : ", response);
+			}).catch(e => {
+				console.log("get user profile erro : ", e);
+			})
+		}
+	}, []);
+
+	if(loading)
+		return <Loading />
 
 	return (
 			<Box>
@@ -30,7 +57,7 @@ export const TopBar : React.FC = () => {
 						</GridItem>
 						<GridItem colSpan={{md: 4, base: 3}}>
 							<Button float={'right'} variant={'unstyled'} onClick={() => router.push(`/user/${payload?.username || ""}`)}>
-								<Avatar d={'40px'} />
+								<Avatar src={user.avatar} d={'40px'} />
 							</Button>						
 						</GridItem>
 					</Grid>

@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { updateNameDTO } from 'src/chat/dtos/chat.dto';
 import { RoomService } from 'src/chat/room/room.service';
+import { GameService } from 'src/game/game.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { validateMIMEType } from "validate-image-type";
 import path = require("path") // exported form  path (re checkit!!)
@@ -12,7 +13,7 @@ import path = require("path") // exported form  path (re checkit!!)
 @Injectable()
 export class UserService {
 	constructor(private prismaService: PrismaService,
-		private roomService: RoomService) {
+		private roomService: RoomService, private gameService: GameService) {
 
 	}
 	private make_error(error: string) {
@@ -105,7 +106,10 @@ export class UserService {
 			where: {
 				id: user_id
 			},
-			data: names,
+			data: {
+				fullName: names.fullname,
+				username: names.username
+			},
 			select: {
 				username: true,
 				fullName: true
@@ -564,4 +568,44 @@ export class UserService {
 		}
 		return (true)
 	}
+ async getUserLosesWins(userId: number)
+		    {
+			    let loses : number = 0;
+			    let wins: number = 0;
+			    let userScore : number;
+			    let opponentScore : number;
+
+			    const all_games = await this.prismaService.user.findMany({
+				    where: {
+					    id: userId,
+				    },
+				    select:
+					    {
+					    games: {
+						    include:
+							    {
+							    scores: true,
+						    },
+					    },
+				    },
+			    });
+
+			    all_games.forEach(async (game, index) => {
+				    const gameId : number = game[index].id;
+				    const scores = await this.gameService.getAllScores(gameId);
+				    scores.forEach((score, i) =>
+						   {
+							   if (score[i].player_id == userId)
+								   userScore = score.score;
+							   else
+								   opponentScore = score.score;
+							   if (userScore > opponentScore)
+								   wins++;
+							   else
+								   loses++;
+						   });
+			    });
+			    return [wins, loses];
+		    }
+
 }
