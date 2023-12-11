@@ -593,10 +593,9 @@ export class UserService {
 			    all_games.forEach(async (game, index) => {
 				    const gameId : number = game[index].id;
 				    const scores = await this.gameService.getAllScores(gameId);
-				    scores.forEach((score) =>
+				    scores.forEach((score, i) =>
 						   {
-							   //here
-							   if (score.player_id == userId)
+							   if (score[i].player_id == userId)
 								   userScore = score.score;
 							   else
 								   opponentScore = score.score;
