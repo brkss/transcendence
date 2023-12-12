@@ -31,7 +31,8 @@ export class JwtAuth implements CanActivate {
                 await this.userService.updateLastLogin(payload.userID)
                 return (true)
             }
-            return (true)
+            console.log(payload)
+            return (false)
         }
         catch (e) {
             throw new UnauthorizedException()
