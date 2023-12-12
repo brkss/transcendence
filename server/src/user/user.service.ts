@@ -613,12 +613,13 @@ export class UserService {
 		    async getUserHistory(user_id: number)
 		    {
 			    try{
+				    const user = await this.prismaService.user.findUnique({ where: {id : user_id,},});
+				    if (!user)
+					    throw new NotFoundException('User with ID ${user_id} not found!');
 
-			    const user = await this.prismaService.user.findUnique({ where: {id : user_id,},});
-			    if (!user)
-				    throw new NotFoundException('User with ID ${user_id} not found!');
+				    let history: UserHistory[] = [];
 
-			    let history: UserHistory[] = [];
+
 			    }
 			    catch(error)
 			    {
