@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards, UsePipes } from "@nestjs/common";
+import { BadRequestException,
+	Body,
+	Controller,
+	Get,
+	Post,
+	Req,
+	Res,
+	UseGuards,
+	UsePipes } 
+from "@nestjs/common";
 import { TwofactorauthService } from "./twofactorauth.service";
 import { JwtAuth } from "../guards/jwtauth.guard";
 import { UserService } from "src/user/user.service";
@@ -11,9 +20,7 @@ import { generateRefreshToken } from "../token";
 export class TwofactorauController {
     constructor(private twofaservice: TwofactorauthService,
                 private userService: UserService,
-                private authService: AuthService) {
-        
-    }
+                private authService: AuthService) {} 
     @UseGuards(JwtAuth)
     @Get('isActive')
     async isActive(@Req() req: any) {
@@ -31,11 +38,11 @@ export class TwofactorauController {
     @Post('activate')
     @UsePipes(OnetimePasswordDTO)
     async activate2fa(@Body() body: OnetimePasswordDTO, @Req() req: any) {
-        const req_body = req.body
-        const response = await this.twofaservice.activate2fa(req.user.userID, req.body.code_2fa);
+        const user = req.user
+        const one_time_password = req.body.code_2fa
+        const response = await this.twofaservice.activate2fa(user.userID, one_time_password);
         return (response)
     }
-
     @UseGuards(Jwt2faAuth)
     @UsePipes(OnetimePasswordDTO)
     @Post('verify')
@@ -47,15 +54,13 @@ export class TwofactorauController {
         const user = req.user
         const isValidCode = await this.twofaservice.isValidOTP(code_2fa, user.userID)
         if (isValidCode) {
-            //const access_token = await this.authService.login_2fa(user.userID)             
-            //resp.cookie('access_token', access_token)
             const refresh_token = generateRefreshToken(user.userID);
             resp.cookie('auth2fa_token', '') // clear temp token
             resp.cookie('refresh_token', refresh_token, {maxAge: 7 * 24 * 3600 * 1000, httpOnly: true});
             resp.redirect("http://localhost:3000/")
         }
         else {
-            resp.redirect("/2fa/verify") 
+            throw new BadRequestException("Invalid one time password")
         }
     }
 }

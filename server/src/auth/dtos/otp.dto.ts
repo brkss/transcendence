@@ -1,6 +1,6 @@
-import {IsString} from 'class-validator' 
+import {IsNumberString, IsString} from 'class-validator' 
 
 export class OnetimePasswordDTO {
-    @IsString()
+    @IsNumberString()
     code_2fa: string
 }
