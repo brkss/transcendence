@@ -32,17 +32,17 @@ const keyPressed = (p5, event, socket,puck) => {
     socket.emit("moveLeft", { value: 10 });
   }
   }
-  else
-{
+  
+  else {
   if (event.key === "J" || event.key.toLowerCase() === "j") {
     right.move(-10);
   } else if (event.key === "M" || event.key.toLowerCase() === "m") {
     right.move(10);
   }
-}
+  }
  
 };
-let pucks = [];
+
 
 const setup = (p5, canvasParentRef, isSecondaryModeOn, socket, isHost) => {
   p5.createCanvas(canvasWidth, canvasHeight).parent(canvasParentRef);
@@ -141,7 +141,7 @@ const resetGame = (p5, isSecondaryModeOn, socket) => {
   right = new Paddle(false, p5, canvasHeight, canvasWidth, isSecondaryModeOn);
 };
 
-const draw = (p5, isSecondaryModeOn, socket) => {
+const draw = (p5, isSecondaryModeOn, socket, isHost) => {
   p5.background(0);
   puck.checkPaddleRight(right);
   puck.checkPaddleLeft(left);
@@ -169,16 +169,18 @@ const draw = (p5, isSecondaryModeOn, socket) => {
       canvasHeight,
       p5,
       sound,
-      undefined,
-      socket
+      puck?.getServingPlayer() === "right" ? "left" : "right",
+      socket,
+      isHost
     );
   }
   if (crazyModePuck && isSecondaryModeOn) {
     console.log("ACRADE MODE!");
     crazyModePuck.checkPaddleRight(right);
     crazyModePuck.checkPaddleLeft(left);
-    //crazyModePuck.show();
+    crazyModePuck.show();
     crazyModePuck.update();
+    console.log("Serving player 2:" ,crazyModePuck.getServingPlayer());
     const goal = crazyModePuck.edges(
       crazyModePuck?.getServingPlayer() === "right" ? "left" : "right"
     );
@@ -206,7 +208,7 @@ const draw = (p5, isSecondaryModeOn, socket) => {
 
 const sketch = (p5, isSecondary, socket, isHost) => {
   p5.setup = () => setup(p5, undefined, isSecondary, socket, isHost);
-  p5.draw = () => draw(p5, isSecondary, socket);
+  p5.draw = () => draw(p5, isSecondary, socket,isHost);
 };
 
 const PongSketch = ({ isSecondaryModeOn, socket, isHost }) => {

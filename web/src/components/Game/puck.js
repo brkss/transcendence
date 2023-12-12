@@ -160,14 +160,14 @@ export class Puck {
 
       if (this.x - this.r > this.canvasWidth) {
         this.servingPlayer = "left";
-        this.reset(serving); // Player who was scored against serves the ball
+        this.reset(this.servingPlayer); // Player who was scored against serves the ball
         this.sound.play();
         return true;
       }
 
       if (this.x + this.r < 0) {
         this.servingPlayer = "right";
-        this.reset(serving); // Player who was scored against serves the ball
+        this.reset(this.servingPlayer); // Player who was scored against serves the ball
         this.sound.play();
         return true;
       }
@@ -184,4 +184,3 @@ export class Puck {
     this.isGameOver = true;
   }
 }
-``
