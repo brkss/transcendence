@@ -33,6 +33,7 @@ model user {
   memberRooms RoomMembers[]
   bannedRooms RoomBan[]
   messages    Messages[]
+  games       Game[] @relation("playingGame")
   //messages_recv    Messages[] @relation("recived")
   //mutedInRooms RoomMute[]
 
@@ -130,14 +131,13 @@ model Score {
   game_id   Int
   player_id Int
   score     Int
-  game      Game @relation(fields: [game_id], references: [id])
+  game      Game? @relation(fields: [game_id], references: [id])
 }
 
 model Game {
   id             	Int @id @unique @default(autoincrement())
-  firstPlayer_id  Int
-  secondPlayer_id Int
   scores          Score[]
   startedAt       DateTime @db.Date
+  players         user[] @relation("playingGame")
 }
 
