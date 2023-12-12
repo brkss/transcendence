@@ -28,6 +28,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { GameService } from './game.service';
+import { subscribe } from 'diagnostics_channel';
 
 const rooms = [];
 
@@ -176,6 +177,34 @@ export class GameGateway
       payload,
     );
     this.gameService.moveLeft(
+      socket,
+      payload,
+      this.server,
+    );
+  }
+
+  @SubscribeMessage('CrazymodePuck',
+
+  )
+  async drawSecondBall(
+    @ConnectedSocket()
+    socket:Socket,
+  )
+  {
+      this.gameService.secondBallinit(socket,this.server);
+  }
+  @SubscribeMessage(
+    'initPuck2',
+  )
+  async syncCrazzyPuck(
+    @ConnectedSocket()
+    socket: Socket,
+    @MessageBody()
+    payload: {
+      value: number;
+    },
+  ) {
+    this.gameService.syncCrazzyPuck(
       socket,
       payload,
       this.server,

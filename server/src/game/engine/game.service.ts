@@ -323,6 +323,25 @@ export class GameService {
       );
   }
 
+  async secondBallinit(
+    @ConnectedSocket()
+    socket:Socket,server:Server
+  )
+  {
+      this.emitToRoomBySocket(socket,server,"SpawnSecondBall")
+  }
+
+  async syncCrazzyPuck(
+    @ConnectedSocket()
+    socket: Socket,
+    data: {
+      value: number;
+    },
+    server: Server,
+    isRight?: boolean,
+  ){
+    this.emitToRoomBySocket(socket,server,"initPuck2",data);
+  }
   async syncPuck(
     @ConnectedSocket()
     socket: Socket,

@@ -95,6 +95,23 @@ const setup = (p5, canvasParentRef, isSecondaryModeOn, socket, isHost) => {
     isGameStarted = true;
   });
 
+  socket.on("SpawnSecondBall",() => {
+    if (!isHost)
+    {
+      crazyModePuck = new Puck(
+      canvasWidth,
+      canvasHeight,
+      p5,
+      sound,
+      puck?.getServingPlayer() === "right" ? "left" : "right",
+      socket,
+      isHost,
+      isSecondaryModeOn,
+      true
+    );
+    }
+  });
+
   window.addEventListener("keydown", (ev) => {
     keyPressed(p5, ev, socket,puck);
     if (ev.key === "Enter") {
@@ -171,16 +188,20 @@ const draw = (p5, isSecondaryModeOn, socket, isHost) => {
       sound,
       puck?.getServingPlayer() === "right" ? "left" : "right",
       socket,
-      isHost
+      isHost,
+      isSecondaryModeOn,
+      true
     );
+    socket.emit("CrazymodePuck");
   }
+
   if (crazyModePuck && isSecondaryModeOn) {
     console.log("ACRADE MODE!");
     crazyModePuck.checkPaddleRight(right);
     crazyModePuck.checkPaddleLeft(left);
     crazyModePuck.show();
     crazyModePuck.update();
-    console.log("Serving player 2:" ,crazyModePuck.getServingPlayer());
+    // console.log("Serving player 2:" ,crazyModePuck.getServingPlayer());
     const goal = crazyModePuck.edges(
       crazyModePuck?.getServingPlayer() === "right" ? "left" : "right"
     );

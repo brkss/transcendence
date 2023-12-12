@@ -39,7 +39,9 @@ export class Puck {
     sound,
     servingPlayer,
     socket,
-    isHost
+    isHost,
+    isSecondaryModeOn,
+    isSecondaryBall
   ) {
     this.r = 12;
     this.canvasWidth = canvasWidth;
@@ -51,18 +53,37 @@ export class Puck {
     this.particles = [];
     this.reset(isHost);
     this.socket = socket;
+    this.isSecondaryBall = isSecondaryBall;
+    this.isSecondaryModeOn = isSecondaryModeOn;
     console.log("isHost:", this.x, isHost);
     this.isHost = isHost;
-    if (isHost) {
+    if (isHost && !isSecondaryBall) {
       socket.emit("initPuck", {
         x: this.x,
         y: this.y,
         servingPlayer: this.servingPlayer,
       });
-    } else {
+    } else if (!isSecondaryBall){
       socket.on("initPuck", (data) => {
         this.x = data.x;
         this.y = data.y;
+        this.servingPlayer = data.servingPlayer;
+      });
+    }
+    else if (isHost && isSecondaryBall)
+    {
+      socket.emit("initPuck2", {
+        x: this.x,
+        y: this.y,
+        servingPlayer: this.servingPlayer,
+      });
+    }
+    else if (isSecondaryBall)
+    {
+      socket.on("initPuck2", (data) => {
+        this.x = data.x;
+        this.y = data.y;
+        console.log("INITPUCK DATA 2", data);
         this.servingPlayer = data.servingPlayer;
       });
     }
@@ -105,12 +126,22 @@ export class Puck {
     if (this.isHost) {
       this.x += this.xspeed;
       this.y += this.yspeed;
-
-      this.socket.emit("initPuck", {
+    if (this.isSecondaryBall)
+    {
+      this.socket.emit("initPuck2", {
         x: this.x,
         y: this.y,
         servingPlayer: this.servingPlayer,
       });
+    }
+    else
+    {
+       this.socket.emit("initPuck", {
+        x: this.x,
+        y: this.y,
+        servingPlayer: this.servingPlayer,
+      });
+    }
     }
 
     for (let i = 0; i < 1; i++) {
