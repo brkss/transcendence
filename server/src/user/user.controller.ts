@@ -68,6 +68,7 @@ export class UserController {
 
     @Get('friends/requests')
     async getAllRequests(@Req() req: any) {
+        console.log("in requests: ", req.user)
         const current_username: string = req.user.username
         return (await this.userService.getAllRequests(current_username))
     }

@@ -13,8 +13,7 @@ export class Jwt2faAuth implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean>  {
         const request = context.switchToHttp().getRequest()        
         const jwtoken = this.getTokenFromCookie(request)
-
-        if (!jwtoken)
+        if (jwtoken === undefined)
             throw new UnauthorizedException()
         try {
             const payload = await this.jwtService.verifyAsync(

@@ -5,6 +5,7 @@ import { UserService } from "src/user/user.service";
 import { Jwt2faAuth } from "../guards/jwt2fauth.guard";
 import { AuthService } from "../auth.service";
 import { OnetimePasswordDTO } from "../dtos/otp.dto";
+import { generateRefreshToken } from "../token";
 
 @Controller('2fa')
 export class TwofactorauController {
@@ -36,15 +37,16 @@ export class TwofactorauController {
                     @Body() body: OnetimePasswordDTO,
                     @Res({passthrough: true}) resp: any) {
        
-        const token: string = req.body.code_2fa
-        console.log("cookies : ", token);
+        const code_2fa: string = req.body.code_2fa
         const user = req.user
-        const isValidCode = await this.twofaservice.isValidOTP(token, user.userID)
+        const isValidCode = await this.twofaservice.isValidOTP(code_2fa, user.userID)
         if (isValidCode) {
-            const access_token = await this.authService.login_2fa(user.userID)             
-            resp.cookie('access_token', access_token)
+            //const access_token = await this.authService.login_2fa(user.userID)             
+            //resp.cookie('access_token', access_token)
+            const refresh_token = generateRefreshToken(user.userID);
             resp.cookie('auth2fa_token', '') // clear temp token
-            resp.redirect("/") 
+            resp.cookie('refresh_token', refresh_token, {maxAge: 7 * 24 * 3600 * 1000, httpOnly: true});
+            resp.redirect("http://localhost:3000/")
         }
         else {
             resp.redirect("/2fa/verify") 

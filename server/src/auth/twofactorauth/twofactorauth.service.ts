@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as qrcode from 'qrcode'
 import { authenticator } from "otplib";
@@ -58,11 +58,13 @@ export class TwofactorauthService {
         const settings_2fa = await this.userService.get2fasettings(user_id);
         const is2faActivated = settings_2fa.auth2faOn ;
         if (is2faActivated) {
-            return (this.setResponse(false, "2fa Already Activated"))
+            //return (this.setResponse(false, "2fa Already Activated"))
+            throw new BadRequestException("2fa Already Activated")
         }
         const isValid = this.validate2fatoken(token, settings_2fa.auth2faSercret)
         if (isValid === false) { 
-            return (this.setResponse(false, "One Time Password invalid!"))
+            throw new BadRequestException("One Time Password invalid!")
+            //return (this.setResponse(false, "One Time Password invalid!"))
         }
         await this.userService.updateField({
             where: {id: user_id},

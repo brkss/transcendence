@@ -22,7 +22,8 @@ export const Verify2FA = async (code: string) => {
     const response = await api.post(`${API_URL}/2fa/verify`, {
         code_2fa: code
     }, {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        withCredentials: true
     });
     return response.data;
 }
