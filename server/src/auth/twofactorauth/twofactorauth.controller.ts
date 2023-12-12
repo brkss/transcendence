@@ -15,6 +15,12 @@ export class TwofactorauController {
         
     }
     @UseGuards(JwtAuth)
+    @Get('isActive')
+    async isActive(@Req() req: any) {
+        const user_id: number  = req.user.userID 
+        return (await this.twofaservice.is2faActive(user_id))
+    }
+    @UseGuards(JwtAuth)
     @Get('generate')
     async generate2fa(@Req() req: any) {
         const user_id: number  = req.user.userID 

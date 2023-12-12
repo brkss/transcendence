@@ -30,6 +30,14 @@ export class TwofactorauthService {
         const qr_code = await qrcode.toDataURL(optauth_url)
         return (qr_code)
     }
+    async is2faActive(user_id: number) : Promise<any> {
+      const isActivated: boolean = await this.userService.is2faActivated(user_id)
+      const resp = {
+        success: true,
+        auth_2fa_active: isActivated
+      }
+     return (resp);
+    }
 
     async generate2FaCode(current_user_id: number) {
         const isActivated: boolean = await this.userService.is2faActivated(current_user_id)
