@@ -31,7 +31,7 @@ export const app_root: string = process.cwd()
     }),
     ChatModule],
   controllers: [TwofactorauController, UserController, RoomController, GameController],
-  providers: [AuthService, TwofactorauthService, RoomService, GameService],
+  providers: [AuthService, TwofactorauthService, RoomService, GameService]
 })
 
 export class AppModule {
