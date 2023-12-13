@@ -143,5 +143,10 @@ export class UserController {
 	  const user = request.user;
 
 	  }*/
+	  @Get("leaderBord")
+	  async getLeaderBoard()
+	  {
+		
+	  }
 
 }

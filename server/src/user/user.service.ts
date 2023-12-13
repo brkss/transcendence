@@ -628,4 +628,31 @@ export class UserService {
 
 		    }
 
+			async getRanks()
+			{
+				try{
+					const allUsers = this.prismaService.user.findMany({
+						include: 
+					{
+						games : true,
+					},
+				});
+
+				if (!allUsers)
+				throw new NotFoundException('no user found!');
+
+				allUsers.forEach((user, index) => {
+					console.log(user[index]);
+				});
+					
+				}
+				
+				catch (error)
+				{
+					console.error(error);
+				}
+				
+
+			}
+
 }
