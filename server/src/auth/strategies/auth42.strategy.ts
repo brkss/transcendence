@@ -3,11 +3,13 @@ import { Strategy, VerifyCallback } from 'passport-oauth2'
 import { ConfigService } from "@nestjs/config"
 import { Injectable, UnauthorizedException } from "@nestjs/common"
 import axios from 'axios'
+import { UserService } from "src/user/user.service"
 
 
 @Injectable()
 export class auth42Strategy extends PassportStrategy(Strategy, '42-auth2') {
-    constructor(private configService: ConfigService) {
+    constructor(private configService: ConfigService,
+                private userService: UserService) {
         super({
             authorizationURL: configService.get('AUTHORIZATION_URL'),
             tokenURL: configService.get('TOKEN_URL'),

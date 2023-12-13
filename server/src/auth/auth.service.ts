@@ -63,28 +63,22 @@ export class AuthService {
 		try {
 			payload = verify(token, this.configService.get("JWT_REFRESH_SECRET"))
 		}catch(e){
-			return {
-				status: false,
-				access_token: "",
-				refresh_token: ""
-			}
-		}
-        console.log(payload)
-		const user = await this.userService.getUserByID(payload.userID);
-		if(user === payload.userID)
 			return { status: false, access_token: "", refresh_token: "" }
+		}
+		const user = await this.userService.getUserByID(payload.userID);
 		const access_token_payload = {
             id: user.id,
 			userID: user.id,
-            // TODO: sync token names
 			username: user.username,
 			is2faToken: false
+            // TODO: sync token names
         }
 		const access_token = this.jwtService.sign(access_token_payload);
+		const refresh_token  = generateRefreshToken(user.id)
 		return {
 			status: true,
 			access_token,
-			refresh_token: generateRefreshToken(user.id)
+			refresh_token
 		}
 	}
 
