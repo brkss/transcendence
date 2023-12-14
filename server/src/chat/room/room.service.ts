@@ -622,7 +622,6 @@ export class RoomService {
             payload.password = password_hash;
         }
         
-        // maybe encrypt it aftwerwards 
         const newRoom = await this.createChatRoom(user, payload);
         if(payload.roomType === "PRIVATE"){
             const is_admin: boolean = false;
