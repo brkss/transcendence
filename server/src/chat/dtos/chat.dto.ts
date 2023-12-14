@@ -1,6 +1,7 @@
 import {
     IsAlpha,
     IsAlphanumeric,
+    IsArray,
     IsAscii,
     IsByteLength,
     IsIn,
@@ -10,6 +11,7 @@ import {
     Matches,
     ValidateIf,
 } from 'class-validator'
+import { isInt16Array } from 'util/types'
 
 export class AdministrateDTO {
     @IsNumber()
@@ -50,7 +52,11 @@ export class createRoomDTO {
     @IsIn(["PUBLIC", "PRIVATE", "PROTECTED"])
     roomType: string
 
- @ValidateIf(object => object.roomType === 'PROTECTED')
+    @ValidateIf(object => object.roomType === 'PRIVATE')
+    @IsNumber({}, {each: true})
+    mebers_id: number[] 
+
+    @ValidateIf(object => object.roomType === 'PROTECTED')
     @IsAscii()
     @IsByteLength(8, 32)
     password?: string
