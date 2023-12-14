@@ -621,8 +621,15 @@ export class RoomService {
             const password_hash = await bcrypt.hash_password(payload.password)
             payload.password = password_hash;
         }
+        
         // maybe encrypt it aftwerwards 
         const newRoom = await this.createChatRoom(user, payload);
+        if(payload.roomType === "PRIVATE"){
+            const is_admin: boolean = false;
+            for (var member_id of payload.mebers_id){
+                await this.addMemberTORoom(member_id, newRoom.id, is_admin)
+            }
+        }
         return (newRoom)
     }
 
