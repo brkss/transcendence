@@ -6,7 +6,7 @@ import { GameService } from 'src/game/game.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { validateMIMEType } from "validate-image-type";
 import path = require("path") // exported form  path (re checkit!!)
-import { UserHistory, UserRanks} from './history.interface'
+import { UserHistory, UsersRanks } from './history.interface'
 // ES module error: ?
 //import { fileTypeFromFile } from 'file-type';
 //import imageType from "image-type"
@@ -35,14 +35,9 @@ export class UserService {
 			    }
 		    }
 
+		    // returns user if already exists 
 		    async createUser(user: any): Promise<any> {
-			    const query = {
-				    where: {
-					    login: user.login
-				    },
-			    }
-			    const userExists = await this.findUserUnique(query)
-			    if (!userExists) {
+			    try {
 				    const db_user = await this.prismaService.user.create({
 					    data: {
 						    email: user.email,
@@ -50,15 +45,27 @@ export class UserService {
 						    login: user.login,
 						    username: user.login,
 						    lastSeen: Date(),
-						    /*
-						     * need to download and save image locally !
-						     */
 						    avatar: user.image
-					    },
+					    },select : {
+						    id: true,
+					    }
 				    })
 				    return (db_user)
+			    }catch(error) {
+				    const db_user = await this.getUserByLogin(user.login)
+				    return (db_user)
 			    }
-			    return (userExists)
+		    }
+
+		    async getUserByLogin(user_login: string) {
+			    const user = await this.prismaService.user.findUnique({
+				    where: {
+					    login: user_login
+				    },select:{
+					    id: true
+				    }
+			    })
+			    return (user)
 		    }
 		    async block(blocker_id: number, blockee_id: number) {
 			    try {
@@ -132,7 +139,6 @@ export class UserService {
 				    where: { id: user_id },
 				    select: { auth2faOn: true }
 			    })
-			    console.log("is activated: ", isActivated)
 			    return (isActivated.auth2faOn)
 		    }
 		    async get2fasettings(user_id: number): Promise<any> {
@@ -170,14 +176,12 @@ export class UserService {
 					    friendship_id: true
 				    }
 			    })
-			    console.log(found)
 			    if (found.length)
 				    return (true)
 			    return (false)
 		    }
 
 		    async addFriend(userId: number, friend_user: string) {
-			    //const userId = await this.getUserId(current_user)
 			    const friendId = await this.getUserId(friend_user)
 			    if (!friendId) {
 				    return (this.make_error(`User '${friend_user}' Does not exits`))
@@ -228,7 +232,6 @@ export class UserService {
 				    },
 				    select: { status: true }
 			    })
-			    console.log(friendship)
 			    if (friendship)
 				    return (true)
 			    return (false)
@@ -316,7 +319,7 @@ export class UserService {
 			    })
 			    return (user_friends)
 		    }
-		    async updateUserAvatar(user_id : number, avatar: string) {
+		    async updateUserAvatar(user_id: number, avatar: string) {
 			    const avatar_link = await this.prismaService.user.update({
 				    where: {
 					    id: user_id
@@ -406,23 +409,6 @@ export class UserService {
 			    return users;
 		    }
 
-		    // TODO: emit this data over a socket connection on every request !!!
-		    // async getFriendRequests(username: string){
-		    // 	const userId = await this.getUserId(username);
-		    // 	const requests = await this.prismaService.friendship.findMany({
-		    // 		where: { status: "accepted", OR: [ {user_id: userId}, {friend_id: userId} ]},
-		    // 		select: {
-		    // 			friend: {
-		    // 				select: { id: true, username: true, email: true}
-		    // 			},
-		    // 			user: {
-		    // 				select: { id: true, username: true, email: true}
-		    // 			}
-		    // 		},
-		    // 	})
-		    // }
-
-
 		    // this function get the relation ship between two users; 
 		    async getRelationship(friend_username: string, user_id: number) {
 			    const friend_id = await this.getUserId(friend_username);
@@ -434,7 +420,6 @@ export class UserService {
 					    user_id: true,
 				    }
 			    });
-			    console.log("found relations : ", relationship, user_id);
 			    if (relationship.length === 0)
 				    return "none";
 			    else if (relationship[0].user_id === user_id && relationship[0].status !== "accepted")
@@ -465,15 +450,14 @@ export class UserService {
 			    try {
 				    await this.prismaService.block.findUniqueOrThrow({
 					    where: {
-						    blockee_blocker : {
+						    blockee_blocker: {
 							    blocker: user_id,
 							    blockee: blockee_id
 						    }
 					    }
 				    })
 				    return (true)
-			    } catch(error) {
-				    console.log(error)
+			    } catch (error) {
 				    return (false)
 			    }
 		    }
@@ -513,7 +497,6 @@ export class UserService {
 				    })
 			    }
 			    catch (error) {
-				    console.log(error)
 				    throw new ForbiddenException()
 			    }
 			    const block_id = await this.unblock(user_id, blockee_id)
@@ -527,29 +510,26 @@ export class UserService {
 			    return (resp);
 		    }
 
-		    async getOldAavarName(user_id: number): Promise<string | null>  {
+		    async getOldAavarName(user_id: number): Promise<string | null> {
 			    const avatar_url = (await this.getUserByID(user_id)).avatar
 			    const uri = avatar_url.split("/")
 			    let old_file_path = null
-			    console.log(uri)
 			    if (uri.at(0) == "http:") { // self hosted
 				    old_file_path = path.join(process.cwd(), "/uploads/images/", uri.at(-1))
 			    }
-			    console.log("old_path " , old_file_path)
 			    return (old_file_path)
 		    }
 
 		    async updateAvatar(user_id: number, file: Express.Multer.File) {
-			    const avatar_link : string = "http://localhost:8000/user/avatar/" + file.filename
+			    const avatar_link: string = "http://localhost:8000/user/avatar/" + file.filename
 			    const is_valid_image = await this.validateImageType(file)
 
-			    if (is_valid_image == false){
-				    console.log("invalid image")
+			    if (is_valid_image == false) {
 				    fs.unlink(file.path, (err) => { /* skip/ignore */ });
 				    throw new BadRequestException("Invalid Image")
 			    }
 			    const old_file_name = await this.getOldAavarName(user_id)
-			    if (old_file_name){
+			    if (old_file_name) {
 				    fs.unlink(old_file_name, (err) => { /* skip/ignore */ });
 			    }
 			    await this.updateUserAvatar(user_id, avatar_link)
@@ -563,19 +543,17 @@ export class UserService {
 			    const file_type = await validateMIMEType(file.path, {
 				    allowMimeTypes: ["image/jpeg", "image/png"]
 			    })
-			    if (!file_type.ok){
-				    console.log(file_type.error)
+			    if (!file_type.ok) {
 				    return (false)
 			    }
 			    return (true)
 		    }
 
-		    async getUserLosesWins(userId: number)
-		    {
-			    let loses : number = 0;
+		    async getUserLosesWins(userId: number) {
+			    let loses: number = 0;
 			    let wins: number = 0;
-			    let userScore : number;
-			    let opponentScore : number;
+			    let userScore: number;
+			    let opponentScore: number;
 
 			    const all_games = await this.prismaService.user.findMany({
 				    where: {
@@ -593,36 +571,32 @@ export class UserService {
 			    });
 
 			    all_games.forEach(async (game, index) => {
-				    const gameId : number = game[index].id;
+				    const gameId: number = game[index].id;
 				    const scores = await this.gameService.getAllScores(gameId);
-				    scores.forEach((score, i) =>
-						   {
-							   if (score[i].player_id == userId)
-								   userScore = score.score;
-							   else
-								   opponentScore = score.score;
-							   if (userScore > opponentScore)
-								   wins++;
-							   else
-								   loses++;
-						   });
+				    scores.forEach((score, i) => {
+					    if (score[i].player_id == userId)
+						    userScore = score.score;
+					    else
+						    opponentScore = score.score;
+					    if (userScore > opponentScore)
+						    wins++;
+					    else
+						    loses++;
+				    });
 			    });
 			    return [wins, loses];
 		    }
 
-		    async getUserHistory(user_id: number)
-		    {
-			    try{
-				    const user = await this.prismaService.user.findUnique({ where: {id : user_id,},});
+		    async getUserHistory(user_id: number) {
+			    try {
+
+				    const user = await this.prismaService.user.findUnique({ where: { id: user_id, }, });
 				    if (!user)
 					    throw new NotFoundException('User with ID ${user_id} not found!');
 
 				    let history: UserHistory[] = [];
-
-
 			    }
-			    catch(error)
-			    {
+			    catch (error) {
 				    console.error(error);
 			    }
 
@@ -653,6 +627,6 @@ export class UserService {
 			    catch (error) {
 				    console.error(error);
 			    }
-		    }
 
+		    }
 }
