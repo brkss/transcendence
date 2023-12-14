@@ -10,8 +10,8 @@ import { Controller, Get, Param
 	, Body, ParseIntPipe
 	, UseInterceptors, UploadedFile
 } from "@nestjs/common"
-
-
+import { UserHistory, UsersRanks } from 'src/user/history.interface';
+ 
 @Controller('user')
 @UseGuards(JwtAuth)
 export class UserController {
@@ -142,5 +142,11 @@ export class UserController {
 	  const user = request.user;
 
 	  }*/
+	  @Get("leaderBord")
+	  async getLeaderBoard()
+	  {
+		  const ranks: UsersRanks[] = await this.userService.getRanks();
+		  return (ranks);
+	  }
 
 }
