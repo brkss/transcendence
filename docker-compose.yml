@@ -1,0 +1,48 @@
+version: '3'
+services:
+    nginx:
+        container_name: nginx
+        build:
+            context: ./nginx
+            dockerfile: Dockerfile
+        depends_on:
+            - server
+#            - front 
+        restart: always
+        ports:
+            - "8001:8001"
+            
+    postgres:
+        container_name: postgres_db
+        image: postgres:latest
+        ports:
+            - "5432:5432"
+        env_file:
+            - ./db/.env
+
+    server:
+        container_name: transcendance_api
+        depends_on:
+            - postgres
+        build: 
+            context: ./server/
+            dockerfile: Dockerfile.dev
+        ports:
+            - "8000:8000"
+        volumes:
+            - "./server/:/var/www/html/app" 
+            - /var/www/html/app/node_modules/
+    
+#    front:
+#        container_name: transcendance_front
+#        depends_on:
+#            - server
+#        build: 
+#            context: ./web/
+#            dockerfile: Dockerfile.dev
+#        ports:
+#            - "3000:3000"
+#        volumes:
+#            - "./web/:/var/www/html/app" 
+#            - /var/www/html/app/node_modules/
+#    
