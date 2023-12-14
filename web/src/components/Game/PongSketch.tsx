@@ -1,50 +1,58 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { NextReactP5Wrapper, color } from "@p5-wrapper/next";
-import Paddle from "./paddle.js";
-import sound from "./ding.mp3";
-import { Puck } from "./puck.js";
+import React, { Ref, useEffect } from "react";
+import { NextReactP5Wrapper } from "@p5-wrapper/next";
+import Paddle from "./paddle";
+import { sound } from "./ding.mp3";
+import { Puck } from "./puck";
+import { Socket } from "socket.io-client";
 
 const canvasWidth = 800;
 const canvasHeight = 500;
 const PI = 3.1415;
 let leftscore = 0;
 let rightscore = 0;
-let puck;
-let left;
-let right;
-let crazyModePuck;
+let puck: Puck;
+let left: Paddle;
+let right: Paddle;
+let crazyModePuck: Puck | undefined;
 let isGameStarted = false;
 let isGameOver = false;
 let isReady = false;
-const keyReleased = (p5, socket) => {
+
+const keyReleased = (socket: Socket) => {
   socket.emit("moveLeftRelease");
   socket.emit("moveRightRelease");
 };
 
-const keyPressed = (p5, event, socket,puck) => {
-  if(puck.isHost)
-  {
+const keyPressed = (
+  p5: any,
+  event: KeyboardEvent,
+  socket: Socket,
+  puck: Puck
+) => {
+  if (puck.isHost) {
     if (event.key === "A" || event.key.toLowerCase() === "a") {
-    socket.emit("moveLeft", { value: -10 });
-  } else if (event.key === "Z" || event.key.toLowerCase() === "z") {
-    socket.emit("moveLeft", { value: 10 });
+      socket.emit("moveLeft", { value: -10 });
+    } else if (event.key === "Z" || event.key.toLowerCase() === "z") {
+      socket.emit("moveLeft", { value: 10 });
+    }
+  } else {
+    if (event.key === "J" || event.key.toLowerCase() === "j") {
+      right.move(-10);
+    } else if (event.key === "M" || event.key.toLowerCase() === "m") {
+      right.move(10);
+    }
   }
-  }
-  
-  else {
-  if (event.key === "J" || event.key.toLowerCase() === "j") {
-    right.move(-10);
-  } else if (event.key === "M" || event.key.toLowerCase() === "m") {
-    right.move(10);
-  }
-  }
- 
 };
 
-
-const setup = (p5, canvasParentRef, isSecondaryModeOn, socket, isHost) => {
+const setup = (
+  p5: any,
+  canvasParentRef: any,
+  isSecondaryModeOn: boolean,
+  socket: Socket,
+  isHost: boolean
+) => {
   p5.createCanvas(canvasWidth, canvasHeight).parent(canvasParentRef);
   crazyModePuck = undefined;
   socket.on("moveX", () => {
@@ -58,7 +66,9 @@ const setup = (p5, canvasParentRef, isSecondaryModeOn, socket, isHost) => {
     sound,
     undefined,
     socket,
-    isHost
+    isHost,
+    false,
+    false
   );
   left = new Paddle(
     true,
@@ -95,30 +105,29 @@ const setup = (p5, canvasParentRef, isSecondaryModeOn, socket, isHost) => {
     isGameStarted = true;
   });
 
-  socket.on("SpawnSecondBall",() => {
-    if (!isHost)
-    {
+  socket.on("SpawnSecondBall", () => {
+    if (!isHost) {
       crazyModePuck = new Puck(
-      canvasWidth,
-      canvasHeight,
-      p5,
-      sound,
-      puck?.getServingPlayer() === "right" ? "left" : "right",
-      socket,
-      isHost,
-      isSecondaryModeOn,
-      true
-    );
+        canvasWidth,
+        canvasHeight,
+        p5,
+        sound,
+        puck?.getServingPlayer() === "right" ? "left" : "right",
+        socket,
+        isHost,
+        isSecondaryModeOn,
+        true
+      );
     }
   });
 
   window.addEventListener("keydown", (ev) => {
-    keyPressed(p5, ev, socket,puck);
+    keyPressed(p5, ev, socket, puck);
     if (ev.key === "Enter") {
       socket.emit("userReady");
     }
   });
-  window.addEventListener("keyup", () => keyReleased(p5, socket));
+  window.addEventListener("keyup", () => keyReleased(socket));
   if (isGameStarted) {
     leftscore = 0;
     rightscore = 0;
@@ -126,13 +135,13 @@ const setup = (p5, canvasParentRef, isSecondaryModeOn, socket, isHost) => {
   }
 };
 
-function showGameOverMessage(p5) {
+function showGameOverMessage(p5: any) {
   p5.fill(255);
   p5.textSize(64);
   p5.text("Game Over!", canvasWidth / 2 - 180, canvasHeight / 2 + 25);
 }
 
-const handleDrawMainMenu = (p5) => {
+const handleDrawMainMenu = (p5: any) => {
   p5.fill(200);
   p5.textSize(32);
   !isReady && p5.text("USE 'A' and 'Z' OR 'J' and 'M' TO MOVE ", 100, 150);
@@ -143,22 +152,51 @@ const handleDrawMainMenu = (p5) => {
   );
 };
 
-const handleDrawSecondaryMode = (p5) => {
+const handleDrawSecondaryMode = (p5: any) => {
   const c = p5.color(255, 0, 0);
   p5.fill(c);
   p5.textSize(20);
   p5.text("ARCADE MODE", 350, 20);
 };
-const resetGame = (p5, isSecondaryModeOn, socket) => {
+const resetGame = (p5: any, isSecondaryModeOn: boolean, socket: Socket) => {
   isGameStarted = false;
   isGameOver = false;
   crazyModePuck = undefined;
-  puck = new Puck(canvasWidth, canvasHeight, p5, sound, crazyModePuck, socket);
-  left = new Paddle(true, p5, canvasHeight, canvasWidth, isSecondaryModeOn);
-  right = new Paddle(false, p5, canvasHeight, canvasWidth, isSecondaryModeOn);
+  puck = new Puck(
+    canvasWidth,
+    canvasHeight,
+    p5,
+    sound,
+    crazyModePuck,
+    socket,
+    false,
+    false,
+    false
+  );
+  left = new Paddle(
+    true,
+    p5,
+    canvasHeight,
+    canvasWidth,
+    isSecondaryModeOn,
+    socket
+  );
+  right = new Paddle(
+    false,
+    p5,
+    canvasHeight,
+    canvasWidth,
+    isSecondaryModeOn,
+    socket
+  );
 };
 
-const draw = (p5, isSecondaryModeOn, socket, isHost) => {
+const draw = (
+  p5: any,
+  isSecondaryModeOn: boolean,
+  socket: Socket,
+  isHost: boolean
+) => {
   p5.background(0);
   puck.checkPaddleRight(right);
   puck.checkPaddleLeft(left);
@@ -173,7 +211,7 @@ const draw = (p5, isSecondaryModeOn, socket, isHost) => {
     handleDrawSecondaryMode(p5);
   }
   left.update(socket, true);
-  right.update(socket);
+  right.update(socket, false);
   puck.update();
   const res = puck.edges();
   if (res == true) {
@@ -201,11 +239,9 @@ const draw = (p5, isSecondaryModeOn, socket, isHost) => {
     crazyModePuck.checkPaddleLeft(left);
     crazyModePuck.show();
     crazyModePuck.update();
-    // console.log("Serving player 2:" ,crazyModePuck.getServingPlayer());
-    const goal = crazyModePuck.edges(
-      crazyModePuck?.getServingPlayer() === "right" ? "left" : "right"
-    );
-    console.log("Serving player:" ,crazyModePuck.getServingPlayer());
+
+    const goal = crazyModePuck.edges();
+    console.log("Serving player:", crazyModePuck.getServingPlayer());
     if (goal) {
       if (crazyModePuck.getServingPlayer() === "left") leftscore++;
       else if (crazyModePuck.getServingPlayer() === "right") rightscore++;
@@ -227,12 +263,25 @@ const draw = (p5, isSecondaryModeOn, socket, isHost) => {
   }
 };
 
-const sketch = (p5, isSecondary, socket, isHost) => {
+const sketch = (
+  p5: any,
+  isSecondary: boolean,
+  socket: Socket,
+  isHost: boolean
+) => {
   p5.setup = () => setup(p5, undefined, isSecondary, socket, isHost);
-  p5.draw = () => draw(p5, isSecondary, socket,isHost);
+  p5.draw = () => draw(p5, isSecondary, socket, isHost);
 };
 
-const PongSketch = ({ isSecondaryModeOn, socket, isHost }) => {
+const PongSketch = ({
+  isSecondaryModeOn,
+  socket,
+  isHost,
+}: {
+  isSecondaryModeOn: boolean;
+  socket: Socket;
+  isHost: boolean;
+}): JSX.Element => {
   useEffect(() => {
     isGameStarted = false;
   }, [isSecondaryModeOn]);

@@ -10,6 +10,7 @@ import { getPayload } from "@/utils/helpers";
 import { Socket } from "socket.io";
 
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
+import { useSearchParams } from "next/navigation";
 
 export interface IConnectedUser {
   id: number;
@@ -20,7 +21,7 @@ export interface IConnectedUser {
 
 export default function Index() {
   console.log("initsocket");
-
+  const searchParams = useSearchParams();
   const [gameMode, setGameMode] = React.useState(false);
   const [isNotAllowed, setIsNotAllowed] = React.useState(false);
   const [winner, setWinner] = React.useState<IConnectedUser | null>(null);
@@ -33,6 +34,7 @@ export default function Index() {
     })
   );
   const user: IConnectedUser = getPayload() as IConnectedUser;
+  const arcadeMode = searchParams.get("arcade");
 
   console.log("user", socketIo);
 
@@ -73,25 +75,6 @@ export default function Index() {
 
   return (
     <Layout disablePadding>
-      <div className="flex flex-row justify-center w-full mb-2">
-        <Menu>
-          <MenuButton>
-            <div className="p-3 bg-black rounded-md hover:opacity-90 cursor-pointer transition-all">
-              <FiSettings color="white" />
-            </div>
-          </MenuButton>
-          <MenuList className="text-center">
-            <div className="flex flex-row gap-2 items-center hover:bg-black/10 py-1 justify-center">
-              <p>Crazy mode {gameMode ? "OFF" : "ON"}!</p>
-              <Switch
-                isChecked={!gameMode}
-                onChange={() => setGameMode(!gameMode)}
-              />
-            </div>
-          </MenuList>
-        </Menu>
-      </div>
-
       {isNotAllowed ? (
         <div className="flex flex-row justify-center w-full">
           <p>User not allowed to play (needs further handling)</p>
@@ -100,8 +83,9 @@ export default function Index() {
         <>
           {winner?.id === user?.id ? (
             <div className="flex flex-row justify-center w-full">
-            <p className="text-5xl font-extrabold text-indigo-700 bg-gradient-to-r from-yellow-300 to-pink-500 p-6 rounded-md shadow-lg hover:shadow-xl transform transition duration-300 hover:scale-105">
-            Your'e opponent left the game </p>
+              <p className="text-5xl font-extrabold text-indigo-700 bg-gradient-to-r from-yellow-300 to-pink-500 p-6 rounded-md shadow-lg hover:shadow-xl transform transition duration-300 hover:scale-105">
+                Your'e opponent left the game{" "}
+              </p>
             </div>
           ) : (
             <>
@@ -110,7 +94,7 @@ export default function Index() {
                   <PongSketch
                     isHost={user.userID === userRoomData?.hostUserId}
                     socket={socketIo}
-                    isSecondaryModeOn={!gameMode}
+                    isSecondaryModeOn={arcadeMode === "on"}
                   />
                 ) : (
                   "notReady"

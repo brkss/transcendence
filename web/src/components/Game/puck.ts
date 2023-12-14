@@ -1,5 +1,14 @@
+import { Socket } from "socket.io-client";
+
 class Particle {
-  constructor(x, y, p5, socket) {
+  socket: Socket;
+  x: number;
+  y: number;
+  p5: any;
+  lifespan: number;
+  vel: any;
+  acc: any;
+  constructor(x: number, y: number, p5: any, socket: Socket) {
     this.socket = socket;
     this.x = x;
     this.y = y;
@@ -27,23 +36,41 @@ class Particle {
   }
 }
 
-function radians(degrees) {
+function radians(degrees: number) {
   return degrees * (Math.PI / 180);
 }
 
 export class Puck {
+  r: number;
+  canvasWidth: number;
+  canvasHeight: number;
+  p5: any;
+  isGameOver: boolean;
+  sound: any;
+  servingPlayer: string | undefined;
+  particles: any[];
+  socket: Socket;
+  isSecondaryBall: boolean;
+  isSecondaryModeOn: boolean;
+  isHost: boolean;
+  x: number;
+  y: number;
+  xspeed: number;
+  yspeed: number;
   constructor(
-    canvasWidth,
-    canvasHeight,
-    p5,
-    sound,
-    servingPlayer,
-    socket,
-    isHost,
-    isSecondaryModeOn,
-    isSecondaryBall
+    canvasWidth: number,
+    canvasHeight: number,
+    p5: any,
+    sound: string,
+    servingPlayer: string | undefined,
+    socket: Socket,
+    isHost: boolean,
+    isSecondaryModeOn: boolean,
+    isSecondaryBall: boolean
   ) {
     this.r = 12;
+    this.xspeed = 0;
+    this.yspeed = 0;
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
     this.p5 = p5;
@@ -51,10 +78,12 @@ export class Puck {
     this.sound = new Audio(sound);
     this.servingPlayer = servingPlayer;
     this.particles = [];
-    this.reset(isHost);
+    this.reset();
     this.socket = socket;
     this.isSecondaryBall = isSecondaryBall;
     this.isSecondaryModeOn = isSecondaryModeOn;
+    this.x = this.canvasWidth / 2;
+    this.y = this.canvasHeight / 2;
     console.log("isHost:", this.x, isHost);
     this.isHost = isHost;
     if (isHost && !isSecondaryBall) {
@@ -63,23 +92,19 @@ export class Puck {
         y: this.y,
         servingPlayer: this.servingPlayer,
       });
-    } else if (!isSecondaryBall){
+    } else if (!isSecondaryBall) {
       socket.on("initPuck", (data) => {
         this.x = data.x;
         this.y = data.y;
         this.servingPlayer = data.servingPlayer;
       });
-    }
-    else if (isHost && isSecondaryBall)
-    {
+    } else if (isHost && isSecondaryBall) {
       socket.emit("initPuck2", {
         x: this.x,
         y: this.y,
         servingPlayer: this.servingPlayer,
       });
-    }
-    else if (isSecondaryBall)
-    {
+    } else if (isSecondaryBall) {
       socket.on("initPuck2", (data) => {
         this.x = data.x;
         this.y = data.y;
@@ -89,7 +114,7 @@ export class Puck {
     }
   }
 
-  checkPaddleLeft(p) {
+  checkPaddleLeft(p: any) {
     if (
       this.y - this.r < p.y + p.h / 2 &&
       this.y + this.r > p.y - p.h / 2 &&
@@ -105,8 +130,8 @@ export class Puck {
       }
     }
   }
-  
-  checkPaddleRight(p) {
+
+  checkPaddleRight(p: any) {
     if (
       this.y - this.r < p.y + p.h / 2 &&
       this.y + this.r > p.y - p.h / 2 &&
@@ -126,26 +151,23 @@ export class Puck {
     if (this.isHost) {
       this.x += this.xspeed;
       this.y += this.yspeed;
-    if (this.isSecondaryBall)
-    {
-      this.socket.emit("initPuck2", {
-        x: this.x,
-        y: this.y,
-        servingPlayer: this.servingPlayer,
-      });
-    }
-    else
-    {
-       this.socket.emit("initPuck", {
-        x: this.x,
-        y: this.y,
-        servingPlayer: this.servingPlayer,
-      });
-    }
+      if (this.isSecondaryBall) {
+        this.socket.emit("initPuck2", {
+          x: this.x,
+          y: this.y,
+          servingPlayer: this.servingPlayer,
+        });
+      } else {
+        this.socket.emit("initPuck", {
+          x: this.x,
+          y: this.y,
+          servingPlayer: this.servingPlayer,
+        });
+      }
     }
 
     for (let i = 0; i < 1; i++) {
-      this.particles.push(new Particle(this.x, this.y, this.p5));
+      this.particles.push(new Particle(this.x, this.y, this.p5, this.socket));
     }
   }
 
@@ -160,7 +182,7 @@ export class Puck {
     }
   }
 
-  reset(serving) {
+  reset() {
     this.x = this.canvasWidth / 2;
     this.y = this.canvasHeight / 2;
     console.log(this.servingPlayer);
@@ -183,7 +205,7 @@ export class Puck {
     return this.servingPlayer;
   }
 
-  edges(serving) {
+  edges() {
     if (this.isGameOver === false) {
       if (this.y < 0 || this.y > this.canvasHeight) {
         this.yspeed *= -1;
@@ -191,14 +213,14 @@ export class Puck {
 
       if (this.x - this.r > this.canvasWidth) {
         this.servingPlayer = "left";
-        this.reset(this.servingPlayer); // Player who was scored against serves the ball
+        this.reset(); // Player who was scored against serves the ball
         this.sound.play();
         return true;
       }
 
       if (this.x + this.r < 0) {
         this.servingPlayer = "right";
-        this.reset(this.servingPlayer); // Player who was scored against serves the ball
+        this.reset(); // Player who was scored against serves the ball
         this.sound.play();
         return true;
       }

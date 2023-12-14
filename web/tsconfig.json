@@ -18,6 +18,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/components/Game/paddle.js", "src/pages/socket.io/index.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/components/Game/paddle.ts", "src/pages/socket.io/index.ts", "**/*.mp3"],
   "exclude": ["node_modules"]
 }

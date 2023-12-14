@@ -22,6 +22,8 @@ interface IRoom {
 export class GameService {
   gamingRooms: IRoom[] =
     [];
+  arcadeGamingRooms: IRoom[] =
+    [];
   constructor(
     private gatewayService: GatewayService,
   ) {}

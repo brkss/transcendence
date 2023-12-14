@@ -1,8 +1,29 @@
 // Import necessary libraries or classes if not already imported
 // ...
 
+import { Socket } from "socket.io-client";
+
 class Paddle {
-  constructor(isLeft, p5, height, width, isSecondaryModeOn, socket) {
+  y: number;
+  w: number;
+  h: number;
+  ychange: number;
+  p5: any;
+  canvasHeight: number;
+  isLeft: boolean;
+  color: string;
+  isSecondaryModeOn: boolean;
+  lastEmittedValue: undefined | number;
+  x: number;
+
+  constructor(
+    isLeft: boolean,
+    p5: any,
+    height: number,
+    width: number,
+    isSecondaryModeOn: boolean,
+    socket: Socket
+  ) {
     this.y = height / 2;
     this.w = 20;
     this.h = 100;
@@ -33,7 +54,7 @@ class Paddle {
     });
   }
 
-  update(socket, isLeft) {
+  update(socket: Socket, isLeft: boolean) {
     this.y += this.ychange;
 
     this.y = this.p5.constrain(
@@ -50,7 +71,7 @@ class Paddle {
     }
   }
 
-  move(steps) {
+  move(steps: number) {
     this.ychange = steps;
 
     // Change color when the paddle moves

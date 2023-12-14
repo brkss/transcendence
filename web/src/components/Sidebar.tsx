@@ -1,6 +1,8 @@
 import React from "react";
 import { Box, Text, Center } from "@chakra-ui/react";
 import { IoIosArrowUp } from "react-icons/io";
+import { SiRiotgames } from "react-icons/si";
+
 import { motion } from "framer-motion";
 import { BsChatLeftDots } from "react-icons/bs";
 import { IoGameControllerOutline } from "react-icons/io5";
@@ -13,8 +15,12 @@ const _items = [
     Icon: BsChatLeftDots,
   },
   {
-    name: "game",
+    name: "normal game",
     Icon: IoGameControllerOutline,
+  },
+  {
+    name: "arcade game",
+    Icon: SiRiotgames,
   },
   {
     name: "board",
@@ -104,7 +110,9 @@ export const SideBar: React.FC<Props> = ({ signal }) => {
               <Icon size={"15px"} />
             </Center>
             <Text fontWeight={"bold"} fontSize={{ md: "13px", base: "11px" }}>
-              {name}
+              {name.split(" ").map((value) => (
+                <div>{value}</div>
+              ))}
             </Text>
           </Box>
         </motion.div>
