@@ -23,7 +23,7 @@ export default function Login(){
 	React.useEffect(() => {
 		if(getAccessToken())
 			router.push("/")
-	}, [])
+	}, [router])
 
 	const authorize = () => {
 		window.location.replace(`${API_URL}/auth/sync`);
