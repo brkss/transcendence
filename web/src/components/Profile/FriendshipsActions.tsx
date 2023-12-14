@@ -7,9 +7,10 @@ interface Props {
 	relationship: string;
 	addFriend: () => void;
 	acceptFriend: () => void;
+	edit: () => void;
 }
 
-export const FriendshipActions : React.FC<Props> = ({relationship, addFriend, acceptFriend}) => {
+export const FriendshipActions : React.FC<Props> = ({relationship, addFriend, acceptFriend, edit}) => {
 
 
 	return (
@@ -42,7 +43,7 @@ export const FriendshipActions : React.FC<Props> = ({relationship, addFriend, ac
 					),
 					'me': (
 						<Box>
-							<Button variant={'unstyled'} bg={'black'} color={'white'} size={'sm'} p={'50x 20px'} onClick={() => {}}>
+							<Button variant={'unstyled'} bg={'black'} color={'white'} size={'sm'} p={'50x 20px'} onClick={edit}>
 								<AiOutlineEdit style={{display: "inline-block", marginRight: '5px', marginBottom: "3px" }} size={17} /> Edit profile
 							</Button>
 						</Box>

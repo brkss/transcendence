@@ -21,5 +21,4 @@ const generateRefreshToken = (userID: number) => {
 
 (() => {
     const token = generateRefreshToken(1);
-    console.log("token : ", token)
 })();

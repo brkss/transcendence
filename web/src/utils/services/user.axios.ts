@@ -45,3 +45,63 @@ export const getRelationship = async (username: string) => {
 	console.log("user's relationship : ", response);
 	return response.data;
 } 
+
+export const getUserChats = async () => {
+	const response = await api.get(`${API_URL}/user/chats`);
+	return response.data;
+}
+
+export const getUserInfo = async (uid: number) => {
+	const response = await api.get(`${API_URL}/user/profile/${uid}`);
+	return response.data;
+}
+
+export const blockUser = async (uid: number) => {
+	const response = await api.post(`${API_URL}/user/block`, {
+		user_id: uid
+	},{
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
+
+	return response.data;
+}
+
+export const unblockUser = async (uid: number) => {
+	const response = await api.post(`${API_URL}/user/unblock`, {
+		user_id: uid,
+	},{
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
+	return response.data;
+}
+
+export const userChatHistory = async (uid: number) => {
+	const response = await api.get(`${API_URL}/user/${uid}/chathistory`);
+	return response.data;
+}
+
+export const uploadAvatar = async (data: FormData) => {
+	const response = await api.post(`${API_URL}/user/upload`, data, {
+		headers: {
+			'Content-Type': 'multipart/form-data'
+		}
+	});
+	return response.data;
+}
+
+export const updateUserProfile = async (name: string, username: string) => {
+	const response = await api.post(`${API_URL}/user/updatename`, {
+		fullname: name,
+		username: username
+	}, {
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
+	console.log("update user data response : ", response);
+	return response.data;
+}

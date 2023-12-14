@@ -9,7 +9,6 @@ export class RoomController {
     constructor(private roomService: RoomService){
 
     }
-
     @Delete('/:room_id')
     async handleDeleteRoom(@Req() request: any, @Param('room_id', ParseIntPipe) room_id : number) {
         return (await this.roomService.DeleteChatRoom(request.user, room_id))
@@ -28,7 +27,6 @@ export class RoomController {
     }
     @Post('join')
     async joinRoom(@Req() request: any, @Body() body:  JoinRoomDTO) {
-      console.log("join body : ", body);
         return (await this.roomService.joinChatRoom(request.user, body))
     }
     @Post('/:id/leave')
@@ -78,5 +76,10 @@ export class RoomController {
     @Get("/:room_id/users")
     async getRoomUsers(@Req() request: any , @Param('room_id', ParseIntPipe) room_id : number) {
       return (await this.roomService.getAllRoomUsers(request.user, room_id))
+    }
+
+    @Get("/:room_id/chathistory")
+    async getRoomChatHistory(@Req() request: any , @Param('room_id', ParseIntPipe) room_id : number) {
+      return (await this.roomService.getRoomMessagess(request.user.id, room_id))
     }
 }

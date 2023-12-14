@@ -8,7 +8,7 @@ import {
     MenuList,
     Button
 } from '@chakra-ui/react';
-import { Avatar } from '../../../Avatar'
+import { Avatar } from '../../../../Avatar'
 
 interface Props {
     banned: any[];

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as qrcode from 'qrcode'
 import { authenticator } from "otplib";
@@ -15,7 +15,6 @@ export class TwofactorauthService {
             return (isValid)
         }
         catch (err){
-            console.log(err)
             return (false)
         }
     }
@@ -30,6 +29,14 @@ export class TwofactorauthService {
         const optauth_url = authenticator.keyuri(user_name, "42 ft_PongGame", secret)
         const qr_code = await qrcode.toDataURL(optauth_url)
         return (qr_code)
+    }
+    async is2faActive(user_id: number) : Promise<any> {
+      const isActivated: boolean = await this.userService.is2faActivated(user_id)
+      const resp = {
+        success: true,
+        auth_2fa_active: isActivated
+      }
+     return (resp);
     }
 
     async generate2FaCode(current_user_id: number) {
@@ -59,16 +66,35 @@ export class TwofactorauthService {
         const settings_2fa = await this.userService.get2fasettings(user_id);
         const is2faActivated = settings_2fa.auth2faOn ;
         if (is2faActivated) {
-            return (this.setResponse(false, "2fa Already Activated"))
+            //return (this.setResponse(false, "2fa Already Activated"))
+            throw new BadRequestException("2fa Already Activated")
         }
         const isValid = this.validate2fatoken(token, settings_2fa.auth2faSercret)
         if (isValid === false) { 
-            return (this.setResponse(false, "One Time Password invalid!"))
+            throw new BadRequestException("One Time Password invalid!")
+            //return (this.setResponse(false, "One Time Password invalid!"))
         }
         await this.userService.updateField({
             where: {id: user_id},
             data: {auth2faOn : true} })
         return (this.setResponse(true, "2fa activated!") )
+    }
+
+    async disable2fa(user_id: number): Promise<any> {
+        const settings_2fa = await this.userService.get2fasettings(user_id);
+        const is2faActivated = settings_2fa.auth2faOn ;
+        if ( ! is2faActivated) {
+            throw new BadRequestException("Two factor auth not enabeled")
+        }
+        await this.userService.updateField({
+            where: {id: user_id},
+            data: {auth2faOn : false,
+            auth2faSercret: null } })
+        const resp = {
+            success: true,
+            status: "Two factor auth disabeled"
+        }
+        return (resp)
     }
 
     async isValidOTP(otp_code:string, user_id: number) {

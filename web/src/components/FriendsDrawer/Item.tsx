@@ -6,10 +6,12 @@ import { Avatar } from '../Avatar';
 interface Props {
 	name: string;
 	username: string;
-	image: string
+	image: string;
+	sendMessage: () => void;
+	blockUser: () => void;
 }
 
-export const FriendBox: React.FC<Props> = ({name, username, image}) => {
+export const FriendBox: React.FC<Props> = ({name, username, image, sendMessage, blockUser}) => {
 
 	return (
 		<Box mt={'30px'}>
@@ -29,13 +31,13 @@ export const FriendBox: React.FC<Props> = ({name, username, image}) => {
 							options
 						</MenuButton>
 						<MenuList>
-							<MenuItem >
-								New Message
+							<MenuItem onClick={sendMessage}>
+								Send Message
 							</MenuItem>
 							<MenuItem >
 								Invite to game
 							</MenuItem>
-							<MenuItem  >
+							<MenuItem onClick={blockUser} >
 								Block
 							</MenuItem>
 						</MenuList>

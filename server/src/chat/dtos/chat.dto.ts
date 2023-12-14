@@ -1,25 +1,23 @@
 import {
+    IsAlpha,
+    IsAlphanumeric,
+    IsArray,
     IsAscii,
     IsByteLength,
     IsIn,
     IsNotEmpty,
     IsNumber,
     IsString,
+    Matches,
     ValidateIf,
 } from 'class-validator'
-import { Transform, Type } from 'class-transformer';
+import { isInt16Array } from 'util/types'
 
 export class AdministrateDTO {
-    //@Transform(value => Number.isNaN(+value) ? 0 : +value)
-    
     @IsNumber()
     userId: number
-
-   
     @IsNumber()
     roomId: number
-
-   
     @IsNumber()
     memberId: number 
 }
@@ -33,14 +31,30 @@ export class findRoomDTO {
     @IsNotEmpty()
     room_name: string
 }
+export class updateNameDTO {
+    @IsString()
+    @IsAlpha()
+    fullname: string
+
+    @IsString()
+    @IsAlphanumeric()
+    username: string
+}
 
 export class createRoomDTO {
-    @IsString()
+
     @IsNotEmpty()
+    @Matches(/^[^\s].*[^\s]$/, {
+        message: 'No trailing or leading white spaces are allowed',
+      })
     roomName: string
 
     @IsIn(["PUBLIC", "PRIVATE", "PROTECTED"])
     roomType: string
+
+    @ValidateIf(object => object.roomType === 'PRIVATE')
+    @IsNumber({}, {each: true})
+    mebers_id: number[] 
 
     @ValidateIf(object => object.roomType === 'PROTECTED')
     @IsAscii()
@@ -120,7 +134,6 @@ export class LeaveRoomDTO extends RoomDTO {
 export class updateRoomDTO extends RoomDTO {
     @IsIn(["PUBLIC", "PRIVATE", "PROTECTED"])
     roomType: string
-
     @ValidateIf(object => object.roomType === 'PROTECTED')
     @IsAscii()
     @IsByteLength(8, 32)

@@ -5,6 +5,8 @@ import React from 'react'
 import { API_URL } from '@/utils/constants';
 import { getAccessToken, setAccessToken } from '@/utils/token';
 import { Loading } from '@/components';
+import { profile } from '@/utils/services';
+import jwtDecode from 'jwt-decode';
 
 //import { QueryClientProvider } from 'react-query';
 //import { queryClient } from '../utils/client';
@@ -13,8 +15,7 @@ export default function App({ Component, pageProps }: AppProps) {
   
 	const [loading, setLoading] = React.useState(true);
 
-	React.useEffect(() => {
-		
+	React.useEffect(() => {	
 		fetch(`${API_URL}/auth/refresh-token`, {
 			credentials: 'include',
 			method: "POST"
@@ -23,13 +24,17 @@ export default function App({ Component, pageProps }: AppProps) {
 			console.log("data : ", data);
 			if(data.status === true){
 				setAccessToken(data.access_token)
+				
 				console.log("access token : ", getAccessToken());
 			}
 			setLoading(false);
 		}).catch(e => {
 			console.log("something went wrong fetching access_token : ", e)
 			setLoading(false);
-		}) ;
+		});
+
+		
+		
 			
 	}, []);
 

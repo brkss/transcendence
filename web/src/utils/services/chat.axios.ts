@@ -154,3 +154,7 @@ export const kickMemberService = async (roomID: number, userID: number) => {
 	return response.data;
 }
 
+export const getChatHistory = async (roomID: number) => {
+	const response = await api.get(`${API_URL}/room/${roomID}/chathistory`);
+	return response.data;
+}

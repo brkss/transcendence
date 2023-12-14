@@ -31,14 +31,16 @@ export class AuthService {
     }
 
     async login2fa(req_user: any): Promise<string> {
+        // create user or get it if exists
         const user = await this.userService.createUser(req_user.user)
-        const payload = {
-            sub: user.id,
-            email: user.email,
-            login: user.login,
-            is2faToken: true
+        const access_token_payload = {
+            id: user.id,
+			userID: user.id,
+            // TODO: sync token names
+			username: user.username,
+			is2faToken: true
         }
-        const jwt2fa_token = this.jwtService.sign(payload, { expiresIn: '15m' })
+        const jwt2fa_token = this.jwtService.sign(access_token_payload, { expiresIn: '3m' })
         return (jwt2fa_token)
     }
 
@@ -61,27 +63,22 @@ export class AuthService {
 		try {
 			payload = verify(token, this.configService.get("JWT_REFRESH_SECRET"))
 		}catch(e){
-			return {
-				status: false,
-				access_token: "",
-				refresh_token: ""
-			}
+			return { status: false, access_token: "", refresh_token: "" }
 		}
 		const user = await this.userService.getUserByID(payload.userID);
-		if(!user)
-			return { status: false, access_token: "", refresh_token: "" }
 		const access_token_payload = {
             id: user.id,
 			userID: user.id,
-            // TODO: sync token names
 			username: user.username,
-			is2faToken: user.auth2faOn
+			is2faToken: false
+            // TODO: sync token names
         }
 		const access_token = this.jwtService.sign(access_token_payload);
+		const refresh_token  = generateRefreshToken(user.id)
 		return {
 			status: true,
 			access_token,
-			refresh_token: generateRefreshToken(user.id)
+			refresh_token
 		}
 	}
 

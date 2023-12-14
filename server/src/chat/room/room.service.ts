@@ -48,10 +48,9 @@ export class RoomService {
         const mute_entry = await this.getMuteEntry(userId, roomId)
         if (mute_entry) { // an entry exists on table
             const mute_time = mute_entry.mutedUntile
-            if (mute_time > Date.now())
+            if (mute_time > Date.now() / 1000)
                 return (true)
             await this.UnmuteUser(userId, roomId)
-            console.log(mute_entry)
             return (false)
         }
         return (false)
@@ -75,7 +74,6 @@ export class RoomService {
             return (true)
 
         } catch (error) {
-            //console.log(error)
             return null
         }
     }
@@ -130,7 +128,6 @@ export class RoomService {
             return (newRoom)
 
         } catch (error) {
-            //console.log(error)
             return (undefined)
         }
     }
@@ -146,7 +143,6 @@ export class RoomService {
             })
             return (room)
         } catch (error) {
-            console.log(error)
             return (null)
         }
     }
@@ -160,7 +156,6 @@ export class RoomService {
             return room;
         }
         catch (error) {
-            //console.log(error)
             return undefined
         }
 
@@ -189,7 +184,6 @@ export class RoomService {
             return room;
         }
         catch (error) {
-            //console.log(error)
             return undefined
         }
 
@@ -274,7 +268,6 @@ export class RoomService {
                 }
             })
         } catch (error) {
-            console.log(error)
             return (false)
         }
         return (true)
@@ -282,7 +275,6 @@ export class RoomService {
     async UnbanUserFromRoom(userId: number, roomId: number) {
         // may throw on duplicate entries 
         try {
-
             const user = await this.prismaService.roomBan.delete({
                 where: {
                     user_id_room_id: {
@@ -306,7 +298,6 @@ export class RoomService {
                 }
             })
         } catch (error) {
-            console.log(error)
             return (false)
         }
         return (true)
@@ -357,6 +348,7 @@ export class RoomService {
                         id: true,
                         username: true,
                         avatar: true,
+                        fullName: true
                     }
                 }
             }
@@ -405,7 +397,6 @@ export class RoomService {
                 isAdmin: true
             }
         })
-        console.log("is admin ? ", isadmin)
         if (isadmin == null)
             return (false)
         return (isadmin.isAdmin)
@@ -442,7 +433,6 @@ export class RoomService {
         return (user == null ? false : true)
     }
     async isBannedFromRoom(userId: number, roomId: number) {
-        console.log("is user banned?:", "userId:", userId, "roomId", roomId)
         const ban_id = await this.prismaService.roomBan.findUnique({
             where: {
                 user_id_room_id: {
@@ -454,7 +444,6 @@ export class RoomService {
                 id: true
             }
         })
-        console.log("badn id: ", ban_id)
         return (ban_id != null ? true : false)
     }
     async getAllBannedUsers(roomId: number) {
@@ -496,7 +485,7 @@ export class RoomService {
     }
 
     async muteUserFor(userId: number, roomId: number, muteDuration: number) {
-        const mute_duration = Date.now() + (muteDuration * 1000) // ms to seconds
+        const mute_duration = (Date.now() * 60000) + muteDuration //in seconds
         const entry = await this.prismaService.roomMembers.update({
             where: {
                 userId_roomId: {
@@ -578,11 +567,44 @@ export class RoomService {
             },
             select: {
                 //sender_username: true,
-                id: true,
-                sender_id: true,
+                sender: {
+                    select: {
+                        id: true,
+                        username: true, 
+                        avatar: true
+                    }
+                },
                 message: true,
                 created_at: true
             },
+            orderBy: {
+                created_at: 'asc'
+            }
+        })
+        return (chat_messages)
+    }
+    async fetch_chat_messages(user_id: number, recepient_id: number) {
+        const chat_messages = await this.prismaService.messages.findMany({
+            where: {
+                OR : [
+                 {recepient_id: recepient_id , sender_id: user_id},
+                 {recepient_id: user_id , sender_id: recepient_id}
+                ]
+            },
+            select: {
+                //sender_username: true,
+                sender: {
+                    select: {
+                        id: true,
+                        username: true, 
+                        avatar: true
+                    }
+                },
+                message: true,
+                created_at: true
+            },orderBy : {
+                created_at: "asc"
+            }
         })
         return (chat_messages)
     }
@@ -599,8 +621,14 @@ export class RoomService {
             const password_hash = await bcrypt.hash_password(payload.password)
             payload.password = password_hash;
         }
-        // maybe encrypt it aftwerwards 
+        
         const newRoom = await this.createChatRoom(user, payload);
+        if(payload.roomType === "PRIVATE"){
+            const is_admin: boolean = false;
+            for (var member_id of payload.mebers_id){
+                await this.addMemberTORoom(member_id, newRoom.id, is_admin)
+            }
+        }
         return (newRoom)
     }
 
@@ -908,13 +936,27 @@ export class RoomService {
     async setUserInChat(user_id: number, room_id: number, in_chat: boolean) {
         try {
             const entry = await this.addUserToChat(user_id, room_id, in_chat);
-            console.log(entry)
         } catch (error) {
-            console.log(error)
         }
     }
     async findRoomByName(payload: findRoomDTO) {
         const matched_rooms = await this.getMatchingRooms(payload.room_name)
         return (matched_rooms)
+    }
+
+    async getRoomMessagess(user_id: number, room_id:  number) {
+        const room = await this.getRoomById(room_id)
+        if (room == undefined) {
+            throw new BadRequestException("Room does not exist")
+        }
+        const is_membeer = await this.isRoomMember(room.id, user_id)
+        if (!is_membeer) {
+            throw new ForbiddenException()
+        }
+        const is_banned = await this.isBannedFromRoom(user_id, room.id)
+        if (is_banned) {
+            throw new ForbiddenException()
+        }
+        return (await this.fetch_room_messages(room.id));
     }
 }

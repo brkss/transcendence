@@ -17,7 +17,6 @@ import {
 	MenuList,
 	MenuItem,
 } from '@chakra-ui/react';
-import { Avatar } from '../../../Avatar'
 import { AiOutlineUserAdd, AiOutlineUserDelete, AiOutlineClockCircle } from 'react-icons/ai';
 import { API_URL } from '@/utils/constants';
 import { getAccessToken } from '@/utils/token';

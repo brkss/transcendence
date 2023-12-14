@@ -4,9 +4,10 @@ import { Socket } from 'socket.io';
 @Catch()
 export class ValidationExceptionFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
-    // you have to check if exception is from ValidationClass
+    //check if exception is from ValidationClass
     if (true){
-      console.log(exception)
+      console.log("exception type ****: ", exception)
+
     }
     const ctx = host.switchToWs();
     const client = ctx.getClient<Socket>();

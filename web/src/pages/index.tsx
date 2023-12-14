@@ -1,31 +1,30 @@
 import React from 'react'
 import { withAuth } from "@/components";
-import { Box, Center, Text } from '@chakra-ui/react'
-import { api } from '@/utils/services/axios.config';
-
+import { Center } from '@chakra-ui/react'
+import { useRouter } from 'next/router';
+import decode from 'jwt-decode';
+import { getAccessToken } from '@/utils/token';
 
 function Home(){
 
-	const [res, setRes] = React.useState("");	
+	const router = useRouter();
 	
 	React.useEffect(() => {
-		
+		(() => {
+			const payload = decode(getAccessToken())  as any;
+			if(payload){
+				router.push(`/user/${payload.username}`)
+			}else {
+				console.log("log this out : ", payload)
+				// logout !
+			}
+		})()
 	}, []);
 
-	const ping = async () => {
-		api.get("http://localhost:8000/user/ping").then(res => {
-			setRes(res.data);
-		}).catch(er => {
-			setRes('error !!')
-			console.log("req err : ", er);
-		}) ;
-	}
+	
 
 	return <Center h={'100vh'}>
-		<Box>
-		<Text display={"block"}>{ ` ${res}` }</Text>
-		<button onClick={ping}>ping</button>
-		</Box>
+		
 	</Center>
 
 }

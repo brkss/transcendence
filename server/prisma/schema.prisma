@@ -1,5 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 generator client {
   provider = "prisma-client-js"
 }
@@ -33,6 +31,8 @@ model user {
   memberRooms RoomMembers[]
   bannedRooms RoomBan[]
   messages    Messages[]
+  games       Game[] @relation("playingGame")
+  //messages_recv    Messages[] @relation("recived")
   //mutedInRooms RoomMute[]
 
   sent_friendship     Friendship[] @relation("SentFriendShip")
@@ -55,6 +55,13 @@ model ChatRoom {
   messages   Messages[]
   //mutedUserRef   RoomMute[]
 }
+model Block {
+  id Int @unique() @default(autoincrement())
+  blocker Int
+  blockee Int
+
+  @@unique([blockee, blocker])
+}
 
 model Messages {
   id         Int      @id @unique @default(autoincrement())
@@ -67,7 +74,8 @@ model Messages {
   recepient_id Int?
   chatRom_id   Int?
 
-  recepient user?     @relation(fields: [recepient_id], references: [id])
+  sender user?     @relation(fields: [sender_id], references: [id])
+  //recepient user?     @relation("sent", fields: [recepient_id], references: [id])
   chatroom  ChatRoom? @relation(fields: [chatRom_id], references: [id])
 }
 
@@ -116,10 +124,18 @@ model Friendship {
   @@unique([user_id, friend_id])
 }
 
-model game {
-  id            Int @id @unique @default(autoincrement())
-  opponentId    Int @unique
-  userScore     Int
-  oppenentScore Int
-  startedAt DateTime @db.Date
+model Score {
+  id        Int @id @unique @default(autoincrement())
+  game_id   Int
+  player_id Int
+  score     Int
+  game      Game? @relation(fields: [game_id], references: [id])
 }
+
+model Game {
+  id             	Int @id @unique @default(autoincrement())
+  scores          Score[]
+  startedAt       DateTime @db.Date
+  players         user[] @relation("playingGame")
+}
+

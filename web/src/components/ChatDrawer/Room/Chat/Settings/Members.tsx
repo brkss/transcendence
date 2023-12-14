@@ -9,7 +9,7 @@ import {
     Button,
     useDisclosure
 } from '@chakra-ui/react';
-import { Avatar } from '../../../Avatar'
+import { Avatar } from '../../../../Avatar'
 import { MuteDurationModal } from './MuteDuration';
 
 interface Props {

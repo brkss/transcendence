@@ -10,10 +10,11 @@ interface Props {
 	name: string;
 	image: string;
 	relationship: string;
+	editProfile: () => void;
 }
 
 
-export const PersonalInfo : React.FC<Props> = ({username, name, image, relationship}) => {
+export const PersonalInfo : React.FC<Props> = ({username, name, image, relationship, editProfile}) => {
 
 	const toast = useToast();
 
@@ -68,7 +69,7 @@ export const PersonalInfo : React.FC<Props> = ({username, name, image, relations
 					<Text fontSize={{md: '30px', base: '12px'}} fontWeight={'bold'}>@{username}</Text>
 				</GridItem>
 				<GridItem colSpan={{md: 6, base: 5}} textAlign={'right'} display={'flex'} justifyContent={'end'} alignItems={'center'} >
-					<FriendshipActions addFriend={handleAddFriend} relationship={relationship} acceptFriend={handleAcceptFriend} />	
+					<FriendshipActions addFriend={handleAddFriend} relationship={relationship} acceptFriend={handleAcceptFriend} edit={editProfile} />	
 				</GridItem>
 			</Grid>	
 		</Box>

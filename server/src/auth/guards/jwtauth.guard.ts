@@ -15,7 +15,6 @@ export class JwtAuth implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean>  {
         const request = context.switchToHttp().getRequest()        
         const jwtoken = this.getTokenFromHeader(request)
-        console.log('token', jwtoken)
         if (!jwtoken)
             throw new UnauthorizedException()
         try {
@@ -26,25 +25,21 @@ export class JwtAuth implements CanActivate {
                     secret: this.configService.get('JWT_REFRESH_SECRET') 
                 }
             ) 
-            console.log('payload', payload)
             if (payload.is2faToken === false) {
                 // this can be done using web sockets sockets 
                 request.user = payload
                 await this.userService.updateLastLogin(payload.userID)
                 return (true)
             }
-            return (true)
+            return (false)
         }
         catch (e) {
-            console.log(e);
-            
             throw new UnauthorizedException()
         }
     }
 
     getTokenFromHeader(@Req() req: Request) {
         const token = req.headers["authorization"] ?? req.cookies['refresh_token']
-        console.log(req.cookies)
         if (!token)
             return undefined
         return (token)

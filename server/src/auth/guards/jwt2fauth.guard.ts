@@ -13,15 +13,12 @@ export class Jwt2faAuth implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean>  {
         const request = context.switchToHttp().getRequest()        
         const jwtoken = this.getTokenFromCookie(request)
-
-        if (!jwtoken)
+        if (jwtoken === undefined)
             throw new UnauthorizedException()
         try {
             const payload = await this.jwtService.verifyAsync(
                 jwtoken, 
-                {
-                    secret: this.configService.get('JWT_REFRESH_SECRET') 
-                }
+                { secret: this.configService.get('JWT_REFRESH_SECRET')}
             ) 
             if (payload.is2faToken === true) { // ditinguish auth and 2fa tokens
                 request.user = payload
@@ -32,7 +29,6 @@ export class Jwt2faAuth implements CanActivate {
         catch {
             throw new UnauthorizedException()
         }
-        return (true)
     }
 
     getTokenFromCookie(@Req() req: Request) {
