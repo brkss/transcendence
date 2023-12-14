@@ -80,6 +80,23 @@ export class TwofactorauthService {
         return (this.setResponse(true, "2fa activated!") )
     }
 
+    async disable2fa(user_id: number): Promise<any> {
+        const settings_2fa = await this.userService.get2fasettings(user_id);
+        const is2faActivated = settings_2fa.auth2faOn ;
+        if ( ! is2faActivated) {
+            throw new BadRequestException("Two factor auth not enabeled")
+        }
+        await this.userService.updateField({
+            where: {id: user_id},
+            data: {auth2faOn : false,
+            auth2faSercret: null } })
+        const resp = {
+            success: true,
+            status: "Two factor auth disabeled"
+        }
+        return (resp)
+    }
+
     async isValidOTP(otp_code:string, user_id: number) {
         const  secret = await this.userService.get2faSecret(user_id)
         return (this.validate2fatoken(otp_code, secret))

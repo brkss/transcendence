@@ -43,6 +43,15 @@ export class TwofactorauController {
         const response = await this.twofaservice.activate2fa(user.userID, one_time_password);
         return (response)
     }
+
+    @UseGuards(JwtAuth)
+    @Post('disable')
+    async deactivate2fa(@Req() req: any) {
+        const user = req.user
+        const response = await this.twofaservice.disable2fa(user.userID);
+        return (response)
+    }
+
     @UseGuards(Jwt2faAuth)
     @UsePipes(OnetimePasswordDTO)
     @Post('verify')
