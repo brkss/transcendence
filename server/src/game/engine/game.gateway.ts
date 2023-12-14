@@ -110,6 +110,59 @@ export class GameGateway
       this.server,
     );
   }
+  
+  @SubscribeMessage(
+    'joinArcadeQueue'
+  )
+  async joinArcadeQueue(
+    @ConnectedSocket()
+    socket: Socket,
+  ) {
+    // console.log(
+    //   socket,
+    // );
+    rooms.push(
+      socket.id,
+    );
+    try {
+      console.log(
+        'connectedUsers',
+        this
+          .gatewayService
+          .connectedUsers,
+      );
+      const savedSocket =
+        this.gatewayService.connectedUsers.find(
+          (user) =>
+            user.socketId ===
+            socket.id,
+        );
+      console.log(
+        'savedSocket',
+        savedSocket,
+      );
+      if (
+        savedSocket
+      ) {
+        this.gameService.joinArcadeQueue(
+          socket,
+        );
+      } else {
+        socket.emit(
+          'notAllowed',
+          {
+            status:
+              '401',
+          },
+        );
+      }
+    } catch (error) {
+      console.log(
+        error,
+      );
+    }
+  }
+
   @SubscribeMessage(
     'joinQueue',
   )

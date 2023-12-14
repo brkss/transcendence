@@ -22,11 +22,12 @@ interface IRoom {
 export class GameService {
   gamingRooms: IRoom[] =
     [];
-  arcadeGamingRooms: IRoom[] =
+  gamingArcadeRooms:IRoom[] = 
     [];
   constructor(
     private gatewayService: GatewayService,
   ) {}
+
   async hostRoom(
     socket: Socket,
   ) {
@@ -62,6 +63,44 @@ export class GameService {
       'gamingrooms',
       this
         .gamingRooms,
+    );
+  }
+
+  async hostArcadeRoom(
+    socket: Socket,
+  ) {
+    const user =
+      await this.gatewayService.getUserBySocket(
+        socket,
+      );
+    const roomId =
+      Math.random().toString();
+    const currentRoom =
+      {
+        id: roomId,
+        label: `Room-${user.username}`,
+        hostUserId:
+          user.userID,
+        sockets: [
+          user,
+        ],
+        readyCount:
+          [],
+      };
+    this.gamingArcadeRooms.push(
+      currentRoom,
+    );
+    socket.join(
+      roomId,
+    );
+    socket.emit(
+      'currentRoomDetails',
+      currentRoom,
+    );
+    console.log(
+      'gamingArcadeRooms',
+      this
+        .gamingArcadeRooms,
     );
   }
 
@@ -160,6 +199,46 @@ export class GameService {
     );
   }
 
+  async joinArcadeRoom(
+    socket: Socket,
+  ) {
+    const user =
+      await this.gatewayService.getUserBySocket(
+        socket,
+      );
+    const selectedRoom =
+      this.gamingArcadeRooms.find(
+        (room) =>
+          room
+            .sockets
+            .length <
+          2,
+      );
+    console.log(
+      selectedRoom,
+    );
+    selectedRoom.sockets.push(
+      user,
+    );
+    this.gamingArcadeRooms =
+      [
+        ...this.gamingArcadeRooms.filter(
+          (room) =>
+            room.id !==
+            selectedRoom.id,
+        ),
+        selectedRoom,
+      ];
+    socket.join(
+      selectedRoom.id,
+    );
+    console.log(
+      'TWO USERS CONNEDTED STARTING GAME',
+      this
+        .gamingArcadeRooms,
+    );
+  }
+
   getRoomBySocket(
     socket: Socket,
   ) {
@@ -248,6 +327,33 @@ export class GameService {
       );
     } else {
       this.hostRoom(
+        socket,
+      );
+    }
+  }
+
+
+  async joinArcadeQueue(
+    @ConnectedSocket()
+    socket: Socket,
+  ) {
+    if (
+      this.gamingArcadeRooms.some(
+        (room) =>
+          room
+            .sockets
+            .length <
+          2,
+      ) &&
+      this
+        .gamingArcadeRooms
+        .length > 0
+    ) {
+      this.joinArcadeRoom(
+        socket,
+      );
+    } else {
+      this.hostArcadeRoom(
         socket,
       );
     }
