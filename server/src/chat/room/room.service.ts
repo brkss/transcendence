@@ -275,7 +275,6 @@ export class RoomService {
     async UnbanUserFromRoom(userId: number, roomId: number) {
         // may throw on duplicate entries 
         try {
-
             const user = await this.prismaService.roomBan.delete({
                 where: {
                     user_id_room_id: {
@@ -299,7 +298,6 @@ export class RoomService {
                 }
             })
         } catch (error) {
-            console.log(error)
             return (false)
         }
         return (true)
@@ -399,7 +397,6 @@ export class RoomService {
                 isAdmin: true
             }
         })
-        console.log("is admin ? ", isadmin)
         if (isadmin == null)
             return (false)
         return (isadmin.isAdmin)
@@ -436,7 +433,6 @@ export class RoomService {
         return (user == null ? false : true)
     }
     async isBannedFromRoom(userId: number, roomId: number) {
-        console.log("is user banned?:", "userId:", userId, "roomId", roomId)
         const ban_id = await this.prismaService.roomBan.findUnique({
             where: {
                 user_id_room_id: {
@@ -448,7 +444,6 @@ export class RoomService {
                 id: true
             }
         })
-        console.log("badn id: ", ban_id)
         return (ban_id != null ? true : false)
     }
     async getAllBannedUsers(roomId: number) {
@@ -626,8 +621,14 @@ export class RoomService {
             const password_hash = await bcrypt.hash_password(payload.password)
             payload.password = password_hash;
         }
-        // maybe encrypt it aftwerwards 
+        
         const newRoom = await this.createChatRoom(user, payload);
+        if(payload.roomType === "PRIVATE"){
+            const is_admin: boolean = false;
+            for (var member_id of payload.mebers_id){
+                await this.addMemberTORoom(member_id, newRoom.id, is_admin)
+            }
+        }
         return (newRoom)
     }
 
@@ -935,9 +936,7 @@ export class RoomService {
     async setUserInChat(user_id: number, room_id: number, in_chat: boolean) {
         try {
             const entry = await this.addUserToChat(user_id, room_id, in_chat);
-            console.log(entry)
         } catch (error) {
-            console.log(error)
         }
     }
     async findRoomByName(payload: findRoomDTO) {

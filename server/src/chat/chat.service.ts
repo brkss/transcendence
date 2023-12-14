@@ -95,7 +95,6 @@ export class ChatService {
         socket.leave(room.name)
     }
     disconnect(socket: Socket) {
-        console.log(socket.rooms)
     }
 
     async connectToChat(socket: Socket, payload: JoinRoomDTO) {
@@ -114,7 +113,6 @@ export class ChatService {
             socket.emit("message", message)
             message.message = `${user.username} Joined Ch4t!`
             socket.join(room.name)
-            console.log("socket rooms : ", socket.rooms)
             socket.to(room.name).emit("message", message)
 
             // create socket room and join it

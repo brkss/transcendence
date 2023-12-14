@@ -1,14 +1,17 @@
 import {
     IsAlpha,
     IsAlphanumeric,
+    IsArray,
     IsAscii,
     IsByteLength,
     IsIn,
     IsNotEmpty,
     IsNumber,
     IsString,
+    Matches,
     ValidateIf,
 } from 'class-validator'
+import { isInt16Array } from 'util/types'
 
 export class AdministrateDTO {
     @IsNumber()
@@ -39,12 +42,19 @@ export class updateNameDTO {
 }
 
 export class createRoomDTO {
-    @IsString()
+
     @IsNotEmpty()
+    @Matches(/^[^\s].*[^\s]$/, {
+        message: 'No trailing or leading white spaces are allowed',
+      })
     roomName: string
 
     @IsIn(["PUBLIC", "PRIVATE", "PROTECTED"])
     roomType: string
+
+    @ValidateIf(object => object.roomType === 'PRIVATE')
+    @IsNumber({}, {each: true})
+    mebers_id: number[] 
 
     @ValidateIf(object => object.roomType === 'PROTECTED')
     @IsAscii()
