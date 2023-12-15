@@ -53,19 +53,22 @@ export const Layout: React.FC<any> = ({ children, disablePadding }) => {
 		console.log("handle sig : ", sig);
 		switch (sig) {
 			case "friends":
-				showFriends.onOpen()
+				showFriends.onOpen();
 				break;
-			case "game":
-				router.push("/game")
+			  case "normal game":
+				router.push("/game");
 				break;
-			case "settings":
-				showSettings.onOpen()
+			  case "arcade game":
+				router.push("/game?arcade=on");
 				break;
-			case "chat":
-				showChat.onOpen()
+			  case "settings":
+				showSettings.onOpen();
 				break;
-			case "board":
-				router.push("/leaderboard")
+			  case "chat":
+				showChat.onOpen();
+				break;
+			  case "board":
+				router.push("/leaderboard");
 				break;
 			case "logout":
 				console.log("log out !")
