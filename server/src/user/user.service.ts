@@ -549,43 +549,43 @@ export class UserService {
 		return (true)
 	}
 
-	async getUserLosesWins(userId: number) {
-		let loses: number = 0;
-		let wins: number = 0;
-		let userScore: number;
-		let opponentScore: number;
+	// async getUserLosesWins(userId: number) {
+	// 	let loses: number = 0;
+	// 	let wins: number = 0;
+	// 	let userScore: number;
+	// 	let opponentScore: number;
 
-		const all_games = await this.prismaService.user.findMany({
-			where: {
-				id: userId,
-			},
-			select:
-			{
-				games: {
-					include:
-					{
-						scores: true,
-					},
-				},
-			},
-		});
+	// 	const all_games = await this.prismaService.user.findMany({
+	// 		where: {
+	// 			id: userId,
+	// 		},
+	// 		select:
+	// 		{
+	// 			games: {
+	// 				include:
+	// 				{
+	// 					scores: true,
+	// 				},
+	// 			},
+	// 		},
+	// 	});
 
-		all_games.forEach(async (game, index) => {
-			const gameId: number = game[index].id;
-			const scores = await this.gameService.getAllScores(gameId);
-			scores.forEach((score, i) => {
-				if (score[i].player_id == userId)
-					userScore = score.score;
-				else
-					opponentScore = score.score;
-				if (userScore > opponentScore)
-					wins++;
-				else
-					loses++;
-			});
-		});
-		return [wins, loses];
-	}
+	// 	all_games.forEach(async (game, index) => {
+	// 		const gameId: number = game[index].id;
+	// 		const scores = await this.gameService.getAllScores(gameId);
+	// 		scores.forEach((score, i) => {
+	// 			if (score[i].player_id == userId)
+	// 				userScore = score.score;
+	// 			else
+	// 				opponentScore = score.score;
+	// 			if (userScore > opponentScore)
+	// 				wins++;
+	// 			else
+	// 				loses++;
+	// 		});
+	// 	});
+	// 	return [wins, loses];
+	// }
 
 	async getUserHistory(user_id: number) {
 		try {
@@ -602,31 +602,31 @@ export class UserService {
 
   }
 
-		    async getRanks(): Promise<UsersRanks[]> {
-			    try {
-				    const allUsers = await this.prismaService.user.findMany({
-					    include:
-						    {
-						    games: true,
-					    },
-				    });
+		    // async getRanks(): Promise<UsersRanks[]> {
+			//     try {
+			// 	    const allUsers = await this.prismaService.user.findMany({
+			// 		    include:
+			// 			    {
+			// 			    games: true,
+			// 		    },
+			// 	    });
 
-				    if (!allUsers)
-					    throw new NotFoundException('no user found!');
-				    const usersRank: UsersRanks[] = [];
-				    allUsers.forEach(async (user, index) => {
-					    usersRank[index].avatar = user[index].avatar;
-					    usersRank[index].username = user[index].username;
-					    let [wins, loses] = await this.getUserLosesWins(user[index].id);
-					    usersRank[index].wins = wins;
-				    });
-				    return usersRank.sort((a, b) => {
-					    return (a.wins >= b.wins ? 1 : -1);
-				    });
-			    }
-			    catch (error) {
-				    console.error(error);
-			    }
+			// 	    if (!allUsers)
+			// 		    throw new NotFoundException('no user found!');
+			// 	    const usersRank: UsersRanks[] = [];
+			// 	    allUsers.forEach(async (user, index) => {
+			// 		    usersRank[index].avatar = user[index].avatar;
+			// 		    usersRank[index].username = user[index].username;
+			// 		    let [wins, loses] = await this.getUserLosesWins(user[index].id);
+			// 		    usersRank[index].wins = wins;
+			// 	    });
+			// 	    return usersRank.sort((a, b) => {
+			// 		    return (a.wins >= b.wins ? 1 : -1);
+			// 	    });
+			//     }
+			//     catch (error) {
+			// 	    console.error(error);
+			//     }
 
-		    }
+		    // }
 }

@@ -20,25 +20,25 @@ export class GameService {
 			where: { id: game_id, },
 			include: {
 				scores: true,
-				players: true,
+				//players: true,
 			},
 		});
 	}
 
 	async createGame(game: CreateGameDTO): Promise<any>
 	{
-		return await this.prismaService.game.create({
-			data: {
-				players: {
-					connect: [{ id: game.firstPlayer_id }, { id: game.secondPlayer_id }],
-				},
-				startedAt: Date(),
-			},
-			include: {
-				scores: true,
+		// return await this.prismaService.game.create({
+		// 	data: {
+		// 		players: {
+		// 			connect: [{ id: game.firstPlayer_id }, { id: game.secondPlayer_id }],
+		// 		},
+		// 		startedAt: Date(),
+		// 	},
+		// 	include: {
+		// 		scores: true,
 
-			},
-		});
+		// 	},
+		// });
 	}
 
 	async deleteGame(game_id: number): Promise<any> {
@@ -131,32 +131,33 @@ export class GameService {
 
 	async GetOpponentId(game_id: number, player_id: number) : Promise<number>
 	{
-		try
-		{
-			const gameExist = await this.prismaService.game.findUnique({where: {id : game_id,}});
-			if (!gameExist)
-				throw new NotFoundException('Game with ID: ${game_id} not found!');
-			const id =  await this.prismaService.game.findUnique({
-				where: { id: game_id },
-				select:{
-					players:
-						{
-						where: {
-							id: {not: player_id},
-						},
-						select:{
-							id: true,
-						},
-					}
-				},	
+		// try
+		// {
+		// 	const gameExist = await this.prismaService.game.findUnique({where: {id : game_id,}});
+		// 	if (!gameExist)
+		// 		throw new NotFoundException('Game with ID: ${game_id} not found!');
+		// 	const id =  await this.prismaService.game.findUnique({
+		// 		where: { id: game_id },
+		// 		select:{
+		// 			players:
+		// 				{
+		// 				where: {
+		// 					id: {not: player_id},
+		// 				},
+		// 				select:{
+		// 					id: true,
+		// 				},
+		// 			}
+		// 		},	
 
-			});
+		// 	});
 
-			const opponent_id: number = id.players[0].id;
-			return opponent_id;
-		}catch(error)
-		{
-			console.error(error);
-		}
+		// 	const opponent_id: number = id.players[0].id;
+		// 	return opponent_id;
+		// }catch(error)
+		// {
+		// 	console.error(error);
+		// }
+		return (1);
 	}
 }
