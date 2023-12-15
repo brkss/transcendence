@@ -23,7 +23,7 @@ export const app_root: string = process.cwd()
 @Module({
   imports: [AuthModule, PrismaModule, UserModule, GameModule,
     ConfigModule.forRoot({
-            ignoreEnvFile: true,
+            //ignoreEnvFile: true,
             isGlobal:true
 
   }),
