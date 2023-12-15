@@ -35,6 +35,6 @@ export class authController {
             maxAge: 7 * 24 * 3600 * 1000
             , httpOnly: true
         });
-        resp.redirect("http://localhost:8001/me")
+        resp.redirect("http://localhost:8001/")
     }
 }

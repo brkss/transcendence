@@ -23,7 +23,9 @@ export const app_root: string = process.cwd()
 @Module({
   imports: [AuthModule, PrismaModule, UserModule, GameModule,
     ConfigModule.forRoot({
+            ignoreEnvFile: true,
             isGlobal:true
+
   }),
     ServeStaticModule.forRoot({
         rootPath: path.join(app_root, '/uploads/images'),
