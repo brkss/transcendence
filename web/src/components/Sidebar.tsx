@@ -68,7 +68,7 @@ export const SideBar: React.FC<Props> = ({ signal }) => {
 			</Box>
 			{
 				_items.map(({ name, Icon }, key) => (
-					<motion.div style={{ position: 'relative', overflow: 'hidden' }} animate={{ height: isShown ? '0px' : 'auto' }}>
+					<motion.div key={key} style={{ position: 'relative', overflow: 'hidden' }} animate={{ height: isShown ? '0px' : 'auto' }}>
 						<Box onClick={() => signal(name.toLowerCase())} textAlign={'center'} key={key} mb={{ md: '20px', base: '0' }} transition={'.3s'} cursor={'pointer'} _hover={{ transform: 'scale(.95)', transition: '.3s' }}>
 							<Center h={'45px'} w={'45px'} rounded={'16px'} bg={{ md: 'black', base: "white" }} m={'auto'} color={{ md: 'white', base: "black" }} >
 								<Icon size={'15px'} />

@@ -7,7 +7,7 @@ services:
             dockerfile: Dockerfile
         depends_on:
             - server
-#            - front 
+            - front 
         restart: always
         ports:
             - "8001:8001"
@@ -33,16 +33,16 @@ services:
             - "./server/:/var/www/html/app" 
             - /var/www/html/app/node_modules/
     
-#    front:
-#        container_name: transcendance_front
-#        depends_on:
-#            - server
-#        build: 
-#            context: ./web/
-#            dockerfile: Dockerfile.dev
-#        ports:
-#            - "3000:3000"
-#        volumes:
-#            - "./web/:/var/www/html/app" 
-#            - /var/www/html/app/node_modules/
-#    
+    front:
+        container_name: transcendance_front
+        depends_on:
+            - server
+        build: 
+            context: ./web/
+            dockerfile: Dockerfile.dev
+        ports:
+            - "3000:3000"
+        volumes:
+            - "./web/:/var/www/html/app" 
+            - /var/www/html/app/node_modules/
+    

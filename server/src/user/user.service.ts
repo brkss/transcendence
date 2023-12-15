@@ -521,9 +521,8 @@ export class UserService {
 		    }
 
 		    async updateAvatar(user_id: number, file: Express.Multer.File) {
-			    const avatar_link: string = "http://localhost:8000/user/avatar/" + file.filename
+			    const avatar_link: string = "http://localhost:8001/api/user/avatar/" + file.filename
 			    const is_valid_image = await this.validateImageType(file)
-
 			    if (is_valid_image == false) {
 				    fs.unlink(file.path, (err) => { /* skip/ignore */ });
 				    throw new BadRequestException("Invalid Image")
