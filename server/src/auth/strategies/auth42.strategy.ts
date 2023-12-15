@@ -21,7 +21,7 @@ export class auth42Strategy extends PassportStrategy(Strategy, '42-auth2') {
 
     async authenticate(req: any, options: any): Promise<void> {
         if (req.query && req.query.error) {
-            this.redirect("http://localhost:3000/")
+            this.redirect("http://localhost:8001/")
         }
         return super.authenticate(req, options);
     }
