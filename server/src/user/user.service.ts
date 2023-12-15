@@ -571,15 +571,10 @@ export class UserService {
 
 			    for (const user of all_games) {
 				    for (const game of user.games){
-					    const scores = await this.gameService.getAllScores(game.id);
-					    for (const score of scores) {
-						    if (score.player_id == userId)
-							    userScore = score.score;
-						    else
-							    opponentScore = score.score;
-						    if (userScore > opponentScore)
+					    const game_status = await this.gameService.getSatus(game.id, player_id);
+					    if (game_status == "won")
 							    wins++;
-						    else
+						    else if (game_status == "lost");
 							    loses++;
 					    }
 				    }
@@ -591,11 +586,32 @@ export class UserService {
 		    async getUserHistory(user_id: number) {
 			    try {
 
-				    const user = await this.prismaService.user.findUnique({ where: { id: user_id, }, });
+				    const user = await this.prismaService.user.findFirst({ where: { id: user_id, }, });
 				    if (!user)
 					    throw new NotFoundException('User with ID ${user_id} not found!');
 
-				    let history: UserHistory[] = [];
+				    //let history: UserHistory[] = [];
+
+				    const allgames = await this.prismaService.user.findMany({
+					    where: {
+					    },
+					    select: {
+						    games: true,
+					    },
+				    });
+
+				    /* const history: UserHistory[] = await Promise.all(
+					    allgames.map(async (game) => {
+
+						    return {
+							    mode: game.mode,
+							    game_status: ,
+							    opponent_username: ,
+							    date: game.startedAt
+						    };
+					    })
+				    );*/
+
 			    }
 			    catch (error) {
 				    console.error(error);

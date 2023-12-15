@@ -1,4 +1,4 @@
-import {IsNumber, IsDate} from 'class-validator';
+import {IsNumber, IsDate, IsString} from 'class-validator';
 
 export class CreateGameDTO
 {

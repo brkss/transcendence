@@ -180,4 +180,16 @@ export class GameService {
 			console.error(error);
 		}
 	}
+
+	async getStatus(game_id: number, player_id: number) : Promise<string>
+	{
+		const opponent_id = this.GetOpponentId(game_id, player_id);
+		const opponent_score = this.getPlayerScore(game_id, player_id);
+		const player_score = this.getPlayerScore(game_id, player_id);
+
+		if (player_score > opponent_score)
+			return "won";
+		else
+			return "lost";
+	}
 }
