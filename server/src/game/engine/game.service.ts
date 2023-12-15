@@ -8,7 +8,13 @@ import {
   Server,
 } from 'socket.io';
 import { GatewayService } from 'src/chat/gateway/chat/gateway.service';
-import { IConnectedUser } from 'src/utils';
+
+interface IConnectedUser {
+  id: number;
+  userID: number;
+  username: string;
+  socketId: string;
+}
 
 interface IRoom {
   id: string;

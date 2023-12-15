@@ -66,7 +66,6 @@ export class GameGateway
   ) {
     this.gatewayService.socketConnection(
       socket,
-      'game',
     );
   }
 
