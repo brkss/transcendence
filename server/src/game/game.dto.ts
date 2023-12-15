@@ -7,6 +7,9 @@ export class CreateGameDTO
 
 	@IsNumber()
 	secondPlayer_id: number;
+
+	@IsString()
+	mode: string;
 }
 
 export class AddPlayerScoreDTO
