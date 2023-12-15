@@ -105,3 +105,13 @@ export const updateUserProfile = async (name: string, username: string) => {
 	console.log("update user data response : ", response);
 	return response.data;
 }
+
+export const userLeaderBoard = async () => {
+	const response = await api.get('${API_URL}/user/leaderbord');
+	return response.date;
+}
+
+export const userStatus = async () => {
+	const response = await api.get('${API_URL}/user/status');
+	return response.data;
+}
