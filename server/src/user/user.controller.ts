@@ -1,5 +1,5 @@
 import { UserService } from "./user.service";
-import {Controller, Get, Param, Req, UseGuards, Post, Body} from "@nestjs/common"
+import { Controller, Get, Param, Req, UseGuards, Post, Body } from "@nestjs/common"
 import { JwtAuth } from "src/auth/guards/jwtauth.guard";
 import { Request } from 'express'
 import { addFriendDTO } from "./user.dto";
@@ -7,20 +7,20 @@ import { addFriendDTO } from "./user.dto";
 @Controller('user')
 @UseGuards(JwtAuth)
 export class UserController {
-    constructor(private userService: UserService){
+    constructor(private userService: UserService) {
 
     }
-   
-	@Post("/search")
-	async searchPeople(@Req() req: Request){
-		const {query }= req.body;
-		if(!query)
-			return [];
-		const results = this.userService.searchFriends(query);
-		return results;
-	}
 
-	@Post('friends/add')
+    @Post("/search")
+    async searchPeople(@Req() req: Request) {
+        const { query } = req.body;
+        if (!query)
+            return [];
+        const results = this.userService.searchFriends(query);
+        return results;
+    }
+
+    @Post('friends/add')
     async addFriend(@Req() req, @Body() body: addFriendDTO) {
         const user_id: number = req.user.userID
         const status = await this.userService.addFriend(user_id, req.body.username)
@@ -29,17 +29,17 @@ export class UserController {
 
     @Post('friends/accept')
     async acceptFriend(@Req() req: any) {
-		const { username } = req.body;
-		if(!username)
-			return { error: "Invalid username"} 
+        const { username } = req.body;
+        if (!username)
+            return { error: "Invalid username" }
         const current_username: string = req.user.username;
         return (await this.userService.acceptFriend(current_username, username))
     }
     @Post('friends/reject')
     async rejectFriend(@Req() req: any) {
-		const { username } = req.body;
-		if(!username)
-			return { error: "Invalid username"} 
+        const { username } = req.body;
+        if (!username)
+            return { error: "Invalid username" }
         const current_username: string = req.user.username;
         return (await this.userService.regectFriend(current_username, username))
     }
@@ -62,10 +62,24 @@ export class UserController {
         return (profile)
     }
 
-	@Get("friends/relationship/:username")
-	async getRelationship(@Req() req: any, @Param("username") username: string) {
-		const relationship = await this.userService.getRelationship(username, req.user.userID);
-		console.log("rel response : ", req.user);
-		return ({relationship: relationship});
-	}
+    @Get("friends/relationship/:username")
+    async getRelationship(@Req() req: any, @Param("username") username: string) {
+        const relationship = await this.userService.getRelationship(username, req.user.userID);
+        console.log("rel response : ", req.user);
+        return ({ relationship: relationship });
+    }
+
+    @Get("rooms")
+    async getAllUserRooms(@Req() request: any) {
+        const user = request.user
+        console.log(user.id)
+        const user_rooms = await this.userService.getAllRooms(user.id)
+        return (user_rooms)
+    }
+    @Get("chats")
+    async getUserChats(@Req() request: any) {
+        const user = request.user
+        const user_chats = await this.userService.getUserChats(user.id)
+        return (user_chats)
+    }
 }

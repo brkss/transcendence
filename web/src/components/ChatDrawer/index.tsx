@@ -10,7 +10,9 @@ import {
 	Heading,
 	Box,
     useDisclosure,
-    Button
+    Button,
+	Text,
+	useToast
 } from '@chakra-ui/react'
 import { ChatBox } from './Item';
 import { RoomPasswordModal } from './RoomPasswordModal';
@@ -21,6 +23,9 @@ import { CreateRoom } from './CreateRoom'
 import { API_URL } from '@/utils/constants';
 import { getAccessToken } from '@/utils/token';
 import { io } from 'socket.io-client';
+import { getUserRooms, joinRoomService, searchRooms } from '@/utils/services';
+import { SearchChatBox } from './SearchItem';
+
 
 interface Props {
 	isOpen: boolean;
@@ -29,12 +34,12 @@ interface Props {
 
 export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 
+	const toast = useToast();
+	const [roomPassword, setRoomPassword]= React.useState("");
+	const [joinRoomId, setJoinRoomId] = React.useState(-1);
+	const [query, setQuery] = React.useState("");
 	const [rooms, setRooms] = React.useState<any[]>([]);
-	let socket = io(API_URL, {
-		extraHeaders: {
-			Authorization: getAccessToken()
-		}
-	})
+	const [searchRes, setSearchRes] = React.useState<any[]>([]);
 	const [selectedRoomID, setSelectedRoomID] = React.useState<number | null>(null);
 	const [openCreateModal, setOpenCreateModal] = React.useState(false);
 	const [openModal, setOpenModal] = React.useState(false);
@@ -44,41 +49,87 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 	const _chat = useDisclosure();
 
 	React.useEffect(() => {
-		socket.connect()
-		
-		socket.on('connect', () => {
-			console.log("socket connected ! chats")
-		})
+		(async () => {
+			await fetchRooms();	
+		})();
+	}, []);
 
-		socket.on("rooms", (data) => {
-			setRooms(data);
-			console.log("data : ", data);
-		})
 
-		socket.emit("allRooms")
+	const fetchRooms = async () => {
+		const _data = await getUserRooms();	
+		console.log("rooms : ", _data);
+		setRooms(_data);
+	}
 
-		return () => {
-			socket.disconnect()
-			console.log("socket disconnect!")
+	const handleChatRoomPasswordModal = (id: number, isProtected: boolean) => {
+		setOpenModal(true);
+		_passDisclosure.onOpen();
+		setJoinRoomId(id);
+	}
+
+	const handleSearch = async (query: string) => {
+		setQuery(query);
+		if(query.length < 3){
+			setSearchRes([]);
+			return;
 		}
+		const results = await searchRooms(query);
+		console.log("search results : ", results);
+		setSearchRes(results);
+	}
 
-	}, [isOpen])
-
-
-	const handleEntringRoom = (id: number, isProtected: boolean) => {
-		console.log("id : ", id, isProtected)
-		if(isProtected){
-			setOpenModal(true);
-			_passDisclosure.onOpen();
-			setSelectedRoomID(id)
-		}else {
-			setOpenChat(true);
-			_chat.onOpen();
-			setSelectedRoomID(id)
+	const requestJoinRoom = async () => {
+		const room = searchRes.find(x => x.id === joinRoomId);
+		if(room){
+			const data = {
+				password: roomPassword,
+				id: Number(room.id),
+				type: room.roomType
+			}
+			setRoomPassword("")
+			setJoinRoomId(-1);
+			await handleJoinRoom(data.id, data.type, data.password);
 		}
 	}
 
-	
+	const handleJoinRoom = async (roomID: number, roomType: string, password?: string) => {
+		joinRoomService({room_id: roomID, roomType: roomType, password: password || ""}).then(async res => {
+			console.log("join response : ", res);
+			toast({
+				title: 'Joined room successfuly',
+				status: 'success',
+				duration: 9000,
+				isClosable: true,
+			});
+			// refetch rooms 
+			await fetchRooms();	
+			setQuery("");
+			setSearchRes([]);
+		}).catch(e => {
+			console.log("join exp : ", e);
+			toast({
+				title: 'Invalid Password',
+				status: 'error',
+				duration: 9000,
+				isClosable: true,
+			})	
+		})
+		
+	}
+
+	const handleRemoveRoom = (id: number) => {
+		const index = rooms.findIndex(x => x.id === id);
+		if(index != -1){
+			const tmp = rooms.splice(index, 1);
+			setRooms([...rooms]);
+		}
+	}
+
+	const openChatRoom = (id: number) => {
+		setSelectedRoomID(id);
+		setOpenChat(true);
+		_chat.onOpen();
+	}
 
 	return (
 		<Drawer
@@ -91,7 +142,6 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 			<DrawerContent>
 				<DrawerCloseButton />
 				<DrawerHeader></DrawerHeader>
-
 				<DrawerBody>
 					<Box display={'flex'} justifyContent={'space-between'} mt={'20px'} alignItems={'center'}>
 						<Heading>Chat</Heading>
@@ -100,15 +150,25 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 							Create new room
 						</Button>
 					</Box>
-					<SearchChat change={(v) => {}} />
+					<SearchChat val={query} change={(v) => handleSearch(v)} />
 					<Box>
+						
+						<Text fontWeight={'bold'}>{searchRes.length > 0 ? "Search Results" : query.length == 0  ? "" : "No Result Found"}</Text>
 						{
-							rooms.map((item, key) => (
+							searchRes.length === 0 && query.length == 0 ? ( rooms.map((item, key) => (
 								<>	
-									<ChatBox key={key} name={item.name} type={item.roomType}  enter={() => handleEntringRoom(item.id, item.roomType === "PROTECTED")} />
+									<ChatBox key={key} name={item.name} type={item.roomType}  enter={() => openChatRoom(item.id)} />
 									<hr style={{marginTop: '10px', display: 'none'}} />	
 								</>
-							))
+							))) : (
+								<>
+									{
+										searchRes.map((item, key) => (
+											<SearchChatBox key={key} name={item.name} type={item.roomType} join={() => {item.roomType === "PROTECTED" ? handleChatRoomPasswordModal(item.id, item.roomType === "PROTECTED") : handleJoinRoom(item.id, item.roomType)}} />
+										))
+									}
+								</>
+							)
 						}
 					</Box>
 				</DrawerBody>
@@ -116,8 +176,8 @@ export const ChatDrawer: React.FC<Props> = ({isOpen, onClose}) => {
 				<DrawerFooter>
 				</DrawerFooter>
 			</DrawerContent>
-			{ openModal && <RoomPasswordModal isOpen={_passDisclosure.isOpen} onClose={_passDisclosure.onClose} onOpen={_passDisclosure.onOpen} /> }
-			{ selectedRoomID && openChat && <Chat chatId={selectedRoomID} isOpen={_chat.isOpen} onClose={_chat.onClose} /> }
+			{ openModal && <RoomPasswordModal isOpen={_passDisclosure.isOpen} onClose={_passDisclosure.onClose} onOpen={_passDisclosure.onOpen} submit={() => requestJoinRoom()} onChange={(v) => setRoomPassword(v)} /> }
+			{ selectedRoomID && openChat && <Chat removeRoom={(id: number) => handleRemoveRoom(id)} chatId={selectedRoomID} isOpen={_chat.isOpen} onClose={_chat.onClose} /> }
 			{ _createRoomModal.isOpen && <CreateRoom updateRooms={(room: {name: string, roomType: string}) => setRooms([room, ...rooms])} isOpen={_createRoomModal.isOpen} onClose={_createRoomModal.onClose} /> }
 		</Drawer>
 	)

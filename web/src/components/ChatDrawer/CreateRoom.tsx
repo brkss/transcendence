@@ -12,12 +12,12 @@ import {
 	FormControl,
 	FormLabel,
 	Box,
-	Text
+	Text,
+	useToast
 } from '@chakra-ui/react'
-import { io } from 'socket.io-client';
-import { API_URL } from '@/utils/constants';
 import { Error } from '../General'
-import { getAccessToken } from '@/utils/token';
+import { CreateRoomInput } from '../../utils/types';
+import { createRoomService } from '../../utils/services';
 
 
 const types = [
@@ -34,39 +34,12 @@ interface Props {
 
 export const CreateRoom : React.FC<Props> = ({isOpen, onClose, updateRooms}) => {
 
-	let socket = io(API_URL, {
-		extraHeaders: {
-			Authorization: getAccessToken()
-		}
-	})
+
+	const toast = useToast();
 	const [form, setForm] = React.useState<any>({});
 	const [error, setError] = React.useState("");
 	const [roomType, setRoomType] = React.useState(types[0]);
 	//const [loading, setLoading] = React.useState(false);
-
-	React.useEffect(() => {
-		//const socket = io(API_URL);
-		socket.connect()
-		socket.on("connect", () => {
-			console.log("socket connected")
-		})
-
-		socket.on("Error", (err) => {
-			console.log("error: ", err)
-			setError(err.Error);
-		})
-
-		socket.on("RoomCreated", (msg) => {
-			onClose();
-			console.log("success : ", msg);
-			updateRooms({name: msg.name, roomType: msg.roomType});
-		});
-
-		return () => {
-			socket.disconnect()
-			console.log("socket disconnect !");
-		}
-	})
 
 	const handleForm = (id: string, txt: string) => {
 		setForm({
@@ -75,19 +48,37 @@ export const CreateRoom : React.FC<Props> = ({isOpen, onClose, updateRooms}) => 
 		})
 	}
 
-	const createRoom = () => {
+	const createRoom = async () => {
 		if(!form || !form.roomName || !roomType || (roomType === "PROTECTED" && !form.roomPassword)){
 			setError("Invalid data !");
 			return;
 		}
 		setError("")
 		console.log("form : ", form, roomType);
-		console.log("------- sending socket")
-		socket.emit("newRoom", {
+		const data : CreateRoomInput = {
 			roomName: form.roomName,
-			password: form.roomPassword,
-			roomType: roomType
-		})
+			roomType: roomType,
+			password: form.roomPassword 
+		}
+		createRoomService(data).then(_ => {
+			updateRooms({ name: form.roomName, roomType: roomType });
+			onClose();	
+			toast({
+				title: "chat room created successfuly",
+				duration: 9000,
+				isClosable: true,
+				status: "success"
+			})
+		}).catch(e => {
+			console.log("creating room error : ", e);
+			toast({
+				title: "something went wrong creating room chat",
+				duration: 9000,
+				isClosable: true,
+				status: "error"
+			})
+			onClose();
+		});
 		
 	}
 

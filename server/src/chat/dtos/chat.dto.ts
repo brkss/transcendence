@@ -1,4 +1,3 @@
-import { isAscii } from 'buffer'
 import {
     IsAscii,
     IsByteLength,
@@ -7,19 +6,39 @@ import {
     IsNumber,
     IsString,
     ValidateIf,
-    isNumber,
-    isString
-
 } from 'class-validator'
-import { isAbsolute } from 'path'
+import { Transform, Type } from 'class-transformer';
 
-export class RoomDTO {
-     @IsString()
-    @IsNotEmpty()
-    roomName: string
+export class AdministrateDTO {
+    //@Transform(value => Number.isNaN(+value) ? 0 : +value)
+    
+    @IsNumber()
+    userId: number
+
+   
+    @IsNumber()
+    roomId: number
+
+   
+    @IsNumber()
+    memberId: number 
 }
 
-export class createRoomDTO  extends RoomDTO {
+export class RoomDTO {
+    @IsNumber()
+    room_id: number
+}
+export class findRoomDTO {
+    @IsString()
+    @IsNotEmpty()
+    room_name: string
+}
+
+export class createRoomDTO {
+    @IsString()
+    @IsNotEmpty()
+    roomName: string
+
     @IsIn(["PUBLIC", "PRIVATE", "PROTECTED"])
     roomType: string
 
@@ -30,26 +49,35 @@ export class createRoomDTO  extends RoomDTO {
 }
 
 export class kickDTO extends RoomDTO{ 
-    @IsAscii()
-    @IsNotEmpty()
-    user: string
 
     @IsNumber()
-    userId: number
+    user_id: number
 }
-export class MuteUserDTO extends RoomDTO {
-    @IsAscii()
-    @IsNotEmpty()
-    user: string // not necessary! 
 
+export class MuteUserDTO extends RoomDTO {
+    // @IsAscii()
+    // @IsNotEmpty()
+    // user: string // not necessary! 
+
+   
     @IsNumber()
-    userId: number
+    user_id: number
 
     // mute duration in seconds 
+   
     @IsNumber()
     muteDuration: number
 
 }
+
+export class UnMuteUserDTO extends RoomDTO {
+   
+    @IsNumber()
+    user_id: number
+
+}
+
+
 export class BanDTO extends kickDTO {
 
 }
@@ -62,6 +90,7 @@ export class chatMessageDTO extends RoomDTO{
 }
 
 export class PrivateMessageDTO {
+   
     @IsNumber()
     userId: number
 
@@ -75,7 +104,9 @@ export class JoinRoomDTO  extends RoomDTO {
     roomType: string
 
     @ValidateIf(object => object.roomType === 'PROTECTED')
-    password?: string
+    @IsNotEmpty()
+    @IsAscii()
+    password: string
 }
 
 export class LeaveRoomDTO extends RoomDTO {
@@ -83,6 +114,15 @@ export class LeaveRoomDTO extends RoomDTO {
         Properties may be added later
     */
 }
-export class updateRoomDTO extends createRoomDTO {
+/*
+    you can only update room type and password
+*/
+export class updateRoomDTO extends RoomDTO {
+    @IsIn(["PUBLIC", "PRIVATE", "PROTECTED"])
+    roomType: string
 
+    @ValidateIf(object => object.roomType === 'PROTECTED')
+    @IsAscii()
+    @IsByteLength(8, 32)
+    password?: string
 }

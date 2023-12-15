@@ -18,9 +18,11 @@ interface Props {
 	isOpen: boolean;
 	onOpen: () => void;
 	onClose: () => void;
+	onChange: (v: string) => void;
+	submit: () => void;
 }
 
-export const RoomPasswordModal : React.FC<Props> = ({isOpen, onClose, onOpen}) => {
+export const RoomPasswordModal : React.FC<Props> = ({isOpen, onClose, submit, onChange}) => {
 
 
 
@@ -33,13 +35,13 @@ export const RoomPasswordModal : React.FC<Props> = ({isOpen, onClose, onOpen}) =
 					<ModalCloseButton />
 					<ModalBody>
 						<FormControl>
-							<FormLabel>please enter room's password </FormLabel>
-							<Input  placeholder='Password' variant={'filled'} type={'password'} />
+							<FormLabel>please enter room password </FormLabel>
+							<Input  placeholder='Password' variant={'filled'} type={'password'} onChange={(e) => onChange(e.currentTarget.value)} />
 						</FormControl>
 					</ModalBody>
 					<ModalFooter>
-						<Button size={'sm'} colorScheme='blackAlpha' variant={'outline'} mr={3}>
-							Access the room	
+						<Button size={'sm'} colorScheme='blackAlpha' variant={'outline'} mr={3} onClick={() => {submit(); onClose()}}>
+							Submit Password	
 						</Button>
 					</ModalFooter>
 				</ModalContent>

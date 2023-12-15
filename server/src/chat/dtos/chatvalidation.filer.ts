@@ -5,7 +5,9 @@ import { Socket } from 'socket.io';
 export class ValidationExceptionFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
     // you have to check if exception is from ValidationClass
-    console.log(exception)
+    if (true){
+      console.log(exception)
+    }
     const ctx = host.switchToWs();
     const client = ctx.getClient<Socket>();
     const errors = exception.getResponse();
