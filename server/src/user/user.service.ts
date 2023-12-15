@@ -6,7 +6,7 @@ import { GameService } from 'src/game/game.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { validateMIMEType } from "validate-image-type";
 import path = require("path") // exported form  path (re checkit!!)
-import { UserHistory } from './history.interface'
+import { UserHistory, UsersRanks } from './history.interface'
 // ES module error: ?
 //import { fileTypeFromFile } from 'file-type';
 //import imageType from "image-type"
@@ -521,7 +521,7 @@ export class UserService {
 	}
 
 	async updateAvatar(user_id: number, file: Express.Multer.File) {
-		const avatar_link: string = "http://localhost:8000/user/avatar/" + file.filename
+		const avatar_link: string = "http://localhost:8001/api/user/avatar/" + file.filename
 		const is_valid_image = await this.validateImageType(file)
 
 		if (is_valid_image == false) {
@@ -600,6 +600,33 @@ export class UserService {
 			console.error(error);
 		}
 
-	}
+  }
 
+		    async getRanks(): Promise<UsersRanks[]> {
+			    try {
+				    const allUsers = await this.prismaService.user.findMany({
+					    include:
+						    {
+						    games: true,
+					    },
+				    });
+
+				    if (!allUsers)
+					    throw new NotFoundException('no user found!');
+				    const usersRank: UsersRanks[] = [];
+				    allUsers.forEach(async (user, index) => {
+					    usersRank[index].avatar = user[index].avatar;
+					    usersRank[index].username = user[index].username;
+					    let [wins, loses] = await this.getUserLosesWins(user[index].id);
+					    usersRank[index].wins = wins;
+				    });
+				    return usersRank.sort((a, b) => {
+					    return (a.wins >= b.wins ? 1 : -1);
+				    });
+			    }
+			    catch (error) {
+				    console.error(error);
+			    }
+
+		    }
 }

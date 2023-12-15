@@ -54,7 +54,7 @@ export const ChatMessages : React.FC<Props> = ({messages}) => {
 			{messages.map((item, index) => {
 				if (item.from === "PongBot") {
 					return (
-						<Box w={'100%'} textAlign={'center'}>
+						<Box w={'100%'} textAlign={'center'} key={index * Math.random()}>
 							<Text fontSize={'12px'} opacity={.8}>{item.text}</Text>
 						</Box>
 					)
