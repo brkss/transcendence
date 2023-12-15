@@ -8,20 +8,11 @@ import { ChatService } from './chat.service';
 import { GatewayService } from './gateway/chat/gateway.service';
 
 @Module({
-  imports: [
-    AuthModule,
-    UserModule,
-  ],
-  providers: [
-    ChatGateway,
+  imports: [AuthModule, UserModule],
+  providers: [ChatGateway,
     PrismaService,
     RoomService,
     ChatService,
-    GatewayService,
-  ],
-  exports: [
-    GatewayService,
-    ChatService,
-  ],
+    GatewayService]
 })
 export class ChatModule {}
