@@ -313,6 +313,24 @@ export class GameGateway
       true,
     );
   }
+  
+  @SubscribeMessage(
+    'getScore',
+  )
+  async gettingScore(
+    @ConnectedSocket()
+    socket: Socket,
+    @MessageBody()
+    payload: {
+      value: number;
+    },
+  ) {
+    this.gameService.gettingScore(
+      socket,
+      payload,
+      this.server,
+    );
+  }
 
   @SubscribeMessage(
     'initPuck',
@@ -331,6 +349,24 @@ export class GameGateway
       this.server,
     );
   }
+
+@SubscribeMessage(
+  'gameChatMessage',
+)
+async sendGameChat(
+  @ConnectedSocket()
+  socket: Socket,
+  @MessageBody()
+  payload: {
+    value: number;
+  },
+) {
+  this.gameService.sendGameChat(
+    socket,
+    payload,
+    this.server,
+  );
+}
 
   @SubscribeMessage(
     'userReady',

@@ -1,5 +1,11 @@
 import { Socket } from "socket.io-client";
 
+type TPuckPositionData = {
+  x:number
+  y:number
+  servingPlayer?: 'left'| 'right' 
+}
+
 class Particle {
   socket: Socket;
   x: number;
@@ -83,7 +89,8 @@ export class Puck {
     this.isSecondaryBall = isSecondaryBall;
     this.isSecondaryModeOn = isSecondaryModeOn;
     this.x = this.canvasWidth / 2;
-    this.y = this.canvasHeight / 2;
+    this.y = this.canvasHeight / 2;``
+    
     console.log("isHost:", this.x, isHost);
     this.isHost = isHost;
     if (isHost && !isSecondaryBall) {
@@ -93,7 +100,7 @@ export class Puck {
         servingPlayer: this.servingPlayer,
       });
     } else if (!isSecondaryBall) {
-      socket.on("initPuck", (data) => {
+      socket.on("initPuck", (data:TPuckPositionData) => {
         this.x = data.x;
         this.y = data.y;
         this.servingPlayer = data.servingPlayer;
@@ -105,13 +112,14 @@ export class Puck {
         servingPlayer: this.servingPlayer,
       });
     } else if (isSecondaryBall) {
-      socket.on("initPuck2", (data) => {
+      socket.on("initPuck2", (data:TPuckPositionData) => {
         this.x = data.x;
         this.y = data.y;
         console.log("INITPUCK DATA 2", data);
         this.servingPlayer = data.servingPlayer;
       });
     }
+
   }
 
   checkPaddleLeft(p: any) {
