@@ -56,6 +56,11 @@ export const getUserInfo = async (username: string) => {
 	return response.data;
 }
 
+export const getUserById = async (uid: number) => {
+	const response = await api.get(`${API_URL}/user/userInfo/${uid}`);
+	return response.data;
+}
+
 export const blockUser = async (uid: number) => {
 	const response = await api.post(`${API_URL}/user/block`, {
 		user_id: uid

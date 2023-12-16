@@ -84,6 +84,12 @@ export class UserController {
 		return (profile)
 	}
 
+	@Get('userInfo/:uid')
+	async getUserInfo(@Param("uid") uid: string) {
+		const user = await this.userService.getUserByID(parseInt(uid));
+		return (user);
+	}
+
 	@Get("friends/relationship/:username")
 	async getRelationship(@Req() req: any, @Param("username") username: string) {
 		const relationship = await this.userService.getRelationship(username, req.user.userID);
