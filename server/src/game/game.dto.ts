@@ -1,4 +1,4 @@
-import {IsNumber, IsDate} from 'class-validator';
+import {IsNumber, IsDate, IsString} from 'class-validator';
 
 export class CreateGameDTO
 {
@@ -7,6 +7,9 @@ export class CreateGameDTO
 
 	@IsNumber()
 	secondPlayer_id: number;
+
+	@IsString()
+	mode: string;
 }
 
 export class AddPlayerScoreDTO

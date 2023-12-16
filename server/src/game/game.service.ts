@@ -85,11 +85,16 @@ export class GameService {
 			if (!gameExist)
 				throw new NotFoundException('Can\'t find game with ID: ${game_id}');
 
-			const result = await this.prismaService.game.findUnique({
+			const result = await this.prismaService.game.findFirst({
 				where: {
 					id: game_id,
+					scores:{
+						some: {
+							player_id : player_id,
+						},
+					},
 				},
-				select: {
+				include: {
 					scores: {
 						where: {
 							player_id: player_id,
@@ -100,6 +105,7 @@ export class GameService {
 					}
 				},
 			});
+
 			const player_score = result.scores[0].score;
 			return player_score;
 		}
@@ -113,6 +119,12 @@ export class GameService {
 		try {
 			const gameExist = await this.prismaService.game.findUnique({ where: { id: game_id, } });
 
+			const allUsers = await this.prismaService.user.findMany({
+				include:
+					{
+					games: true,
+				},
+			});
 			if (!gameExist)
 				throw new NotFoundException('Game with ID: ${game_id} not found!');
 
@@ -136,8 +148,16 @@ export class GameService {
 			const gameExist = await this.prismaService.game.findUnique({where: {id : game_id,}});
 			if (!gameExist)
 				throw new NotFoundException('Game with ID: ${game_id} not found!');
-			const id =  await this.prismaService.game.findUnique({
-				where: { id: game_id },
+			const id =  await this.prismaService.game.findFirst({
+				where: {
+					id: game_id,
+					players:
+						{
+						some: {
+							id : {not: player_id},
+						},
+					},
+				},
 				select:{
 					players:
 						{
@@ -154,9 +174,22 @@ export class GameService {
 
 			const opponent_id: number = id.players[0].id;
 			return opponent_id;
+
 		}catch(error)
 		{
 			console.error(error);
 		}
+	}
+
+	async getStatus(game_id: number, player_id: number) : Promise<string>
+	{
+		const opponent_id = this.GetOpponentId(game_id, player_id);
+		const opponent_score = this.getPlayerScore(game_id, player_id);
+		const player_score = this.getPlayerScore(game_id, player_id);
+
+		if (player_score > opponent_score)
+			return "won";
+		else
+			return "lost";
 	}
 }
