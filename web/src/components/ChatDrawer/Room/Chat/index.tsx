@@ -58,8 +58,9 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 			const me = jwtDecode(getAccessToken()) as any;
 			if(me){
 				const {username} = me;
+				console.log("messages : ", response)
 				setMessages([...messages, ...response.map((msg: any) => (
-					{ from: msg.sender.username === username ? "me" : msg.sender.username, text: msg.message }
+					{ from: msg.sender.username === username ? "me" : msg.sender.username, text: msg.message, avatar: msg.sender.avatar }
 				))]);
 			}
 		}).catch(e => {
