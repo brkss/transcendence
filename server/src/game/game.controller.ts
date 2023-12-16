@@ -24,9 +24,9 @@ export class GameController {
 
 	@Post(':id')
 	async addPlayerScores(@Param('id') id: number, @Body() firstPlayer_score: AddPlayerScoreDTO, secondPlayer_score: AddPlayerScoreDTO): Promise<any> {
-		const firstScore = this.gameService.addScore(id, firstPlayer_score);
-		const secondScore = this.gameService.addScore(id, secondPlayer_score);
-		return [firstScore , secondScore];
+		//const firstScore = this.gameService.addScore(id, firstPlayer_score);
+		//const secondScore = this.gameService.addScore(id, secondPlayer_score);
+		//return [firstScore , secondScore];
 	}
 }
 
