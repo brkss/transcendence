@@ -134,7 +134,7 @@ model Score {
 
 model Game {
   id             	Int @id @unique @default(autoincrement())
-  mode		 string
+  mode		        String
   scores          Score[]
   startedAt       DateTime @db.Date
   players         user[] @relation("playingGame")
