@@ -66,6 +66,7 @@ export class GameGateway
   ) {
     this.gatewayService.socketConnection(
       socket,
+      'game',
     );
   }
 
@@ -124,14 +125,22 @@ export class GameGateway
       socket.id,
     );
     try {
-      
+      console.log(
+        'connectedUsers',
+        this
+          .gatewayService
+          .connectedUsers,
+      );
       const savedSocket =
         this.gatewayService.connectedUsers.find(
           (user) =>
             user.socketId ===
             socket.id,
         );
-  
+      console.log(
+        'savedSocket',
+        savedSocket,
+      );
       if (
         savedSocket
       ) {
