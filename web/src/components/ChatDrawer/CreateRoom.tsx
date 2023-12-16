@@ -13,12 +13,13 @@ import {
 	FormLabel,
 	Box,
 	Text,
-	useToast
+	useToast,
+	useDisclosure
 } from '@chakra-ui/react'
 import { Error } from '../General'
 import { CreateRoomInput } from '../../utils/types';
 import { createRoomService } from '../../utils/services';
-
+import { SelectPrivateRoomMemebers, SelectedMembers } from './SelectPrivateRoomMembers';
 
 const types = [
 	"PUBLIC",
@@ -35,7 +36,9 @@ interface Props {
 export const CreateRoom : React.FC<Props> = ({isOpen, onClose, updateRooms}) => {
 
 
+	const _checkFriendsDrawer = useDisclosure();
 	const toast = useToast();
+	const [selectedMembers, setSelectedMembers] = React.useState<SelectedMembers[]>([]);
 	const [form, setForm] = React.useState<any>({});
 	const [error, setError] = React.useState("");
 	const [roomType, setRoomType] = React.useState(types[0]);
@@ -49,16 +52,17 @@ export const CreateRoom : React.FC<Props> = ({isOpen, onClose, updateRooms}) => 
 	}
 
 	const createRoom = async () => {
-		if(!form || !form.roomName || !roomType || (roomType === "PROTECTED" && !form.roomPassword)){
+		if(!form || !form.roomName || !roomType || (roomType === "PROTECTED" && !form.roomPassword) || (roomType === "PRIVATE" && selectedMembers.length === 0)){
 			setError("Invalid data !");
 			return;
 		}
 		setError("")
-		console.log("form : ", form, roomType);
+		console.log("form : ", form, roomType, selectedMembers);
 		const data : CreateRoomInput = {
 			roomName: form.roomName,
 			roomType: roomType,
-			password: form.roomPassword 
+			password: form.roomPassword,
+			mebers_id: selectedMembers.map(m => m.id)
 		}
 		createRoomService(data).then(response => {
 			console.log("create room data : ", response);
@@ -85,7 +89,7 @@ export const CreateRoom : React.FC<Props> = ({isOpen, onClose, updateRooms}) => 
 
 	return (
 		<>
-			<Modal isOpen={isOpen} onClose={onClose}>
+			<Modal isOpen={isOpen} onClose={onClose} isCentered>
 				<ModalOverlay />
 				<ModalContent>
 					<ModalHeader>Create new room</ModalHeader>
@@ -104,6 +108,10 @@ export const CreateRoom : React.FC<Props> = ({isOpen, onClose, updateRooms}) => 
 							  <Input  onChange={(e) => handleForm("roomPassword", e.currentTarget.value)} placeholder='Password' type={'password'} variant={'filled'} />
 							</FormControl>
 						}
+						{
+							roomType === "PRIVATE" && 
+							(<Button onClick={() => _checkFriendsDrawer.onOpen()} size={'sm'} mt={'20px'}>Invite Friends</Button>)
+						}
 					
 						<FormControl mt={'20px'}>
 							<RoomType changeType={(val) => setRoomType(val)} selected={roomType} />
@@ -118,6 +126,7 @@ export const CreateRoom : React.FC<Props> = ({isOpen, onClose, updateRooms}) => 
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
+			{ _checkFriendsDrawer.isOpen && <SelectPrivateRoomMemebers done={(selected) => {setSelectedMembers(selected); _checkFriendsDrawer.onClose()}} onClose={_checkFriendsDrawer.onClose} isOpen={_checkFriendsDrawer.isOpen} /> }
 		</>
 	)
 }

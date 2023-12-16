@@ -7,11 +7,13 @@ import { sound } from "./ding.mp3";
 import { Puck } from "./puck";
 import { Socket } from "socket.io-client";
 
+   type TScoreSocketData = {
+      leftscore: number;
+      rightscore: number
+    }
 const canvasWidth = 800;
 const canvasHeight = 500;
 const PI = 3.1415;
-let leftscore = 0;
-let rightscore = 0;
 let puck: Puck;
 let left: Paddle;
 let right: Paddle;
@@ -19,7 +21,8 @@ let crazyModePuck: Puck | undefined;
 let isGameStarted = false;
 let isGameOver = false;
 let isReady = false;
-
+let leftscore = 0;
+let rightscore = 0;
 const keyReleased = (socket: Socket) => {
   socket.emit("moveLeftRelease");
   socket.emit("moveRightRelease");
@@ -103,6 +106,12 @@ const setup = (
 
   socket.on("startGame", () => {
     isGameStarted = true;
+  
+  });
+
+  socket.on("getScore", (data: TScoreSocketData) => {
+    leftscore = data.leftscore > 11 ? 11: data.leftscore
+    rightscore = data.rightscore > 11 ? 11: data.rightscore
   });
 
   socket.on("SpawnSecondBall", () => {
@@ -217,6 +226,10 @@ const draw = (
   if (res == true) {
     if (puck.getServingPlayer() === "left") leftscore++;
     else if (puck.getServingPlayer() === "right") rightscore++;
+    socket.emit("getScore", {
+      leftscore,
+      rightscore,
+    });
   }
   if (res === true && !crazyModePuck && isSecondaryModeOn) {
     crazyModePuck = new Puck(
@@ -245,6 +258,10 @@ const draw = (
     if (goal) {
       if (crazyModePuck.getServingPlayer() === "left") leftscore++;
       else if (crazyModePuck.getServingPlayer() === "right") rightscore++;
+      socket.emit("getScore", {
+        leftscore,
+        rightscore,
+      });
     }
   }
 
@@ -252,7 +269,7 @@ const draw = (
   p5.textSize(32);
   p5.text(leftscore, 32, 40);
   p5.text(rightscore, canvasWidth - 64, 40);
-  if (leftscore >= 5 || rightscore >= 5) {
+  if (leftscore >= 11 || rightscore >= 11) {
     // Set isGameOver to true when the game is over
     isGameOver = true;
   }

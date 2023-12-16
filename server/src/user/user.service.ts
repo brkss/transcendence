@@ -345,7 +345,8 @@ export class UserService {
 				email: true,
 				fullName: true,
 				lastSeen: true,
-				avatar: true
+				avatar: true,
+				auth2faOn: true
 			}
 		})
 		//const lastSeen: bigint = BigInt(Date.now()) - profile.lastSeen
@@ -550,6 +551,7 @@ export class UserService {
 		return (true)
 	}
 
+	/*
 	async getUserLosesWins(userId: number) {
 		let loses: number = 0;
 		let wins: number = 0;
@@ -630,4 +632,5 @@ export class UserService {
 			    }
 
 		    }
+		*/
 }

@@ -10,7 +10,8 @@ interface Props {
 export const Avatar : React.FC<Props> = ({d, src, clicked}) => {
 
 	return (
-			<Image 
+			<Image
+				alt=""
 				onClick={clicked}
 				cursor={clicked ? 'pointer' : 'default'}
 				_hover={{opacity: clicked ? .7 : 1, transition: '.3s'}}

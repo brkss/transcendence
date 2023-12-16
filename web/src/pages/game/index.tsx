@@ -101,7 +101,7 @@ export default function Index() {
                   "notReady"
                 )}
               </div>
-              <ChatBox />
+              <ChatBox socket={socketIo} />
             </>
           )}
         </>

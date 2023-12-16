@@ -2,6 +2,7 @@ export interface CreateRoomInput {
 	roomName: string;
 	roomType: string;
 	password?: string;
+	mebers_id: number[]
 }
 
 export interface UpdateRoomInput {
