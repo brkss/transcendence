@@ -27,18 +27,18 @@ export class GameService {
 
 	async createGame(game: CreateGameDTO): Promise<any>
 	{
-		// return await this.prismaService.game.create({
-		// 	data: {
-		// 		players: {
-		// 			connect: [{ id: game.firstPlayer_id }, { id: game.secondPlayer_id }],
-		// 		},
-		// 		startedAt: Date(),
-		// 	},
-		// 	include: {
-		// 		scores: true,
+		 return await this.prismaService.game.create({
+		 	data: {
+		 		players: {
+		 			connect: [{ id: game.firstPlayer_id }, { id: game.secondPlayer_id }],
+		 		},
+		 		startedAt: Date(),
+		 	},
+		 	include: {
+				scores: true,
 
-		// 	},
-		// });
+		 	},
+		 });
 	}
 
 	async deleteGame(game_id: number): Promise<any> {
@@ -113,7 +113,7 @@ export class GameService {
 			console.error(error);
 		}
 	}
-	/*
+	
 	async addScore(game_id: number, score: AddPlayerScoreDTO): Promise<any>
 	{
 		try {
@@ -192,5 +192,4 @@ export class GameService {
 		else
 			return "lost";
 	}
-	*/
 }
