@@ -1,18 +1,43 @@
 import { Avatar } from "@chakra-ui/react";
 import React from "react";
 import { FiSend } from "react-icons/fi";
+import { Socket } from "socket.io-client";
+import Message, {IMessage} from './Message'
+import { ChangeEvent } from "react";
+import { IConnectedUser } from "@/pages/game";
+import { getPayload } from "@/utils/helpers";
 
-export default function ChatBox() {
+interface IChatBox {
+  socket: Socket
+}
+
+export default function ChatBox(props: IChatBox) {
   const scrollableRef = React.useRef<HTMLDivElement>(null);
   const scrollToBottom = () => {
     if (scrollableRef.current) {
       scrollableRef.current.scrollTop = scrollableRef.current.scrollHeight;
     }
   };
+  const [messages, setMessages] = React.useState<IMessage[]|undefined>([{message: 'test', date: new Date(), isSelfMessage: false}]);
+  const [message, setMessage] = React.useState<string>('');
+  const user: IConnectedUser = getPayload() as IConnectedUser;
+
+  const {socket} = props;
 
   React.useEffect(() => {
     scrollToBottom();
-  }, []);
+    socket.on('gameChatMessage', (data: IMessage & {senderId: number}) => {
+      console.log(data);
+      const newData = {...data, date: new Date(data.date), isSelfMessage: user?.userID === data?.senderId};
+
+      if (messages)
+      {
+        setMessages([...messages, newData])
+      } else {
+        setMessages([newData])
+      }
+    })
+  }, [messages]);
 
   return (
     <div className="flex flex-row justify-center w-full mt-5">
@@ -28,67 +53,22 @@ export default function ChatBox() {
           ref={scrollableRef}
           className="py-4 flex flex-col gap-2 max-h-[200px] overflow-hidden overflow-y-scroll scroll-auto"
         >
-          <div className="flex flex-row gap-1 pl-2">
-            <Avatar w={8} h={8} />
-            <div>
-              <p className="p-1 bg-slate-500 text-white px-2 rounded-md">
-                message
-              </p>
-              <p className="text-[10px]">11/20/2023 03:33</p>
-            </div>
-          </div>
-          <div className="flex flex-row gap-1 pl-2">
-            <Avatar w={8} h={8} />
-            <div>
-              <p className="p-1 bg-slate-500 text-white px-2 rounded-md">
-                messagemessagemessagemessagemessagemessage
-              </p>
-              <p className="text-[10px]">11/20/2023 03:33</p>
-            </div>
-          </div>
-          <div className="flex flex-row-reverse gap-1 pr-2 pl-2">
-            <Avatar w={8} h={8} />
-            <div>
-              <p className="bg-black text-white p-1 px-2 rounded-md break-all relative">
-                message
-              </p>
-              <p className="text-[10px]">11/20/2023 03:33</p>
-            </div>
-          </div>
-          <div className="flex flex-row-reverse gap-1 pr-2 pl-2">
-            <Avatar w={8} h={8} />
-            <div>
-              <p className="bg-black text-white p-1 px-2 rounded-md break-all relative">
-                messagemessagemessagemessagemessagemessagemessagemessagemessage
-              </p>
-              <p className="text-[10px]">11/20/2023 03:33</p>
-            </div>
-          </div>
-          <div className="flex flex-row-reverse gap-1 pr-2 pl-2">
-            <Avatar w={8} h={8} />
-            <div>
-              <p className="bg-black text-white p-1 px-2 rounded-md break-all relative">
-                message
-              </p>
-              <p className="text-[10px]">11/20/2023 03:33</p>
-            </div>
-          </div>
-          <div className="flex flex-row-reverse gap-1 pr-2 pl-2">
-            <Avatar w={8} h={8} />
-            <div>
-              <p className="bg-black text-white p-1 px-2 rounded-md break-all relative">
-                message
-              </p>
-              <p className="text-[10px]">11/20/2023 03:33</p>
-            </div>
-          </div>
+          {messages?.map(({isSelfMessage, message, date})=><Message isSelfMessage={isSelfMessage} message={message} date={date}  />)}
+          {messages === undefined && <div className="text-center">There is currently no messages!</div>}
         </div>
         <div className="flex flex-row">
           <input
             className="rounded-md w-full rounded-tr-none rounded-br-none pl-2 outline-none py-0.5"
             placeholder="Say Hello!"
+            value={message}
+            onChange={(event:ChangeEvent<HTMLInputElement>)=>{
+              setMessage(event.target.value)
+            }}
           />
-          <button className=" border-slate-300 rounded-tl-none rounded-bl-none px-2">
+          <button onClick={()=> {
+            socket.emit('gameChatMessage', {message, date: new Date(), isSelfMessage: true, senderId: user.userID } as IMessage)
+            setMessage('')
+            }} className=" border-slate-300 rounded-tl-none rounded-bl-none px-2">
             <FiSend />
           </button>
         </div>

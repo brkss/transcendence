@@ -437,6 +437,18 @@ export class GameService {
   {
       this.emitToRoomBySocket(socket,server,"SpawnSecondBall")
   }
+  
+  async sendGameChat(
+    @ConnectedSocket()
+    socket: Socket,
+    data: {
+      value: number;
+    },
+    server: Server,
+    isRight?: boolean,
+  ){
+    this.emitToRoomBySocket(socket,server,"gameChatMessage",data);
+  }
 
   async syncCrazzyPuck(
     @ConnectedSocket()
@@ -449,6 +461,19 @@ export class GameService {
   ){
     this.emitToRoomBySocket(socket,server,"initPuck2",data);
   }
+
+  async gettingScore(
+    @ConnectedSocket()
+    socket: Socket,
+    data: {
+      value: number;
+    },
+    server: Server,
+    isRight?: boolean,
+  ){
+    this.emitToRoomBySocket(socket,server,"getScore",data);
+  }
+
   async syncPuck(
     @ConnectedSocket()
     socket: Socket,
