@@ -29,20 +29,6 @@ function Profile(){
 	
 
 	React.useEffect(() => {
-		//const socket = io("ws://localhost:8001", {
-		const socket = io("ws://localhost:8000", {
-			reconnectionDelayMax: 10000,
-			auth: {
-				token: "123"
-			},
-			query: {
-				"my-key": "my-value"
-			}
-		});
-		socket.send("alo");
-		console.log("socket : " , socket);
-
-
 		if(router.isReady){
 			const current_username = GET_USERNAME_TOKEN();
 			if(current_username === username){

@@ -24,8 +24,8 @@ interface Props {
 export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) => {
 
 	const toast = useToast();
-	const [requests, setRequests] = React.useState<any>([]);
-	const [friends, setFriends] = React.useState<any>([]);
+	const [requests, setRequests] = React.useState<any[]>([]);
+	const [friends, setFriends] = React.useState<any[]>([]);
 
 	React.useEffect(() => {
 		if(isOpen === true){
@@ -38,6 +38,16 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 			})();
 		}
 	}, [isOpen]);
+
+	const friendAccepted = (uid: number) => {
+		const reqIndex = requests.findIndex(x => x.id === uid);
+		console.log("accespt friend : ", reqIndex, requests, friends);
+		if(reqIndex > -1){
+			const user = requests.splice(reqIndex, 1)[0];
+			console.log("spliced : ", user);
+			setFriends([user, ...friends]);
+		}
+	}
 
 	const handleBlockingUser = (uid: number) => {
 		blockUser(uid).then(response => {
@@ -76,7 +86,7 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 					<Box pb={'25px'} mb={'10px'} borderBottom={'1px dotted #c5c4c4'}>
 						{
 							requests.map((req: any, key: number) => (
-								<RequestItem key={key} name={req.fullName} username={req.username} image={req.avatar} accept={() => {}} />
+								<RequestItem key={key} name={req.fullName} username={req.username} image={req.avatar} accepted={() => friendAccepted(req.id)} />
 							))
 						}
 					</Box>
