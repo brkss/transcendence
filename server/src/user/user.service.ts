@@ -520,33 +520,10 @@ export class UserService {
 			    return (old_file_path)
 		    }
 
-		    async updateAvatar(user_id: number, file: Express.Multer.File) {
-			    const avatar_link: string = "http://localhost:8001/api/user/avatar/" + file.filename
-			    const is_valid_image = await this.validateImageType(file)
-			    if (is_valid_image == false) {
-				    fs.unlink(file.path, (err) => { /* skip/ignore */ });
-				    throw new BadRequestException("Invalid Image")
-			    }
-			    const old_file_name = await this.getOldAavarName(user_id)
-			    if (old_file_name) {
-				    fs.unlink(old_file_name, (err) => { /* skip/ignore */ });
-			    }
-			    await this.updateUserAvatar(user_id, avatar_link)
-			    const resp = {
-				    status: "success",
-				    message: "User avatar updated!"
-			    }
-			    return (resp)
-		    }
-		    async validateImageType(file: Express.Multer.File): Promise<boolean> {
-			    const file_type = await validateMIMEType(file.path, {
-				    allowMimeTypes: ["image/jpeg", "image/png"]
-			    })
-			    if (!file_type.ok) {
-				    return (false)
-			    }
-			    return (true)
-		    }
+	async updateAvatar(user_id: number, file: Express.Multer.File) {
+		//const avatar_link: string = "http://localhost:8001/api/user/avatar/" + file.filename
+		const avatar_link: string = "http://localhost:8000/user/avatar/" + file.filename
+		const is_valid_image = await this.validateImageType(file)
 
 		    async getUserLosesWins(userId: number) {
 			    let loses: number = 0;
