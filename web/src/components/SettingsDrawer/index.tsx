@@ -97,10 +97,16 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 			})
 		}
 		
-		if(form && form.username && form.name){
-			updateUserProfile(form.name, form.username).then(response => {
+		if(form && (form.username || form.name)){
+			updateUserProfile(form.name || user?.fullName, form.username || user?.username).then(response => {
 				console.log("update user profile : ", response);
-			}).then(e => {
+				toast({
+					status: 'success',
+					title: "Prodile updated successfuly !",
+					duration: 9000,
+					isClosable: true
+				})
+			}).catch(e => {
 				console.log("error : ", e);
 				toast({
 					status: 'error',
@@ -108,8 +114,6 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 					duration: 9000,
 					isClosable: true
 				})
-			}).catch(e => {
-				console.log("err : ", e);
 			})
 		}
 	}
@@ -163,7 +167,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 
 				<DrawerFooter>
 					<Button mr={'10px'} onClick={handleSave}>Save</Button>
-					<Button variant={'ghost'}>Cancel</Button>
+					<Button variant={'ghost'} onClick={onClose}>Cancel</Button>
 				</DrawerFooter>
 			</DrawerContent>
 			{_tfa.isOpen && <TwoFASettings onClose={() => _tfa.onClose()} isOpen={_tfa.isOpen} />}
