@@ -345,7 +345,8 @@ export class UserService {
 				email: true,
 				fullName: true,
 				lastSeen: true,
-				avatar: true
+				avatar: true,
+				auth2faOn: true
 			}
 		})
 		//const lastSeen: bigint = BigInt(Date.now()) - profile.lastSeen

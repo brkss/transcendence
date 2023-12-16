@@ -97,6 +97,11 @@ export class TwofactorauthService {
         return (resp)
     }
 
+    async is2faOn(user_id: number): Promise<boolean> {
+        const settings_2fa = await this.userService.get2fasettings(user_id);
+        return settings_2fa.auth2faOn ;
+    }
+
     async isValidOTP(otp_code:string, user_id: number) {
         const  secret = await this.userService.get2faSecret(user_id)
         return (this.validate2fatoken(otp_code, secret))

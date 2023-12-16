@@ -21,7 +21,7 @@ import {
 	useDisclosure
 } from '@chakra-ui/react'
 import { Avatar } from '../Avatar';
-import { updateUserProfile, uploadAvatar } from '@/utils/services'
+import { updateUserProfile, uploadAvatar, is2faOn, disable2fa } from '@/utils/services'
 import { TwoFASettings } from './2fa'
 
 interface Props {
@@ -36,6 +36,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 	const [avatar, setAvatar] = React.useState<File | null>(null);
 	const [user, setUser] = React.useState<any>(null);
 	const [form, setForm] = React.useState<any>({});
+	const [twofaState, setTwofaState] = React.useState<boolean>(false);
 	const toast = useToast();
 	
 	const chnageAvatar = () => {
@@ -51,7 +52,18 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 		}
 	}
 
+	const get2faState = () => {
+		is2faOn().then(response => {
+			console.log("2fa response : ", response);
+			setTwofaState(response.auth_2fa_active);
+		}).catch(e => {
+			//
+			console.log("something went wrong 2fa : ", e);
+		})
+	}
+
 	React.useEffect(() => {
+		get2faState();
 		(() => {
 			const profile = localStorage.getItem("ME");
 			if(profile){
@@ -72,6 +84,27 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 		})
 	}
 
+
+	const hansleDisable2fa = () => {
+		disable2fa().then(response => {
+			console.log("resp : ", response);
+			setTwofaState(false);
+			toast({
+				title: "2 Factor authentication is now disabled",
+				status: 'success',
+				duration: 9000,
+				isClosable: true
+			})	
+		}).catch(e => {
+			console.log("error disabling 2fa : ", e)
+			toast({
+				title: "Something went wrong disabling 2fa",
+				status: 'error',
+				duration: 9000,
+				isClosable: true
+			})
+		})
+	}
 	
 
 	const handleSave = () => {
@@ -86,6 +119,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 					duration: 9000,
 					isClosable: true
 				})
+				onClose();
 			}).catch(e => {
 				console.log("change user avatar error : ", e);
 				toast({
@@ -158,7 +192,11 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 							<hr style={{marginTop: '30px'}} />
 							<Box mt={'20px'}>
 								<Text fontSize={'20px'} fontWeight={'bold'} mb={'10px'}>Security</Text>
-								<Button onClick={() => _tfa.onOpen()}>Activate 2 Factor Authentication</Button>
+								{
+									twofaState ? 
+										<Button onClick={() => hansleDisable2fa()}>Disable 2 Factor Authentication</Button>
+									: <Button onClick={() => _tfa.onOpen()}>Activate 2 Factor Authentication</Button>
+								}
 							</Box>
 						</Box>						
 					</Center>
@@ -170,7 +208,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 					<Button variant={'ghost'} onClick={onClose}>Cancel</Button>
 				</DrawerFooter>
 			</DrawerContent>
-			{_tfa.isOpen && <TwoFASettings onClose={() => _tfa.onClose()} isOpen={_tfa.isOpen} />}
+			{_tfa.isOpen && <TwoFASettings onClose={() => _tfa.onClose()} isOpen={_tfa.isOpen} activated={() => {setTwofaState(true);_tfa.onClose()}} />}
 		</Drawer>
 	)
 }

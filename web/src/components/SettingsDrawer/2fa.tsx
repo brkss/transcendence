@@ -17,9 +17,10 @@ import { Activate2FA, GenerateQRCode } from '@/utils/services';
 interface Props {
     isOpen: boolean,
     onClose: () => void;
+    activated: () => void;
 }
 
-export const TwoFASettings : React.FC<Props> = ({isOpen, onClose}) => {
+export const TwoFASettings : React.FC<Props> = ({isOpen, onClose, activated}) => {
 
     const [loading, setLoading] = React.useState(true);
     const [qrCode, setQrCode] = React.useState("");
@@ -51,6 +52,13 @@ export const TwoFASettings : React.FC<Props> = ({isOpen, onClose}) => {
             
             Activate2FA(code).then(response => {
                 console.log("response : ", response);
+                toast({
+                    title: "Two factor authentication is enabled successfuly",
+                    status: 'success',
+                    duration: 9000,
+                    isClosable: true
+                })
+                activated();
             }).catch(e => {
                 console.log("error while activating 2fa : ", e);
                 toast({
