@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt"
 import { ConfigService } from "@nestjs/config";
 import { UserService } from "src/user/user.service";
@@ -66,6 +66,9 @@ export class AuthService {
 			return { status: false, access_token: "", refresh_token: "" }
 		}
 		const user = await this.userService.getUserByID(payload.userID);
+        if (!user) {
+            throw new ForbiddenException()
+        }
 		const access_token_payload = {
             id: user.id,
 			userID: user.id,

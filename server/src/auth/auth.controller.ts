@@ -1,9 +1,8 @@
-import { UseGuards, Controller, Get, Req, Res, Post, InternalServerErrorException } from '@nestjs/common'
+import { UseGuards, Controller, Get, Req, Res, Post, InternalServerErrorException, ForbiddenException } from '@nestjs/common'
 import { AuthService } from './auth.service';
 import { auth42Guard } from './guards/auth.guard';
 import { Response, Request } from 'express';
 import { generateRefreshToken } from './token';
-import { PrismaClientInitializationError } from '@prisma/client/runtime/library';
 import { UserService } from 'src/user/user.service';
 
 @Controller('auth')
@@ -14,8 +13,10 @@ export class authController {
     @Post("refresh-token")
     async refreshToken(@Req() req: Request, @Res() res: Response) {
         const refresh_token = req.cookies["refresh_token"];
+        if (!refresh_token)
+            throw new ForbiddenException()
         const response = await this.auth_service.refreshToken(refresh_token);
-        res.send({ status: response.status, access_token: response.access_token });
+        res.send({ status: response.status, access_token: response.access_token })
     }
 
     @Get('sync/')
