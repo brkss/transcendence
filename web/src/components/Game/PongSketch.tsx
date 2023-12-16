@@ -110,8 +110,8 @@ const setup = (
   });
 
   socket.on("getScore", (data: TScoreSocketData) => {
-    leftscore = data.leftscore > 5 ? 5: data.leftscore
-    rightscore = data.rightscore > 5 ? 5: data.rightscore
+    leftscore = data.leftscore > 11 ? 11: data.leftscore
+    rightscore = data.rightscore > 11 ? 11: data.rightscore
   });
 
   socket.on("SpawnSecondBall", () => {
@@ -269,7 +269,7 @@ const draw = (
   p5.textSize(32);
   p5.text(leftscore, 32, 40);
   p5.text(rightscore, canvasWidth - 64, 40);
-  if (leftscore >= 5 || rightscore >= 5) {
+  if (leftscore >= 11 || rightscore >= 11) {
     // Set isGameOver to true when the game is over
     isGameOver = true;
   }
