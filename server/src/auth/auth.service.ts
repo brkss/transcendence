@@ -70,7 +70,8 @@ export class AuthService {
             id: user.id,
 			userID: user.id,
 			username: user.username,
-			is2faToken: false
+			is2faToken: false,
+            auth2faOn: user.auth2faOn
             // TODO: sync token names
         }
 		const access_token = this.jwtService.sign(access_token_payload);

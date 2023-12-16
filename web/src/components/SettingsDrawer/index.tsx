@@ -119,6 +119,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 					duration: 9000,
 					isClosable: true
 				})
+				onClose();
 			}).catch(e => {
 				console.log("change user avatar error : ", e);
 				toast({

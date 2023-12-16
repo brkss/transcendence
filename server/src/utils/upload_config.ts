@@ -20,7 +20,7 @@ export const upload_config = {
                 !(valid_ext.includes(parsed_file.ext))) {
                     return (callback(new BadRequestException("Invalid image"), null))
                 }
-            const file_name = parsed_file.name + uid(12) + parsed_file.ext
+            const file_name = uid(12) + parsed_file.ext
             return  (callback(null, file_name))
         }
     }),
