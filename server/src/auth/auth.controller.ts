@@ -18,7 +18,7 @@ export class authController {
         res.send({ status: response.status, access_token: response.access_token });
     }
 
-    @Get('sync')
+    @Get('sync/')
     @UseGuards(auth42Guard)
     async userLogin(@Req() req: any, @Res({ passthrough: true }) resp: Response) {
         const user = await this.userServce.createUser(req.user)
@@ -27,6 +27,7 @@ export class authController {
             const auth2fa_token = await this.auth_service.login2fa(req)
             resp.cookie('auth2fa_token', auth2fa_token)
             resp.redirect("http://localhost:3000/2fa/otp")
+            //resp.redirect("http://localhost:8001/2fa/otp/")
             return 
         }
         const refresh_token = generateRefreshToken(user.id);
@@ -34,6 +35,7 @@ export class authController {
             maxAge: 7 * 24 * 3600 * 1000
             , httpOnly: true
         });
-        resp.redirect("http://localhost:3000/")
+        //resp.redirect("http://localhost:8001/")
+        resp.redirect("http://localhost:3000")
     }
 }

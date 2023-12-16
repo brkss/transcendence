@@ -53,11 +53,15 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 
 	React.useEffect(() => {
 		(() => {
-			const user = JSON.parse(localStorage.getItem("ME") || "");
-			if(user){
-				setUser(user);
-				console.log("me : ", user);
+			const profile = localStorage.getItem("ME");
+			if(profile){
+				const user = JSON.parse(profile || "");
+				if(user){
+						setUser(user);
+						console.log("me : ", user);
+				}
 			}
+			
 		})()
 	}, []);
 

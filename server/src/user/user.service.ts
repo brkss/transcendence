@@ -521,6 +521,7 @@ export class UserService {
 	}
 
 	async updateAvatar(user_id: number, file: Express.Multer.File) {
+		//const avatar_link: string = "http://localhost:8001/api/user/avatar/" + file.filename
 		const avatar_link: string = "http://localhost:8000/user/avatar/" + file.filename
 		const is_valid_image = await this.validateImageType(file)
 
@@ -549,6 +550,7 @@ export class UserService {
 		return (true)
 	}
 
+	/*
 	async getUserLosesWins(userId: number) {
 		let loses: number = 0;
 		let wins: number = 0;
@@ -629,4 +631,5 @@ export class UserService {
 			    }
 
 		    }
+		*/
 }

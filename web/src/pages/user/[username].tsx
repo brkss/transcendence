@@ -29,6 +29,7 @@ function Profile(){
 	
 
 	React.useEffect(() => {
+		//const socket = io("ws://localhost:8001", {
 		const socket = io("ws://localhost:8000", {
 			reconnectionDelayMax: 10000,
 			auth: {
