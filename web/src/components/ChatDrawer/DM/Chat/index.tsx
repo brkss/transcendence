@@ -32,7 +32,10 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 	const [user, setUser] = React.useState<any>();
 
 	const getUser = () => {
-		getUserInfo(userId).then(response => {
+		const _user = jwtDecode(getAccessToken()) as any;
+		if(!_user)
+			onClose();
+		getUserInfo(_user.username).then(response => {
 			console.log("get user info response : ", response);
 			setUser(response);
 		}).catch(e => {
