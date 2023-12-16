@@ -20,7 +20,7 @@ export class GameService {
 			where: { id: game_id, },
 			include: {
 				scores: true,
-				//players: true,
+				players: true,
 			},
 		});
 	}
@@ -32,7 +32,8 @@ export class GameService {
 		 		players: {
 		 			connect: [{ id: game.firstPlayer_id }, { id: game.secondPlayer_id }],
 		 		},
-		 		startedAt: Date(),
+		 		startedAt: new Date(),
+				mode: game.mode,
 		 	},
 		 	include: {
 				scores: true,
