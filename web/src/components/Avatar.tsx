@@ -5,9 +5,10 @@ interface Props {
 	d?: string;
 	src?: string;
 	clicked?: () => void;
+	rounded?: boolean
 }
 
-export const Avatar : React.FC<Props> = ({d, src, clicked}) => {
+export const Avatar : React.FC<Props> = ({d, src, clicked, rounded}) => {
 
 	return (
 			<Image
@@ -21,7 +22,7 @@ export const Avatar : React.FC<Props> = ({d, src, clicked}) => {
 				w={{md: d ? d : "100px", base: "100%"}} 
 				h={{md: d ? d : "100px", base: "100%"}} 
 				src={src ? src : "/images/default.jpeg"} 
-				rounded={'100%'} 
+				rounded={rounded ? '15px' : '100%'} 
 			/>
 	)
 }

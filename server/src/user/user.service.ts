@@ -180,34 +180,28 @@ export class UserService {
 				    return (true)
 			    return (false)
 		    }
-
-		    async addFriend(userId: number, friend_user: string) {
-			    const friendId = await this.getUserId(friend_user)
-			    if (!friendId) {
-				    return (this.make_error(`User '${friend_user}' Does not exits`))
-			    }
-			    if (userId == friendId) {
-				    return (this.make_error(`Failed to send request to '${friend_user}'`))
-			    }
-			    const isFriend = await this.alreadyFriend(userId, friendId)
-			    if (isFriend) {
-				    return (this.make_error(`User '${friend_user}' Already a Friend :)`))
-			    }
-			    // check if friend already sent a request to the user ! to avoid duplicated request !
-			    const requests = await this.prismaService.friendship.findMany({
-				    where: {
-					    status: "pending",
-					    OR: [
-						    { user_id: userId, friend_id: friendId },
-						    { user_id: friendId, friend_id: userId },
-					    ]
-				    },
-				    select: {
-					    user_id: true
-				    }
-			    });
-			    if (requests.length > 0)
-				    return (this.make_error("Request Already sent"))
+  
+	async getAllRequests(username: string) {
+		const userId = await this.getUserId(username)
+		const requests = await this.prismaService.friendship.findMany({
+			where: {
+				friend_id: userId,
+				status: "pending"
+			},
+			select: {
+				user: {
+					select: {
+						id: true,
+						username: true,
+						email: true,
+						fullName: true,
+						avatar: true
+					}
+				}
+			}
+		})
+		return (requests.map((req) => req.user));
+	}
 
 			    try {
 				    await this.prismaService.friendship.create({
@@ -370,14 +364,13 @@ export class UserService {
 				    }
 			    })
 		    }
-
-		    // get user by its id 
-		    async getUserByID(userID: number) {
-			    const user = await this.prismaService.user.findUnique({
-				    where: { id: userID }
-			    })
-			    return user;
-		    }
+	// get user by its id 
+	async getUserByID(userID: number) {
+		const user = await this.prismaService.user.findUnique({
+			where: { id: Number(userID) }
+		})
+		return user;
+	}
 
 		    async searchFriends(query: string) {
 			    const users = await this.prismaService.user.findMany({

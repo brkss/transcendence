@@ -7,14 +7,15 @@ interface Props {
 	name: string;
 	username: string;
 	image: string;
-	accept: () => void;
+	accepted: () => void;
 }
 
-export const RequestItem: React.FC<Props> = ({name, username, image, accept}) => {
+export const RequestItem: React.FC<Props> = ({name, username, image, accepted}) => {
 
 	const toast = useToast();
 
 	const handleAcceptFriend = async () => {
+		
 		const response = await acceptFriend(username);
 		if(response.error){
 			toast({
@@ -22,7 +23,8 @@ export const RequestItem: React.FC<Props> = ({name, username, image, accept}) =>
 				status: 'warning',
 				duration: 9000,
 				isClosable: true,
-			})
+			});
+			
 		}else if(response.success){
 			toast({
 				title: response.success,
@@ -30,7 +32,10 @@ export const RequestItem: React.FC<Props> = ({name, username, image, accept}) =>
 				duration: 9000,
 				isClosable: true,
 			})
+			accepted();
 		}
+		
+		
 		//console.log("add friend : ", response);
 	}
 

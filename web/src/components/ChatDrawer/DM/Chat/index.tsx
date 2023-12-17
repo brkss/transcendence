@@ -7,7 +7,7 @@ import { API_URL } from '@/utils/constants';
 import { getAccessToken } from '@/utils/token';
 import { io } from 'socket.io-client';
 import decode from 'jwt-decode';
-import { getUserInfo, userChatHistory } from '@/utils/services';
+import { getUserById, userChatHistory } from '@/utils/services';
 import { Loading } from '@/components/General';
 import jwtDecode from 'jwt-decode';
 
@@ -32,8 +32,7 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 	const [user, setUser] = React.useState<any>();
 
 	const getUser = () => {
-		getUserInfo(userId).then(response => {
-			console.log("get user info response : ", response);
+		getUserById(userId).then(response => {
 			setUser(response);
 		}).catch(e => {
 			console.log("something went wrong getting user : ", e);
@@ -130,7 +129,7 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 				{ user ?
 					(<Flex w="100%" h={{base: "calc(100% - 81px)", md: "100%"}} justify="center" align="center" zIndex={9999}>
 						<Flex w="100%" h="100%" flexDir="column">
-							<ChatHeader name={user.fullName} image={user.avatar} />
+							<ChatHeader username={user.username} name={user.fullName} image={user.avatar} />
 							
 							<ChatMessages messages={messages} />
 							<ChatFooter
