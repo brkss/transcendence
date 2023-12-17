@@ -180,28 +180,34 @@ export class UserService {
 				    return (true)
 			    return (false)
 		    }
-  
-	async getAllRequests(username: string) {
-		const userId = await this.getUserId(username)
-		const requests = await this.prismaService.friendship.findMany({
-			where: {
-				friend_id: userId,
-				status: "pending"
-			},
-			select: {
-				user: {
-					select: {
-						id: true,
-						username: true,
-						email: true,
-						fullName: true,
-						avatar: true
-					}
-				}
-			}
-		})
-		return (requests.map((req) => req.user));
-	}
+
+		    async addFriend(userId: number, friend_user: string) {
+			    const friendId = await this.getUserId(friend_user)
+			    if (!friendId) {
+				    return (this.make_error(`User '${friend_user}' Does not exits`))
+			    }
+			    if (userId == friendId) {
+				    return (this.make_error(`Failed to send request to '${friend_user}'`))
+			    }
+			    const isFriend = await this.alreadyFriend(userId, friendId)
+			    if (isFriend) {
+				    return (this.make_error(`User '${friend_user}' Already a Friend :)`))
+			    }
+			    // check if friend already sent a request to the user ! to avoid duplicated request !
+			    const requests = await this.prismaService.friendship.findMany({
+				    where: {
+					    status: "pending",
+					    OR: [
+						    { user_id: userId, friend_id: friendId },
+						    { user_id: friendId, friend_id: userId },
+					    ]
+				    },
+				    select: {
+					    user_id: true
+				    }
+			    });
+			    if (requests.length > 0)
+				    return (this.make_error("Request Already sent"))
 
 			    try {
 				    await this.prismaService.friendship.create({
@@ -241,6 +247,7 @@ export class UserService {
 				    select: {
 					    user: {
 						    select: {
+							    id: true,
 							    username: true,
 							    email: true,
 							    fullName: true,
@@ -293,57 +300,59 @@ export class UserService {
 			    }
 		    }
 
-	async getAllFriends(username: string) {
-		const userId = await this.getUserId(username)
-		const friends = await this.prismaService.friendship.findMany({
-			where: { status: "accepted", OR: [{ user_id: userId }, { friend_id: userId }] },
-			select: {
-				friend: {
-					select: { id: true, username: true, email: true, avatar: true }
-				},
-				user: {
-					select: { id: true, username: true, email: true, avatar: true }
-				}
-			},
-		})
-		const user_friends = friends.map((ff) => {
-			return ff.user.id == userId ? ff.friend : ff.user;
-		})
-		return (user_friends)
-	}
-	async updateUserAvatar(user_id: number, avatar: string) {
-		const avatar_link = await this.prismaService.user.update({
-			where: {
-				id: user_id
-			},
-			data: {
-				avatar: avatar
-			}
-		})
-	}
-	async getUserProfile(username: string) {
-		interface UserProfile extends Record<string, any> {
-			username: string,
-			email: string,
-			fullName: string,
-			online?: boolean
-		}
-		const profile = await this.prismaService.user.findUnique({
-			where: {
-				username: username
-			},
-			select: {
-				username: true,
-				email: true,
-				fullName: true,
-				lastSeen: true,
-				avatar: true,
-				auth2faOn: true
-			}
-		})
-		//const lastSeen: bigint = BigInt(Date.now()) - profile.lastSeen
-		if (profile == null)
-			return (this.make_error(`User ${username} Not found`))
+
+
+		    async getAllFriends(username: string) {
+			    const userId = await this.getUserId(username)
+			    const friends = await this.prismaService.friendship.findMany({
+				    where: { status: "accepted", OR: [{ user_id: userId }, { friend_id: userId }] },
+				    select: {
+					    friend: {
+						    select: { id: true, username: true, email: true, avatar: true }
+					    },
+					    user: {
+						    select: { id: true, username: true, email: true, avatar: true }
+					    }
+				    },
+			    })
+			    const user_friends = friends.map((ff) => {
+				    return ff.user.id == userId ? ff.friend : ff.user;
+			    })
+			    return (user_friends)
+		    }
+		    async updateUserAvatar(user_id: number, avatar: string) {
+			    const avatar_link = await this.prismaService.user.update({
+				    where: {
+					    id: user_id
+				    },
+				    data: {
+					    avatar: avatar
+				    }
+			    })
+		    }
+		    async getUserProfile(username: string) {
+			    interface UserProfile extends Record<string, any> {
+				    username: string,
+				    email: string,
+				    fullName: string,
+				    online?: boolean
+			    }
+			    const profile = await this.prismaService.user.findUnique({
+				    where: {
+					    username: username
+				    },
+				    select: {
+					    username: true,
+					    email: true,
+					    fullName: true,
+					    lastSeen: true,
+					    avatar: true,
+					    auth2faOn: true
+				    }
+			    })
+			    //const lastSeen: bigint = BigInt(Date.now()) - profile.lastSeen
+			    if (profile == null)
+				    return (this.make_error(`User ${username} Not found`))
 
 			    let user_profile: UserProfile = profile;
 			    const ms_passed = Date.parse(Date()) - Date.parse(profile.lastSeen)
@@ -364,13 +373,14 @@ export class UserService {
 				    }
 			    })
 		    }
-	// get user by its id 
-	async getUserByID(userID: number) {
-		const user = await this.prismaService.user.findUnique({
-			where: { id: Number(userID) }
-		})
-		return user;
-	}
+
+		    // get user by its id 
+		    async getUserByID(userID: number) {
+			    const user = await this.prismaService.user.findUnique({
+				    where: { id: Number(userID) }
+			    })
+			    return user;
+		    }
 
 		    async searchFriends(query: string) {
 			    const users = await this.prismaService.user.findMany({
@@ -576,6 +586,42 @@ export class UserService {
 			    return [wins, loses];
 		    }
 
+			async getUserGames(user_id: number) : Promise<any>{
+				try{
+					const userExist = await this.prismaService.user.findUnique({where: {id : user_id},});
+					if (!userExist)
+					    throw new NotFoundException('User with ID ${user_id} not found!');
+
+					const allgames = await this.prismaService.user.findMany({
+						where:{
+							id : user_id,
+						},
+						select:
+						{
+							games: true,
+						}
+					});
+					return allgames;
+				}catch(error){
+					console.error(error);
+				}
+			}
+
+			async getNumberOfGames(user_id : number): Promise<number>
+			{
+				try{
+					const userExist = await this.prismaService.user.findUnique({where: {id : user_id},});
+					if (!userExist)
+					    throw new NotFoundException('User with ID ${user_id} not found!');
+					const games = await this.getUserGames(user_id);
+					return (games.length);
+				}
+				catch(error){
+					console.error(error);
+				}
+
+			}
+
 		    async getUserHistory(user_id: number) {
 			    try {
 
@@ -585,18 +631,19 @@ export class UserService {
 
 				    let history: UserHistory[] = [];
 
-				    const allgames = await this.prismaService.user.findMany({
+				    /*const allgames = await this.prismaService.user.findMany({
 					    where: {
 						    id : user_id,
 					    },
 					    select: {
 						    games: true,
 					    },
-				    });
+				    });*/
+					const allgames = await this.getUserGames(user_id);
 
-				    for (const user of allgames)
-					    {
-						    for (const game of user.games) {
+				    //for (const user of allgames)
+					    //{
+						    for (const game of allgames) {
 							    const game_status: string = await this.gameService.getStatus(game.id, user_id);
 							    const opId = await this.gameService.GetOpponentId(game.id, user_id);
 							    const user = await this.getUserByID(opId);
@@ -609,7 +656,7 @@ export class UserService {
 							    });
 						    }
 
-					    }
+//					    }
 			    }
 			    catch (error) {
 				    console.error(error);
@@ -646,6 +693,5 @@ export class UserService {
 				    console.error(error);
 			    }
 
-		    }
-
+		    }	
 }

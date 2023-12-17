@@ -133,27 +133,27 @@ export class UserController {
 		return (resp)
 	}
 
-	// @Get("status")
-	// async getUserStatus(@Req() request: any)
-	// {
-	// 	const user = request.user;
-	// 	const total_games = user.games.length;
-	// 	const [wins, loses] = await this.userService.getUserLosesWins(user.id);
-	// 	const [status_wins, status_loses] = [ (wins / total_games) * 100, (loses / total_games) * 100]
-	// 	return [status_wins, status_loses];
-	// }
+	 @Get("status")
+	 async getUserStatus(@Req() request: any)
+	 {
+	 	const user = request.user;
+	 	const total_games = await this.userService.getNumberOfGames(user.id);
+	 	const [wins, loses] = await this.userService.getUserLosesWins(user.id);
+	 	const [status_wins, status_loses] = [ (wins / total_games) * 100, (loses / total_games) * 100]
+	 	return [status_wins, status_loses];
+	 }
 
-	/*@Get("history")
+	@Get("history")
 	  async getPlayerHistory(@Req() request: any)
 	  {
 	  const user = request.user;
 
-	  }*/
-	//   @Get("leaderBord")
-	//   async getLeaderBoard()
-	//   {
-	// 	  const ranks: UsersRanks[] = await this.userService.getRanks();
-	// 	  return (ranks);
-	//   }
+	  }
+	   @Get("leaderBord")
+	   async getLeaderBoard()
+	   {
+	 	  const ranks: UsersRanks[] = await this.userService.getRanks();
+	 	  return (ranks);
+	   }
 
 }
