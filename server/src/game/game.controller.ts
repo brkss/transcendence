@@ -22,7 +22,7 @@ export class GameController {
 		return this.gameService.createGame(createGameDTO);
 	}
 
-	@Post("addScore")
+	@Post("addscore")
 	async addPlayerScores(@Body() firstPlayer_score: AddPlayerScoreDTO, secondPlayer_score: AddPlayerScoreDTO): Promise<any> {
 		const firstScore = this.gameService.addScore(firstPlayer_score.game_id, firstPlayer_score);
 		const secondScore = this.gameService.addScore(secondPlayer_score.game_id, secondPlayer_score);

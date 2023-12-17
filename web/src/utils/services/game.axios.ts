@@ -9,8 +9,8 @@ export const createGame = async (input: CreateGameInput) => {
     });
 }
 
-export const addScore = async (firstPlayer_score: AddPlayerScoreInput, secondPlayer_score: AddPlayerScoreInput) => {
-    const response = await api.post(`${API_URL}/game/addScore`, {firstPlayer_score, secondPlayer_score}, {
+export const addscore = async (firstPlayer_score: AddPlayerScoreInput, secondPlayer_score: AddPlayerScoreInput) => {
+    const response = await api.post(`${API_URL}/game/addscore`, {firstPlayer_score, secondPlayer_score}, {
         headers: { 'Content-Type': 'application/json' }
     });
 }
