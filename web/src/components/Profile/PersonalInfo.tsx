@@ -17,6 +17,11 @@ interface Props {
 export const PersonalInfo : React.FC<Props> = ({username, name, image, relationship, editProfile}) => {
 
 	const toast = useToast();
+	const [relationshipState, setRelationshipState] = React.useState(relationship);
+
+	React.useEffect(() => {
+		setRelationshipState(relationship);
+	}, [relationship]);
 
 	const handleAddFriend = async () => {
 		const response = await addFriend(username);
@@ -33,7 +38,8 @@ export const PersonalInfo : React.FC<Props> = ({username, name, image, relations
 				status: 'success',
 				duration: 9000,
 				isClosable: true,
-			})
+			});
+			setRelationshipState("sent");
 		}
 		//console.log("add friend : ", response);
 	}
@@ -53,7 +59,8 @@ export const PersonalInfo : React.FC<Props> = ({username, name, image, relations
 				status: 'success',
 				duration: 9000,
 				isClosable: true,
-			})
+			});
+			setRelationshipState("accepted");
 		}
 		//console.log("add friend : ", response);
 	}
@@ -69,7 +76,7 @@ export const PersonalInfo : React.FC<Props> = ({username, name, image, relations
 					<Text fontSize={{md: '30px', base: '12px'}} fontWeight={'bold'}>@{username}</Text>
 				</GridItem>
 				<GridItem colSpan={{md: 6, base: 5}} textAlign={'right'} display={'flex'} justifyContent={'end'} alignItems={'center'} >
-					<FriendshipActions addFriend={handleAddFriend} relationship={relationship} acceptFriend={handleAcceptFriend} edit={editProfile} />	
+					<FriendshipActions addFriend={handleAddFriend} relationship={relationshipState} acceptFriend={handleAcceptFriend} edit={editProfile} />	
 				</GridItem>
 			</Grid>	
 		</Box>

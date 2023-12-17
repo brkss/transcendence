@@ -113,7 +113,7 @@ export const Layout: React.FC<any> = ({ children, disablePadding }) => {
 			{<ChatDrawer isOpen={showChat.isOpen} onClose={showChat.onClose} />}
 			{<SettingsDrawer isOpen={showSettings.isOpen} onClose={showSettings.onClose} />}
 			
-			{<PrivateChat onClose={privateChatDrawer.onClose} isOpen={privateChatDrawer.isOpen} userId={chatUID} />}
+			{privateChatDrawer.isOpen && <PrivateChat onClose={privateChatDrawer.onClose} isOpen={privateChatDrawer.isOpen} userId={chatUID} />}
 		</Box>
 	)
 }

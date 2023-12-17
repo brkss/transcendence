@@ -48,7 +48,7 @@ export const SideBar: React.FC<Props> = ({ signal }) => {
   const [isShown, setIsShown] = React.useState(false);
 
   return (
-		<Box display={'flex'} flexDir={'column'} alignItems={'center'} pos="relative" zIndex={9999} flexDirection={{md: 'column', base: 'row'}} position={{md: 'relative', base: 'fixed'}} w={'100%'} justifyContent={{md: 'inherit', base: 'space-between'}} p={'10px 20px'} bg={{md: "transparent", base: 'white'}} bottom={0}>
+		<Box display={'flex'} flexDir={'column'} alignItems={'center'} pos="relative" zIndex={995} flexDirection={{md: 'column', base: 'row'}} position={{md: 'relative', base: 'fixed'}} w={'100%'} justifyContent={{md: 'inherit', base: 'space-between'}} p={'10px 20px'} bg={{md: "transparent", base: 'white'}} bottom={0}>
 				{
 					_items.map(({name, Icon}, key) => (
 						<Box onClick={() => signal(name.toLowerCase())} textAlign={'center'} key={key} mb={{md: '20px', base: '0'}} transition={'.3s'} cursor={'pointer'} _hover={{transform: 'scale(.95)', transition: '.3s'}}>

@@ -29,20 +29,7 @@ function Profile(){
 	
 
 	React.useEffect(() => {
-		//const socket = io("ws://localhost:8001", {
-		const socket = io("ws://localhost:8000", {
-			reconnectionDelayMax: 10000,
-			auth: {
-				token: "123"
-			},
-			query: {
-				"my-key": "my-value"
-			}
-		});
-		socket.send("alo");
-		console.log("socket : " , socket);
-
-
+		
 		if(router.isReady){
 			const current_username = GET_USERNAME_TOKEN();
 			if(current_username === username){
@@ -82,7 +69,7 @@ function Profile(){
 
 	return (
 		<Layout>
-			<Box pos="absolute" h={"27%"} w={"100%"} top="-40px" left="0" width={"100%"} background={"linear-gradient(180deg, rgba(0,0,0,0.7343531162464986) 0%, rgba(0,0,0,0.5214679621848739) 22%, rgba(255,255,255,0) 100%);"} />
+			<Box display={'none'} pos="absolute" h={"27%"} w={"100%"} top="-40px" left="0" width={"100%"} background={"linear-gradient(180deg, rgba(0,0,0,0.7343531162464986) 0%, rgba(0,0,0,0.5214679621848739) 22%, rgba(255,255,255,0) 100%);"} />
 			<Box>
 				<PersonalInfo editProfile={onOpen} image={data.avatar} username={data.username} name={data.fullName} relationship={relationship} />
 				<Stats />

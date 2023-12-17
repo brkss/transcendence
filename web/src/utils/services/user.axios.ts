@@ -51,8 +51,13 @@ export const getUserChats = async () => {
 	return response.data;
 }
 
-export const getUserInfo = async (uid: number) => {
-	const response = await api.get(`${API_URL}/user/profile/${uid}`);
+export const getUserInfo = async (username: string) => {
+	const response = await api.get(`${API_URL}/user/profile/${username}`);
+	return response.data;
+}
+
+export const getUserById = async (uid: number) => {
+	const response = await api.get(`${API_URL}/user/userInfo/${uid}`);
 	return response.data;
 }
 
