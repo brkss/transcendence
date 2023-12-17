@@ -112,11 +112,11 @@ export const updateUserProfile = async (name: string, username: string) => {
 }
 
 export const userLeaderBoard = async () => {
-	const response = await api.get('${API_URL}/user/leaderbord');
-	return response.date;
+	const response = await api.get(`${API_URL}/user/leaderboard`);
+	return response.data;
 }
 
 export const userStatus = async () => {
-	const response = await api.get('${API_URL}/user/status');
+	const response = await api.get(`${API_URL}/user/status`);
 	return response.data;
 }
