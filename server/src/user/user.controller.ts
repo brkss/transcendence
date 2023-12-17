@@ -5,13 +5,14 @@ import { JwtAuth } from "src/auth/guards/jwtauth.guard";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { updateNameDTO } from "src/chat/dtos/chat.dto";
 import { addFriendDTO, blockUserDTO, unblockUserDTO } from "./user.dto";
-import { Controller, Get, Param
+import {
+	Controller, Get, Param
 	, Req, UseGuards, Post
 	, Body, ParseIntPipe
 	, UseInterceptors, UploadedFile
 } from "@nestjs/common"
 import { UserHistory, UsersRanks } from 'src/user/history.interface';
- 
+
 @Controller('user')
 @UseGuards(JwtAuth)
 export class UserController {
@@ -123,7 +124,7 @@ export class UserController {
 	}
 
 	@Post("/updatename")
-	async updateUsername(@Req() request: any ,@Body() body: updateNameDTO) {
+	async updateUsername(@Req() request: any, @Body() body: updateNameDTO) {
 		const user = request.user
 		await this.userService.updateUserName(user.id, body)
 		const resp = {
@@ -133,27 +134,26 @@ export class UserController {
 		return (resp)
 	}
 
-	 @Get("status")
-	 async getUserStatus(@Req() request: any)
-	 {
-	 	const user = request.user;
-	 	const total_games = await this.userService.getNumberOfGames(user.id);
-	 	const [wins, loses] = await this.userService.getUserLosesWins(user.id);
-	 	const [status_wins, status_loses] = [ (wins / total_games) * 100, (loses / total_games) * 100]
-	 	return [status_wins, status_loses];
-	 }
+	@Get("status")
+	async getUserStatus(@Req() request: any) {
+		const user = request.user;
+		const total_games = await this.userService.getNumberOfGames(user.id);
+		const [wins, loses] = await this.userService.getUserLosesWins(user.id);
+		const [status_wins, status_loses] = [(wins / total_games) * 100, (loses / total_games) * 100]
+		return [status_wins, status_loses];
+	}
 
 	@Get("history")
-	  async getPlayerHistory(@Req() request: any)
-	  {
-	  const user = request.user;
+	async getPlayerHistory(@Req() request: any) {
+		const user = request.user;
+		const history = this.userService.getUserHistory(user.id);
+		return (history);
 
-	  }
-	   @Get("leaderboard")
-	   async getLeaderBoard()
-	   {
-	 	  const ranks: UsersRanks[] = await this.userService.getRanks();
-	 	  return (ranks);
-	   }
+	}
+	@Get("leaderboard")
+	async getLeaderBoard() {
+		const ranks: UsersRanks[] = await this.userService.getRanks();
+		return (ranks);
+	}
 
 }
