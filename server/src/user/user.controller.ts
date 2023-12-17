@@ -149,7 +149,7 @@ export class UserController {
 	  const user = request.user;
 
 	  }
-	   @Get("leaderBord")
+	   @Get("leaderboard")
 	   async getLeaderBoard()
 	   {
 	 	  const ranks: UsersRanks[] = await this.userService.getRanks();

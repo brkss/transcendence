@@ -15,6 +15,8 @@ import { RoomService } from './chat/room/room.service';
 import { GameModule } from './game/engine/game.module';
 import path = require('path')
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
+import { GameController } from './game/game.controller';
+import { GameService } from './game/game.service';
 
 
 export const app_root: string = process.cwd()
@@ -42,12 +44,14 @@ export const app_root: string = process.cwd()
     TwofactorauController,
     UserController,
     RoomController,
+    GameController,
   ],
   providers: [
     AppService,
     AuthService,
     TwofactorauthService,
     RoomService,
+    GameService,
   ],
 })
 export class AppModule {}
