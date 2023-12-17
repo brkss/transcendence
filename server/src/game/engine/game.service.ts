@@ -179,6 +179,7 @@ export class GameService {
     selectedRoom.sockets.push(
       user,
     );
+    
     this.gamingRooms =
       [
         ...this.gamingRooms.filter(
@@ -190,6 +191,12 @@ export class GameService {
       ];
     socket.join(
       selectedRoom.id,
+    );
+    
+    const Room = this.getRoomBySocket(socket);
+        socket.emit(
+      'currentRoomDetails',
+      Room,
     );
     console.log(
       'TWO USERS CONNEDTED STARTING GAME',
