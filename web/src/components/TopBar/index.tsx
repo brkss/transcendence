@@ -71,11 +71,11 @@ export const TopBar : React.FC = () => {
 
 	return (
 			<Box >
-							<Box pos="absolute" h={"27%"} w={"100%"} top="-40px" left="0" width={"100%"} background={"linear-gradient(180deg, rgba(0,0,0,0.7343531162464986) 0%, rgba(0,0,0,0.5214679621848739) 22%, rgba(255,255,255,0) 100%);"} />
+				<Box pos="absolute" h={"27%"} w={"100%"} top="-40px" left="0" width={"100%"} background={"linear-gradient(180deg, rgba(0,0,0,0.7343531162464986) 0%, rgba(0,0,0,0.5214679621848739) 22%, rgba(255,255,255,0) 100%);"} />
 				<Box bg={'black'}  rounded={''} p={'7px 20px 7px'} color={'black'} mb={'40px'} pos={"fixed"} w={"100%"} zIndex="999" style={onTop ? _topBarStyle.top as any : _topBarStyle.down as any} >
 					<Grid templateColumns={'repeat(12, 1fr)'}>
 						<GridItem colSpan={4} display={{md: 'flex', base: 'none'}} flexDir={'column'} justifyContent={'center'} >
-							<Text fontSize={'15px'} fontWeight={'bold'}>43150</Text>
+							<Text fontSize={'15px'} fontWeight={'bold'}>Ping Pong</Text>
 						</GridItem>
 						<GridItem colSpan={{md: 4, base: 9}} pos={'relative'}>
 							<Input onChange={(e) => handleSearchInput(e)} size={'sm'} w={'100%'} mt={'3px'} p={'7px 20px'} rounded={'5px'} variant={'unstyled'} bg={'#5d5a5a'} color={'white'} placeholder={'search...'} fontWeight={'bold'}  />

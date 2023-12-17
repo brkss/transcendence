@@ -47,6 +47,7 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 			console.log("spliced : ", user);
 			setFriends([user, ...friends]);
 		}
+		console.log("accespt friend : ", reqIndex, requests, friends);
 	}
 
 	const handleBlockingUser = (uid: number) => {

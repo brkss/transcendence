@@ -247,6 +247,7 @@ export class UserService {
 			select: {
 				user: {
 					select: {
+						id: true,
 						username: true,
 						email: true,
 						fullName: true,
@@ -376,7 +377,7 @@ export class UserService {
 	// get user by its id 
 	async getUserByID(userID: number) {
 		const user = await this.prismaService.user.findUnique({
-			where: { id: userID }
+			where: { id: Number(userID) }
 		})
 		return user;
 	}

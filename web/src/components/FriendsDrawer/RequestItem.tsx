@@ -24,7 +24,7 @@ export const RequestItem: React.FC<Props> = ({name, username, image, accepted}) 
 				duration: 9000,
 				isClosable: true,
 			});
-			accepted();
+			
 		}else if(response.success){
 			toast({
 				title: response.success,
@@ -32,6 +32,7 @@ export const RequestItem: React.FC<Props> = ({name, username, image, accepted}) 
 				duration: 9000,
 				isClosable: true,
 			})
+			accepted();
 		}
 		
 		

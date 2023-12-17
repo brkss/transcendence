@@ -27,7 +27,7 @@ export const ChatHeader : React.FC<Props> = ({name, image, username}) => {
 					<Text fontSize="lg" fontWeight="bold">
 						{name}
 					</Text>
-					<Text bg={'#efefef'} fontSize={'14px'} rounded={'5px'} fontWeight={'bold'} textAlign={'center'} _hover={{bg: '#'}}>invite to game</Text>
+					<Text p={'0 10px'} bg={'#efefef'} fontSize={'14px'} rounded={'5px'} fontWeight={'bold'} textAlign={'center'} _hover={{bg: '#'}}>invite to game</Text>
 				</Flex>
 			</Flex>
 		</Flex>
