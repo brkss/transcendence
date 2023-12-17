@@ -13,6 +13,11 @@ import { ChatModule } from './chat/chat.module';
 import { RoomController } from './chat/room/room.controller';
 import { RoomService } from './chat/room/room.service';
 import { GameModule } from './game/engine/game.module';
+import path = require('path')
+import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
+
+
+export const app_root: string = process.cwd()
 
 @Module({
   imports: [
@@ -25,6 +30,10 @@ import { GameModule } from './game/engine/game.module';
           true,
       },
     ),
+    ServeStaticModule.forRoot({
+      rootPath: path.join(app_root, '/uploads/images'),
+      serveRoot: '/user/avatar/'
+    }),
     ChatModule,
     GameModule,
   ],

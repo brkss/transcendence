@@ -8,13 +8,7 @@ import {
   Server,
 } from 'socket.io';
 import { GatewayService } from 'src/chat/gateway/chat/gateway.service';
-
-interface IConnectedUser {
-  id: number;
-  userID: number;
-  username: string;
-  socketId: string;
-}
+import { IConnectedUser } from 'src/utils';
 
 interface IRoom {
   id: string;
@@ -28,7 +22,7 @@ interface IRoom {
 export class GameService {
   gamingRooms: IRoom[] =
     [];
-  gamingArcadeRooms: IRoom[] =
+  gamingArcadeRooms:IRoom[] = 
     [];
   constructor(
     private gatewayService: GatewayService,
@@ -107,8 +101,6 @@ export class GameService {
       'gamingArcadeRooms',
       this
         .gamingArcadeRooms,
-      this
-        .gamingRooms,
     );
   }
 
@@ -125,17 +117,14 @@ export class GameService {
       await this.gatewayService.getUserBySocket(
         socket,
       );
-
-    if (
-      !room?.readyCount.includes(
-        user.userID,
-      )
-    ) {
+      if (room && room.readyCount && !room.readyCount.includes(user.userID,)) {
+      {
       room.readyCount.push(
         user.userID,
       );
     }
-
+  }
+  if (room && room.sockets) {
     room.sockets.forEach(
       (s) =>
         room.readyCount.includes(
@@ -167,6 +156,7 @@ export class GameService {
       );
     }
   }
+  }
 
   async joinRoom(
     socket: Socket,
@@ -184,11 +174,7 @@ export class GameService {
           2,
       );
     console.log(
-      'joinRoom',
-      this
-        .gamingRooms,
-      this
-        .gamingArcadeRooms,
+      selectedRoom,
     );
     selectedRoom.sockets.push(
       user,
@@ -206,7 +192,7 @@ export class GameService {
       selectedRoom.id,
     );
     console.log(
-      'TWO USERS CONNEDTED STARTING NORMAL GAME',
+      'TWO USERS CONNEDTED STARTING GAME',
       this
         .gamingRooms,
     );
@@ -255,29 +241,16 @@ export class GameService {
   getRoomBySocket(
     socket: Socket,
   ) {
-    return (
-      this.gamingRooms.find(
-        (room) =>
-          room?.sockets &&
-          room.sockets.find(
-            (
-              rSocket,
-            ) =>
-              rSocket.socketId ===
-              socket.id,
-          ),
-      ) ??
-      this.gamingArcadeRooms.find(
-        (room) =>
-          room?.sockets &&
-          room.sockets.find(
-            (
-              rSocket,
-            ) =>
-              rSocket.socketId ===
-              socket.id,
-          ),
-      )
+    return this.gamingRooms.find(
+      (room) =>
+        room?.sockets &&
+        room.sockets.find(
+          (
+            rSocket,
+          ) =>
+            rSocket.socketId ===
+            socket.id,
+        ),
     );
   }
 
@@ -315,12 +288,6 @@ export class GameService {
           gRoom?.id !==
           room?.id,
       );
-    this.gamingArcadeRooms =
-      this.gamingArcadeRooms?.filter(
-        (gRoom) =>
-          gRoom?.id !==
-          room?.id,
-      );
 
     const winner =
       room?.sockets.find(
@@ -342,9 +309,6 @@ export class GameService {
     @ConnectedSocket()
     socket: Socket,
   ) {
-    console.log(
-      'NORMAL QUEUE',
-    );
     if (
       this.gamingRooms.some(
         (room) =>
@@ -366,6 +330,7 @@ export class GameService {
       );
     }
   }
+
 
   async joinArcadeQueue(
     @ConnectedSocket()
@@ -467,14 +432,22 @@ export class GameService {
 
   async secondBallinit(
     @ConnectedSocket()
+    socket:Socket,server:Server
+  )
+  {
+      this.emitToRoomBySocket(socket,server,"SpawnSecondBall")
+  }
+  
+  async sendGameChat(
+    @ConnectedSocket()
     socket: Socket,
+    data: {
+      value: number;
+    },
     server: Server,
-  ) {
-    this.emitToRoomBySocket(
-      socket,
-      server,
-      'SpawnSecondBall',
-    );
+    isRight?: boolean,
+  ){
+    this.emitToRoomBySocket(socket,server,"gameChatMessage",data);
   }
 
   async syncCrazzyPuck(
@@ -485,14 +458,22 @@ export class GameService {
     },
     server: Server,
     isRight?: boolean,
-  ) {
-    this.emitToRoomBySocket(
-      socket,
-      server,
-      'initPuck2',
-      data,
-    );
+  ){
+    this.emitToRoomBySocket(socket,server,"initPuck2",data);
   }
+
+  async gettingScore(
+    @ConnectedSocket()
+    socket: Socket,
+    data: {
+      value: number;
+    },
+    server: Server,
+    isRight?: boolean,
+  ){
+    this.emitToRoomBySocket(socket,server,"getScore",data);
+  }
+
   async syncPuck(
     @ConnectedSocket()
     socket: Socket,

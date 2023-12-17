@@ -27,3 +27,13 @@ export const Verify2FA = async (code: string) => {
     });
     return response.data;
 }
+
+export const is2faOn = async () => {
+    const response = await api.get(`${API_URL}/2fa/isActive`);
+    return response.data;
+}
+
+export const disable2fa = async () => {
+    const response = await api.post(`${API_URL}/2fa/disable`);
+    return response.data;
+}
