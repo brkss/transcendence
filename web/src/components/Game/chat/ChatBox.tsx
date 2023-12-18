@@ -10,6 +10,7 @@ import { Text } from "@chakra-ui/react";
 
 interface IChatBox {
   socket: Socket
+  roomDetails? : { hostUserId: number, label?: string, id: string }
 }
 
 export default function ChatBox(props: IChatBox) {
@@ -40,19 +41,6 @@ export default function ChatBox(props: IChatBox) {
       }
     })
   }, [messages]);
-  
-  // React.useEffect(() => {
-  //   scrollToBottom();
-
-  //   socket.on('gameChatMessage', (data: IMessage & { senderId: number }) => {
-  //     //console.log(data);
-  //     const newData = { ...data, date: new Date(data.date), isSelfMessage: user?.userID === data?.senderId };
-
-  //     setMessages((prevMessages) => {
-  //       return prevMessages ? [...prevMessages, newData] : [newData];
-  //     });
-  //   });
-  // }, []);
 
   return (
     <div className="flex flex-row justify-center w-full mt-5">
@@ -62,9 +50,16 @@ export default function ChatBox(props: IChatBox) {
         style={{ width: "500px" }}
       >
         <div className="bg-black pl-2 rounded-sm py-2 mb-1">
-          <p className="text-white">Chat room: ( Game ID )</p>
+        <p className="text-white">
+  Chat room: (
+  {props.roomDetails?.label !== undefined ? props.roomDetails.label : "-"} -{" "}
+  {props.roomDetails?.id !== undefined
+    ? Number.parseFloat(props.roomDetails.id).toFixed(6).split(".")[1]
+    : "-"}
+  )
+</p>
         </div>
-        <div
+       <div
           ref={scrollableRef}
           className="py-4 flex flex-col gap-2 max-h-[200px] overflow-hidden overflow-y-scroll scroll-auto"
         >

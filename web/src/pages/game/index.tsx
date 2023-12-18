@@ -25,7 +25,7 @@ export default function Index() {
   const [gameMode, setGameMode] = React.useState(false);
   const [isNotAllowed, setIsNotAllowed] = React.useState(false);
   const [winner, setWinner] = React.useState<IConnectedUser | null>(null);
-  const [userRoomData, setRoomData] = React.useState<{ hostUserId: number }>();
+  const [userRoomData, setRoomData] = React.useState<{ hostUserId: number, label: string, id: string }>();
   const [socketIo, setSocketIo] = React.useState<any>(
     //io("http://localhost:8001/api/game", {
     io("http://localhost:8000/game", {
@@ -101,7 +101,7 @@ export default function Index() {
                   "notReady"
                 )}
               </div>
-              <ChatBox socket={socketIo} />
+              <ChatBox socket={socketIo} roomDetails = {userRoomData} />
             </>
           )}
         </>
