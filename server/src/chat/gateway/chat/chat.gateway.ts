@@ -87,14 +87,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     },
   ) {
 
-    const interval = setInterval(() => {
-      
       socket.to("main-socket-" + String(payload.fid))
       .emit("invited", { success: true })
-      //socket.emit("invited", {uid: -1, gid: -2});
-      clearInterval(interval);
-      console.log("invite a friend : ", payload);
-    }, 1000);
   }
 
   
