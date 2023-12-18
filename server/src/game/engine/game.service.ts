@@ -16,6 +16,7 @@ interface IRoom {
   hostUserId: number;
   sockets: IConnectedUser[];
   readyCount: number[];
+  isPrivate?: boolean
 }
 
 @Injectable()
@@ -64,6 +65,27 @@ export class GameService {
       this
         .gamingRooms,
     );
+  }
+
+  async createPrivateRoom(socket:Socket, gameId: number) {
+    const user = await this.gatewayService.getUserBySocket(
+      socket,
+    );
+      console.log(this.gatewayService.connectedUsers, socket.id);
+    const currentRoom: IRoom =
+      {
+        id: gameId?.toString(),
+        label: `Room-${user?.username}`,
+        hostUserId:
+          user?.userID,
+        sockets: [
+          user,
+        ],
+        readyCount:
+          [],
+        isPrivate: true
+      };
+    this.gamingRooms.push(currentRoom)
   }
 
   async hostArcadeRoom(
@@ -160,19 +182,21 @@ export class GameService {
 
   async joinRoom(
     socket: Socket,
+    roomId?: number,
   ) {
     const user =
       await this.gatewayService.getUserBySocket(
         socket,
       );
-    const selectedRoom =
+    const selectedRoom = !roomId ?
       this.gamingRooms.find(
         (room) =>
           room
             .sockets
             .length <
           2,
-      );
+      ) : this.gamingRooms.find(room=>room.id === roomId.toString());
+
     console.log(
       selectedRoom,
     );
@@ -278,6 +302,10 @@ export class GameService {
         event,
         data,
       );
+  }
+
+  isPrivateRoomCreated(socket:Socket, roomId: number) {
+    return this.gamingRooms.some(room => room.id === roomId.toString() )
   }
 
   async handleDisconnect(

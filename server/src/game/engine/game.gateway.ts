@@ -382,6 +382,29 @@ async sendGameChat(
       this.server,
     );
   }
+
+  @SubscribeMessage(
+    'inviteFriend',
+  )
+  async inviteFriend(
+    @ConnectedSocket()
+    socket: Socket,
+  @MessageBody()
+    payload: {
+      fid: number;
+      gameId: number
+    },
+  ) {
+      // console.log('testing friend invite')
+      this.server.to("main-socket-" + String(payload.fid))
+      .emit("invited", { success: true, gameId: payload.gameId })
+      if (this.gameService.isPrivateRoomCreated(socket, payload.gameId)) {
+        await this.gameService.joinRoom(socket, payload.gameId)
+      } else {
+        await this.gameService.createPrivateRoom(socket, payload.gameId);
+      }
+  }
+
   
 
   // // invite to game 
