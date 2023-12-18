@@ -46,12 +46,12 @@ export class UserService {
 					username: user.login,
 					lastSeen: Date(),
 					avatar: user.image
-				},select : {
+				}, select: {
 					id: true,
 				}
 			})
 			return (db_user)
-		}catch(error) {
+		} catch (error) {
 			const db_user = await this.getUserByLogin(user.login)
 			return (db_user)
 		}
@@ -61,7 +61,7 @@ export class UserService {
 		const user = await this.prismaService.user.findUnique({
 			where: {
 				login: user_login
-			},select:{
+			}, select: {
 				id: true
 			}
 		})
@@ -552,7 +552,6 @@ export class UserService {
 		return (true)
 	}
 
-	/*
 	async getUserLosesWins(userId: number) {
 		let loses: number = 0;
 		let wins: number = 0;
@@ -574,64 +573,125 @@ export class UserService {
 			},
 		});
 
-		all_games.forEach(async (game, index) => {
-			const gameId: number = game[index].id;
-			const scores = await this.gameService.getAllScores(gameId);
-			scores.forEach((score, i) => {
-				if (score[i].player_id == userId)
-					userScore = score.score;
-				else
-					opponentScore = score.score;
-				if (userScore > opponentScore)
+		for (const user of all_games) {
+			for (const game of user.games) {
+				const game_status = await this.gameService.getStatus(game.id, userId);
+				if (game_status == "won")
 					wins++;
-				else
+				else if (game_status == "lost")
 					loses++;
-			});
-		});
+			}
+		}
+
 		return [wins, loses];
 	}
 
-	async getUserHistory(user_id: number) {
+	async getUserGames(user_id: number): Promise<any> {
 		try {
-
-			const user = await this.prismaService.user.findUnique({ where: { id: user_id, }, });
-			if (!user)
+			const userExist = await this.prismaService.user.findUnique({ where: { id: user_id }, });
+			if (!userExist)
 				throw new NotFoundException('User with ID ${user_id} not found!');
 
-			let history: UserHistory[] = [];
+			const allgames = await this.prismaService.user.findMany({
+				where: {
+					id: user_id,
+				},
+				select:
+				{
+					games: true,
+				}
+			});
+			return allgames;
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
+	async getNumberOfGames(user_id: number): Promise<number> {
+		try {
+			const userExist = await this.prismaService.user.findUnique({ where: { id: user_id }, });
+			if (!userExist)
+				throw new NotFoundException('User with ID ${user_id} not found!');
+			const games = await this.getUserGames(user_id);
+			return (games.length);
 		}
 		catch (error) {
 			console.error(error);
 		}
 
-  }
+	}
 
-		    async getRanks(): Promise<UsersRanks[]> {
-			    try {
-				    const allUsers = await this.prismaService.user.findMany({
-					    include:
-						    {
-						    games: true,
-					    },
-				    });
+	async getUserHistory(user_id: number): Promise<UserHistory[]> {
+		try {
 
-				    if (!allUsers)
-					    throw new NotFoundException('no user found!');
-				    const usersRank: UsersRanks[] = [];
-				    allUsers.forEach(async (user, index) => {
-					    usersRank[index].avatar = user[index].avatar;
-					    usersRank[index].username = user[index].username;
-					    let [wins, loses] = await this.getUserLosesWins(user[index].id);
-					    usersRank[index].wins = wins;
-				    });
-				    return usersRank.sort((a, b) => {
-					    return (a.wins >= b.wins ? 1 : -1);
-				    });
-			    }
-			    catch (error) {
-				    console.error(error);
-			    }
+			const user = await this.prismaService.user.findFirst({ where: { id: user_id, }, });
+			if (!user)
+				throw new NotFoundException('User with ID ${user_id} not found!');
 
-		    }
-		*/
+			let history: UserHistory[] = [];
+
+			/*const allgames = await this.prismaService.user.findMany({
+				where: {
+					id : user_id,
+				},
+				select: {
+					games: true,
+				},
+			});*/
+			const allgames = await this.getUserGames(user_id);
+
+			//for (const user of allgames)
+			//{
+			for (const game of allgames) {
+				const game_status: string = await this.gameService.getStatus(game.id, user_id);
+				const opId = await this.gameService.GetOpponentId(game.id, user_id);
+				const user = await this.getUserByID(opId);
+
+				history.push({
+					mode: game.mode,
+					game_status: game_status,
+					opponent_username: user.username,
+					date: game.startedAt,
+				});
+			}
+
+			//					    }
+			return history;
+		}
+		catch (error) {
+			console.error(error);
+		}
+
+	}
+
+	async getRanks(): Promise<UsersRanks[]> {
+		try {
+			const allUsers = await this.prismaService.user.findMany({
+				include:
+				{
+					games: true,
+				},
+			});
+
+			if (!allUsers)
+				throw new NotFoundException('no user found!');
+			const usersRank: UsersRanks[] = await Promise.all(
+				allUsers.map(async (user) => {
+					const [wins, loses] = await this.getUserLosesWins(user.id);
+					return {
+						avatar: user.avatar,
+						username: user.username,
+						wins: wins,
+					};
+				})
+			);
+			return usersRank.sort((a, b) => {
+				return (a.wins >= b.wins ? 1 : -1);
+			});
+		}
+		catch (error) {
+			console.error(error);
+		}
+
+	}
 }

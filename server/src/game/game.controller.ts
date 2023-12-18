@@ -17,16 +17,16 @@ export class GameController {
 		return this.gameService.getGame(id);
 	}
 
-	@Post()
+	@Post("create")
 	async CreateGame(@Body() createGameDTO: CreateGameDTO): Promise<any> {
 		return this.gameService.createGame(createGameDTO);
 	}
 
-	@Post(':id')
-	async addPlayerScores(@Param('id') id: number, @Body() firstPlayer_score: AddPlayerScoreDTO, secondPlayer_score: AddPlayerScoreDTO): Promise<any> {
-		//const firstScore = this.gameService.addScore(id, firstPlayer_score);
-		//const secondScore = this.gameService.addScore(id, secondPlayer_score);
-		//return [firstScore , secondScore];
+	@Post("addscore")
+	async addPlayerScores(@Body() firstPlayer_score: AddPlayerScoreDTO, secondPlayer_score: AddPlayerScoreDTO): Promise<any> {
+		const firstScore = this.gameService.addScore(firstPlayer_score.game_id, firstPlayer_score);
+		const secondScore = this.gameService.addScore(secondPlayer_score.game_id, secondPlayer_score);
+		return [firstScore , secondScore];
 	}
 }
 
