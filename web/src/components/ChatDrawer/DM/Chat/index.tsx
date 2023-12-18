@@ -25,6 +25,8 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 			Authorization: getAccessToken()
 		}
 	}), []);
+
+	
 	const toast = useToast();
 	const _settings = useDisclosure();
 	const [messages, setMessages] = React.useState<any>([]);
@@ -114,8 +116,13 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 		}
 	}, [socket, userId])
 
+	const handleInvteToGame = (uid: number) => {
+		
+		socket.emit("inviteFriend", {
+			fid: uid
+		})
+	}
 
-	
 
 	return (
 		<Drawer
@@ -129,7 +136,7 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 				{ user ?
 					(<Flex w="100%" h={{base: "calc(100% - 81px)", md: "100%"}} justify="center" align="center" zIndex={9999}>
 						<Flex w="100%" h="100%" flexDir="column">
-							<ChatHeader username={user.username} name={user.fullName} image={user.avatar} />
+							<ChatHeader invite={() => handleInvteToGame(user.id)} username={user.username} name={user.fullName} image={user.avatar} />
 							
 							<ChatMessages messages={messages} />
 							<ChatFooter

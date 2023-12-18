@@ -8,10 +8,11 @@ interface Props {
 	name: string;
 	username: string;
 	image: string;
+	invite: () => void;
 }
 
 
-export const ChatHeader : React.FC<Props> = ({name, image, username}) => {
+export const ChatHeader : React.FC<Props> = ({name, image, username, invite}) => {
 
 	const router = useRouter()
 
@@ -27,7 +28,7 @@ export const ChatHeader : React.FC<Props> = ({name, image, username}) => {
 					<Text fontSize="lg" fontWeight="bold">
 						{name}
 					</Text>
-					<Text p={'0 10px'} bg={'#efefef'} fontSize={'14px'} rounded={'5px'} fontWeight={'bold'} textAlign={'center'} _hover={{bg: '#'}}>invite to game</Text>
+					<Text onClick={invite} p={'0 10px'} bg={'#efefef'} fontSize={'14px'} rounded={'5px'} fontWeight={'bold'} textAlign={'center'} _hover={{bg: '#'}}>invite to game</Text>
 				</Flex>
 			</Flex>
 		</Flex>

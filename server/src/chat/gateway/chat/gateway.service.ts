@@ -160,6 +160,12 @@ import {
               payload.userID,
             ),
         );
+        socket.join(
+          'main-socket-' +
+            String(
+              payload.userID,
+            ),
+        );
         //await this.joinPrevRooms(socket, payload.id)
       } catch (error) {
         this.UnauthorizedDisconnect(

@@ -382,4 +382,21 @@ async sendGameChat(
       this.server,
     );
   }
+  
+
+  // // invite to game 
+  // @SubscribeMessage(
+  //   'inviteFriend',
+  // )
+  // async inviteFriend(
+  //   @ConnectedSocket()
+  //   socket: Socket,
+  //   @MessageBody()
+  //   payload: {
+  //     fid: number;
+  //   },
+  // ) {
+  //   console.log("invite a friend : ", payload);
+  //   socket.emit("invited", {uid: -1, gid: -2});
+  // }
 }
