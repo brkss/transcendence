@@ -158,4 +158,10 @@ export class UserController {
 		return (ranks);
 	}
 
+	@Get("achievements")
+	async getAchievements(@req() request: any)
+	{
+		const user = req.user;
+		return await this.userService.getUserBadges(user.id);
+	}
 }
