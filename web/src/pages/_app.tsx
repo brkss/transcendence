@@ -1,19 +1,18 @@
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
-import { ChakraProvider } from '@chakra-ui/react'
+import { ChakraProvider, useDisclosure, Button, Box } from '@chakra-ui/react'
 import React from 'react'
 import { API_URL } from '@/utils/constants';
 import { getAccessToken, setAccessToken } from '@/utils/token';
 import { Loading } from '@/components';
 import { profile } from '@/utils/services';
-import jwtDecode from 'jwt-decode';
 
-//import { QueryClientProvider } from 'react-query';
-//import { queryClient } from '../utils/client';
 
 export default function App({ Component, pageProps }: AppProps) {
   
 	const [loading, setLoading] = React.useState(true);
+	
+	
 
 	React.useEffect(() => {	
 		fetch(`${API_URL}/auth/refresh-token`, {
@@ -34,7 +33,6 @@ export default function App({ Component, pageProps }: AppProps) {
 		});
 
 		
-		
 			
 	}, []);
 
@@ -43,7 +41,9 @@ export default function App({ Component, pageProps }: AppProps) {
 
 	return (
 	   <ChakraProvider>
+			
 			<Component {...pageProps} />
+			
 		</ChakraProvider>
   )
 }

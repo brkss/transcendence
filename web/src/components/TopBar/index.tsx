@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Grid, GridItem, Text, Input, Button } from '@chakra-ui/react';
+import { Box, Grid, GridItem, Text, Input, Button, useToast, useDisclosure } from '@chakra-ui/react';
 import { Avatar } from '../Avatar';
 import { useRouter } from 'next/router';
 import { SearchSug } from './SearchSug';
@@ -8,6 +8,9 @@ import jwtDecode from 'jwt-decode';
 import { getAccessToken } from '@/utils/token';
 import { profile } from '@/utils/services';
 import { Loading } from '../General';
+import { API_URL } from '@/utils/constants';
+import { io } from 'socket.io-client';
+import { GameInvitation } from '@/components'
 
 const _topBarStyle = {
 	top: {
@@ -26,9 +29,16 @@ export const TopBar : React.FC = () => {
 	const [query, setQuery] = React.useState<string>("");
 	const [user, setUser] = React.useState<any>(null);
 	const router = useRouter();
-	const [onTop, setOnTop] = React.useState(true); 
+	const [onTop, setOnTop] = React.useState(true);
+	let socket = React.useMemo(() => io(API_URL, {
+		extraHeaders: {
+			Authorization: getAccessToken()
+		},
+	}), []); 
 
+	const toast = useToast();
 	const payload : any= getPayload();
+	const gameInviteDisclosure = useDisclosure();
 
 	const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault()
@@ -41,9 +51,8 @@ export const TopBar : React.FC = () => {
 				setOnTop(true);
 			else
 				setOnTop(false);
-			console.log("offset : ", window.pageYOffset);
+			
 		}
-        // clean up code
         window.removeEventListener('scroll', onScroll);
         window.addEventListener('scroll', onScroll, { passive: true });
         
@@ -63,7 +72,42 @@ export const TopBar : React.FC = () => {
 			})
 		}
 
-		return () => window.removeEventListener('scroll', onScroll);
+
+		
+
+		// -- main socket 
+		socket.on('connect', () => {
+			console.log("main socket connected");
+		});
+		
+		socket.on('disconnect', () => {
+			console.log("main socket disconected ")
+		});
+
+		socket.connect()
+
+		socket.on("invited", () => {
+			gameInviteDisclosure.onOpen();		
+		});
+		socket.on("Error", (data) => {
+			toast({
+				status: 'error',
+				duration: 9000,
+				isClosable: true,
+				title: data
+			})
+		});
+
+		//socket.emit("joinChat", {room_id: chatId, roomType: "PUBLIC"});
+		return () => {
+			socket.off("connect")
+			socket.off("invited")
+			window.removeEventListener('scroll', onScroll);
+			//socket.disconnect()
+		}
+		// -- main socket 
+
+		
 	}, []);
 
 	if(loading)
@@ -89,6 +133,7 @@ export const TopBar : React.FC = () => {
 					</Grid>
 				</Box>
 				<Box h={"75px"} />
+				<GameInvitation isOpen={gameInviteDisclosure.isOpen} onClose={gameInviteDisclosure.onClose} />
 			</Box>
 	)
 }
