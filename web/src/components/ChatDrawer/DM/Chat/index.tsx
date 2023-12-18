@@ -130,7 +130,6 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 		})
 	}
 
-
 	return (
 		<Drawer
 			isOpen={isOpen}

@@ -271,6 +271,7 @@ export class GameService {
 
   getRoomBySocket(
     socket: Socket,
+
   ) {
     return this.gamingRooms.find(
       (room) =>
