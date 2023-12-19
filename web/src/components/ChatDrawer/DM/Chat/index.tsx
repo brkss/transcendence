@@ -10,6 +10,7 @@ import decode from 'jwt-decode';
 import { getUserById, userChatHistory } from '@/utils/services';
 import { Loading } from '@/components/General';
 import jwtDecode from 'jwt-decode';
+import { useRouter } from 'next/router';
 
 interface Props {
 	isOpen: boolean;
@@ -19,6 +20,7 @@ interface Props {
 
 export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 
+	const router = useRouter();
 	// init socket 
 	let socket = React.useMemo(() => io(API_URL, {
 		extraHeaders: {
@@ -124,11 +126,12 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 	}, [socket, userId])
 
 	const handleInvteToGame = (uid: number) => {
-		console.log('invite friend')
-		gameSocket.emit("inviteFriend", {
+		const gid = Math.random();
+		socket.emit("inviteFriend", {
 			fid: uid,
-			gameId: Math.random()
-		})
+			gameId: gid
+		});
+		router.replace(`/game?gid=${gid}`);
 	}
 
 	return (

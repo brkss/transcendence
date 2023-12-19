@@ -11,6 +11,7 @@ import { Loading } from '../General';
 import { API_URL } from '@/utils/constants';
 import { io } from 'socket.io-client';
 import { GameInvitation } from '@/components'
+import { usePathname } from 'next/navigation'
 
 const _topBarStyle = {
 	top: {
@@ -25,16 +26,19 @@ const _topBarStyle = {
 
 export const TopBar : React.FC = () => {
 
+	const [invGID, setInvGID] = React.useState(-1);
+	const path = usePathname();
 	const [loading, setLoading] = React.useState(true);
 	const [query, setQuery] = React.useState<string>("");
 	const [user, setUser] = React.useState<any>(null);
 	const router = useRouter();
 	const [onTop, setOnTop] = React.useState(true);
-	// let socket = React.useMemo(() => io(API_URL, {
-	// 	extraHeaders: {
-	// 		Authorization: getAccessToken()
-	// 	},
-	// }), []); 
+	let socket = React.useMemo(() => io(`${API_URL}`, {
+		extraHeaders: {
+			Authorization: getAccessToken()
+		},
+		autoConnect: false
+	}), []); 
 
 	const toast = useToast();
 	const payload : any= getPayload();
@@ -73,30 +77,32 @@ export const TopBar : React.FC = () => {
 		}
 
 
+		// 	// -- main socket 
+		socket.on('connect', () => {
+			console.log("main socket connected");
+		});
 		
+		socket.on('disconnect', () => {
+			console.log("main socket disconected ")
+		});
+		socket.connect()
 
-		// -- main socket 
-		// socket.on('connect', () => {
-		// 	console.log("main socket connected");
-		// });
+		socket.on("invited", payload => {
+			setInvGID(payload.gameId);	
+			gameInviteDisclosure.onOpen();		
+		});
+		socket.on("Error", (data) => {
+			toast({
+				status: 'error',
+				duration: 9000,
+				isClosable: true,
+				title: data
+			})
+		});
+
 		
-		// socket.on('disconnect', () => {
-		// 	console.log("main socket disconected ")
-		// });
+			
 
-		// socket.connect()
-
-		// socket.on("invited", () => {
-		// 	gameInviteDisclosure.onOpen();		
-		// });
-		// socket.on("Error", (data) => {
-		// 	toast({
-		// 		status: 'error',
-		// 		duration: 9000,
-		// 		isClosable: true,
-		// 		title: data
-		// 	})
-		// });
 
 		//socket.emit("joinChat", {room_id: chatId, roomType: "PUBLIC"});
 		return () => {
@@ -108,7 +114,7 @@ export const TopBar : React.FC = () => {
 		// -- main socket 
 
 		
-	}, []);
+	}, [path]);
 
 	if(loading)
 		return <Loading />
@@ -133,7 +139,7 @@ export const TopBar : React.FC = () => {
 					</Grid>
 				</Box>
 				<Box h={"75px"} />
-				<GameInvitation isOpen={gameInviteDisclosure.isOpen} onClose={gameInviteDisclosure.onClose} />
+				{invGID > -1 && <GameInvitation isOpen={gameInviteDisclosure.isOpen} gid={invGID} onClose={gameInviteDisclosure.onClose} />}
 			</Box>
 	)
 }

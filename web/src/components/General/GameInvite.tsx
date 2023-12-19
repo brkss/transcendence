@@ -10,14 +10,17 @@ import {
     Text,
     Button
 } from '@chakra-ui/react'
+import { useRouter } from 'next/router';
 
 interface Props {
     onClose: () => void;
     isOpen: boolean;
+    gid: number;
 }
 
-export const GameInvitation : React.FC<Props> = ({onClose, isOpen}) => {
+export const GameInvitation : React.FC<Props> = ({onClose, isOpen, gid}) => {
 
+    const router = useRouter();
 
 
     return (
@@ -28,14 +31,13 @@ export const GameInvitation : React.FC<Props> = ({onClose, isOpen}) => {
                 <ModalHeader>You got invited to a game</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    <Text></Text>                
+                    <Text></Text> 
                 </ModalBody>
-
                 <ModalFooter>
                     <Button size={'sm'} colorScheme='orange' variant={'ghost'} mr={3} onClick={onClose}>
-                    Deny
+                        Deny
                     </Button>
-                    <Button size={'sm'} variant='outline'>Accept</Button>
+                    <Button size={'sm'} variant='outline' onClick={() => router.push(`/game?gid=${gid}`)}>Accept</Button>
                 </ModalFooter>
                 </ModalContent>
             </Modal>
