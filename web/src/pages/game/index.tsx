@@ -57,6 +57,7 @@ export default function Index() {
           
         else
           socketIo.emit("joinQueue");
+
     });
     socketIo.on("winner", (data: any) => {
       console.log("winner what ?", data);
@@ -71,8 +72,7 @@ export default function Index() {
     });
 
     socketIo.on("currentRoomDetails", (data: any) => {
-  
-      console.log('current room', data);
+
       setRoomData(data);
     });
 

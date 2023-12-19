@@ -134,21 +134,25 @@ export class UserController {
 		return (resp)
 	}
 
-	@Get("status")
-	async getUserStatus(@Req() request: any) {
-		const user = request.user;
-		const total_games = await this.userService.getNumberOfGames(user.id);
+	@Get("status/:username")
+	async getUserStatus(@Req() request: any, @Param("username") username: string) {
+		const userID = await this.userService.getUserId(username);
+		if(userID === undefined)
+			return [0, 0];
+		const total_games = await this.userService.getNumberOfGames(userID);
 		if (total_games == 0)
 			return [0, 0];
-		const [wins, loses] = await this.userService.getUserLosesWins(user.id);
+		const [wins, loses] = await this.userService.getUserLosesWins(userID);
 		const [status_wins, status_loses] = [(wins / total_games) * 100, (loses / total_games) * 100]
 		return [status_wins, status_loses];
 	}
 
-	@Get("history")
-	async getPlayerHistory(@Req() request: any) {
-		const user = request.user;
-		const history = this.userService.getUserHistory(user.id);
+	@Get("history/:username")
+	async getPlayerHistory(@Req() request: any, @Param("username") username: string) {
+		const userID = await this.userService.getUserId(username);
+		if (userID == undefined)
+			return null;
+		const history = this.userService.getUserHistory(userID);
 		return (history);
 
 	}
@@ -157,5 +161,15 @@ export class UserController {
 		const ranks: UsersRanks[] = await this.userService.getRanks();
 		return (ranks);
 	}
+
+	@Get("achievements:/username")
+	async getAchievements(@Req() request: any, @Param("username") username: string)
+	{
+		const userID = await this.userService.getUserId(username);
+		if (userID == undefined)
+			return null;
+				return await this.userService.getUserBadges(userID);
+	}
+
 
 }

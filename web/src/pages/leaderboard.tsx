@@ -1,3 +1,4 @@
+import React from 'react';
 import {
 	Table,
 	Tbody,
@@ -7,10 +8,29 @@ import {
 	Box,
 	Text
 } from '@chakra-ui/react'
-import { Layout, Avatar, withAuth } from '../components'
-
+import { Layout, Avatar, withAuth, Loading } from '../components'
+import { userLeaderBoard } from '@/utils/services';
 
 function Leaderboard() {
+
+	const [leaderboard, setLeaderBoard] = React.useState<any []>()
+	const [loading, setLoading] = React.useState(true);
+	const fetchLeaderBoard = () => {
+		userLeaderBoard().then(response => {
+			setLeaderBoard(response);
+			setLoading(false);
+		}).catch(e => {
+			console.log("something went wrong getting leaderboard : ", e);
+		})
+	}
+
+	React.useEffect(() => {
+		fetchLeaderBoard();
+	}, []);
+
+	if(loading)
+		return (<Loading />)
+
 	return (
 		<Layout>
 			<Box>
@@ -18,23 +38,18 @@ function Leaderboard() {
 				<TableContainer>
 					<Table variant='striped' size={'sm'}>
 						<Tbody>
-							<Tr>
-								<Td>
-									<Avatar d={'40px'} />
-								</Td>
-								<Td fontWeight={'bold'}>#1</Td>
-								<Td fontWeight={'bold'}>@keye</Td>
-								<Td fontWeight={'bold'} isNumeric>122 Match</Td>
-							</Tr>
-							<Tr>
-								<Td>
-									<Avatar d={'40px'} />
-								</Td>
-								<Td fontWeight={'bold'}>#2</Td>
-								<Td fontWeight={'bold'}>@keye</Td>
-								<Td fontWeight={'bold'} isNumeric>122 Match</Td>
-							</Tr>
-
+							{
+								leaderboard?.map((user, key) => (
+									<Tr key={key}>
+										<Td>
+											<Avatar src={user.avatar} d={'40px'} />
+										</Td>
+										<Td fontWeight={'bold'}>{key + 1}</Td>
+										<Td fontWeight={'bold'}>@{user.username}</Td>
+										<Td fontWeight={'bold'} isNumeric>{user.wins} Wins</Td>
+									</Tr>
+								))
+							}
 						</Tbody>
 					</Table>
 				</TableContainer>
