@@ -10,10 +10,35 @@ import { Box, Text, Button, Grid, GridItem, Container, Table,
   TableContainer, 
 } from '@chakra-ui/react';
 import { Badges } from './Badges';  
+import { userStatus, userChatHistory } from '@/utils/services'
 
+interface Props {
+	username: string;
+}
 
-export const Stats: React.FC = () => {
+export const Stats: React.FC<Props> = ({username}) => {
 
+	const [userGameData, setUserGameData] = React.useState({
+		wins: 0,
+		loss: 0
+	});
+	const fetchUserStatus = () => {
+		userStatus(username).then(response => {
+			setUserGameData({
+				...userGameData,
+				wins: response[0],
+				loss: response[1],
+			})
+		}).catch(e => {
+			console.log("something went wrong getting status : ", e);
+		});
+	}
+
+	
+
+	React.useEffect(() => {
+		fetchUserStatus()
+	}, []);
 
 	return (
 		<Box mt={'20px'}>
@@ -24,15 +49,15 @@ export const Stats: React.FC = () => {
 								<Text float={"right"} fontSize={'sm'} display={'inline-block'} p={'5px 20px'} bg={'black'} fontWeight={'bold'} color={'white'} rounded={"15px"} >Ranked #12</Text>
 							</Box>
 							<Box>
-								<Text fontWeight={'bold'} fontSize={"14px"} mb="3px" >Wins (40%)</Text>
+								<Text fontWeight={'bold'} fontSize={"14px"} mb="3px" >Wins ({userGameData.wins}%)</Text>
 								<Box w={'100%'} h={'20px'} bg={'gray.200'} rounded={'5px'} outline={"1px solid #0000005c"}>
-									<Box w={'40%'} bg={'green.200'} h={'20px'} rounded={'5px'} />
+									<Box w={`${userGameData.wins}%`} bg={'green.200'} h={'20px'} rounded={'5px'} />
 								</Box>
 							</Box>
 							<Box mt={'10px'}>
-								<Text fontWeight={'bold'} fontSize={"14px"} mb="3px">Loses (60%)</Text>
+								<Text fontWeight={'bold'} fontSize={"14px"} mb="3px">Loses ({userGameData.wins}%)</Text>
 								<Box w={'100%'} h={'20px'} bg={'gray.200'} rounded={'5px'} outline="1px solid #0000005c">
-									<Box w={'60%'} bg={'red.100'} h={'20px'} rounded={'5px'} />
+									<Box w={`${userGameData.loss}%`} bg={'red.100'} h={'20px'} rounded={'5px'} />
 								</Box>
 							</Box>
 							<Text  bottom={"10px"} fontSize={"14px"} opacity={.8}>This statistics are based on the games you played.</Text>

@@ -300,8 +300,6 @@ export class UserService {
 			    }
 		    }
 
-
-
 		    async getAllFriends(username: string) {
 			    const userId = await this.getUserId(username)
 			    const friends = await this.prismaService.friendship.findMany({
@@ -721,7 +719,5 @@ export class UserService {
 			    return userBadges;
 
 		    }
-
-}
 
 }

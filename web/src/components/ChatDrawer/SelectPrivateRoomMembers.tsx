@@ -72,7 +72,7 @@ export const SelectPrivateRoomMemebers : React.FC<Props> = ({isOpen, onClose, do
                         <Box>
                             {
                                 friends.map((f, key) => (
-                                    <CheckFriend image={f.avatar} username={f.username} isChecked={!!selected.find(x => x.id === f.id)} select={() => handleSelect(f.id, f.username, f.avatar)} />
+                                    <CheckFriend key={key} image={f.avatar} username={f.username} isChecked={!!selected.find(x => x.id === f.id)} select={() => handleSelect(f.id, f.username, f.avatar)} />
                                 ))
                             }
                         </Box>

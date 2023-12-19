@@ -8,6 +8,7 @@ import { BsChatLeftDots } from "react-icons/bs";
 import { IoGameControllerOutline } from "react-icons/io5";
 import { FiUsers, FiSettings, FiLogOut } from "react-icons/fi";
 import { MdOutlineLeaderboard } from "react-icons/md";
+import { usePathname } from 'next/navigation';
 
 const _items = [
   {
@@ -46,6 +47,11 @@ interface Props {
 
 export const SideBar: React.FC<Props> = ({ signal }) => {
   const [isShown, setIsShown] = React.useState(false);
+
+  const path = usePathname();
+
+  if(path === "/game")
+    return <></>
 
   return (
 		<Box display={'flex'} flexDir={'column'} alignItems={'center'} pos="relative" zIndex={995} flexDirection={{md: 'column', base: 'row'}} position={{md: 'relative', base: 'fixed'}} w={'100%'} justifyContent={{md: 'inherit', base: 'space-between'}} p={'10px 20px'} bg={{md: "transparent", base: 'white'}} bottom={0}>
