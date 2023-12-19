@@ -645,7 +645,8 @@ export class UserService {
 			for (const game of allgames) {
 				const game_status: string = await this.gameService.getStatus(game.id, user_id);
 				const opId = await this.gameService.GetOpponentId(game.id, user_id);
-				const user = await this.getUserByID(opId);
+				console.log("so : ", opId);
+				const user = await this.getUserByID(parseInt(opId+ ""));
 
 				history.push({
 					mode: game.mode,
