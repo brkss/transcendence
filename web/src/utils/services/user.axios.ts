@@ -116,7 +116,7 @@ export const userLeaderBoard = async () => {
 	return response.data;
 }
 
-export const userStatus = async () => {
-	const response = await api.get(`${API_URL}/user/status`);
+export const userStatus = async (username: string) => {
+	const response = await api.get(`${API_URL}/user/status/${username}`);
 	return response.data;
 }

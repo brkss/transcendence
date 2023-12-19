@@ -7,10 +7,11 @@ import { RoomService } from './room/room.service';
 import { ChatService } from './chat.service';
 import { GatewayService } from './gateway/chat/gateway.service';
 
+
 @Module({
   imports: [
     AuthModule,
-    UserModule,
+    UserModule
   ],
   providers: [
     ChatGateway,

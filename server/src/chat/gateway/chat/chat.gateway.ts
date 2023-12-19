@@ -29,7 +29,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private gatewayService: GatewayService,
     private chatService: ChatService) {
-
   }
 
   handleConnection(socket: Socket) {
@@ -77,20 +76,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 
   // invite to game 
-  @SubscribeMessage(
-    'inviteFriend',
-  )
-  async inviteFriend(
-    socket: Socket,
-    payload: {
-      fid: number;
-    },
-  ) {
-
-      socket.to("main-socket-" + String(payload.fid))
-      .emit("invited", { success: true })
-  }
-
+  
   
   // @SubscribeMessage('myChats')
   // async getMychats(socket: Socket, payload) {

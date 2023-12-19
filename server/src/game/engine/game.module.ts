@@ -10,6 +10,7 @@ import { GameService } from './game.service';
   ],
   exports: [
     GameGateway,
+    GameService
   ],
   providers: [
     GameGateway,
