@@ -342,6 +342,7 @@ export class UserService {
 					    username: username
 				    },
 				    select: {
+					    id: true,
 					    username: true,
 					    email: true,
 					    fullName: true,
@@ -628,19 +629,9 @@ export class UserService {
 				    if (!user)
 					    throw new NotFoundException('User with ID ${user_id} not found!');
 
-				    let history: UserHistory[] = null;
+				    let history: UserHistory[] = [];
 
-				    /*const allgames = await this.prismaService.user.findMany({
-where: {
-id : user_id,
-},
-select: {
-games: true,
-}
-});*/
 				    const allgames = await this.getUserGames(user_id);
-				    if (allgames.length <= 0)
-					    return null;
 
 				    //for (const user of allgames)
 				    //{
@@ -649,14 +640,12 @@ games: true,
 					    const opId = await this.gameService.GetOpponentId(game.id, user_id);
 					    const user = await this.getUserByID(opId);
 
-					    history.push(
-						    {
-							    mode: game.mode,
-							    game_status: game_status,
-							    opponent_username: user.username,
-							    date: game.startedAt
-						    }
-					    );
+					    history.push({
+						    mode: game.mode,
+						    game_status: game_status,
+						    opponent_username: user.username,
+						    date: game.startedAt
+					    });
 				    }
 
 				    //					    }
@@ -698,7 +687,6 @@ games: true,
 			    }
 
 		    }
-
 		    async getUserBadges(user_id: number) : Promise<any>
 		    {
 			    const badges = [
@@ -723,14 +711,15 @@ games: true,
 				    },
 			    ];
 			    const [wins, loses]= await this.getUserLosesWins(user_id);
-			    let userBadges[] = null;
-			    
-			   for (let i = 0; i < badges.length; i++)
-			   {
-				   if (wins >= badges[i].min_win)
-					   userBadges = badges[i];
-			   }
-			   return userBadges;
+			    let userBadges : any[] = [];
+
+			    for (let i = 0; i < badges.length; i++)
+			    {
+				    if (wins >= badges[i].min_win)
+					    userBadges.push(badges[i]);
+			    }
+			    return userBadges;
 
 		    }
+
 }
