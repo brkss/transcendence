@@ -27,8 +27,7 @@ export default function Index() {
   const [winner, setWinner] = React.useState<IConnectedUser | null>(null);
   const [userRoomData, setRoomData] = React.useState<{ hostUserId: number, label: string, id: string }>();
   const [socketIo, setSocketIo] = React.useState<any>(
-    //io("http://localhost/api/game", {
-    io("http://localhost:8000/game", {
+    io("http://localhost/api/game", {
       extraHeaders: {
         Authorization: getAccessToken(),
       },

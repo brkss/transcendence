@@ -20,7 +20,8 @@ interface Props {
 export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 
 	// init socket 
-	let socket = React.useMemo(() => io(API_URL, {
+	//let socket = React.useMemo(() => io(API_URL, {
+	let socket = React.useMemo(() => io("http://localhost", {
 		extraHeaders: {
 			Authorization: getAccessToken()
 		}
