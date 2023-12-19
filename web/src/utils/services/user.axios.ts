@@ -121,7 +121,12 @@ export const userStatus = async (username: string) => {
 	return response.data;
 }
 
-export const userAchievements = async () => {
-	const response = await api.get(`${API_URL}/user/achivements`);
+export const userAchievements = async (username: string) => {
+	const response = await api.get(`${API_URL}/user/achivements/${username}`);
+	return response.data;
+}
+
+export const userMatchHistory = async (username: string) => {
+	const response = await api.get(`${API_URL}/history/${username}`)
 	return response.data;
 }

@@ -162,14 +162,14 @@ export class UserController {
 		return (ranks);
 	}
 
-	 @Get("achievements:/username")
-        async getAchievements(@Req() request: any, @Param("username") username: string)
-        {
-                const userID = await this.userService.getUserId(username);
+	@Get("achievements:/username")
+	async getAchievements(@Req() request: any, @Param("username") username: string)
+	{
+		const userID = await this.userService.getUserId(username);
 		if (userID == undefined)
 			return null;
-                return await this.userService.getUserBadges(userID);
-        }
+				return await this.userService.getUserBadges(userID);
+	}
 
 
 }

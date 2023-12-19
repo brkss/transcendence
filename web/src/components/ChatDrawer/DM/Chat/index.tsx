@@ -26,6 +26,12 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 		}
 	}), []);
 
+	let gameSocket = React.useMemo(() => io(`${API_URL}/game`, {
+		extraHeaders: {
+			Authorization: getAccessToken()
+		}
+	}), []);
+
 	
 	const toast = useToast();
 	const _settings = useDisclosure();
@@ -117,9 +123,10 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 	}, [socket, userId])
 
 	const handleInvteToGame = (uid: number) => {
-		
-		socket.emit("inviteFriend", {
-			fid: uid
+		console.log('invite friend')
+		gameSocket.emit("inviteFriend", {
+			fid: uid,
+			gameId: Math.random()
 		})
 	}
 
