@@ -10,7 +10,7 @@ import { Box, Text, Button, Grid, GridItem, Container, Table,
   TableContainer, 
 } from '@chakra-ui/react';
 import { Badges } from './Badges';  
-import { userStatus, userChatHistory } from '@/utils/services'
+import { userStatus, userChatHistory, userAchievements, userMatchHistory } from '@/utils/services'
 
 interface Props {
 	username: string;
@@ -18,9 +18,12 @@ interface Props {
 
 export const Stats: React.FC<Props> = ({username}) => {
 
-	const [userGameData, setUserGameData] = React.useState({
+	const [loading, setLoading] = React.useState(true);
+	const [userGameData, setUserGameData] = React.useState<any>({
 		wins: 0,
-		loss: 0
+		loss: 0,
+		history: [],
+		badges: []
 	});
 	const fetchUserStatus = () => {
 		userStatus(username).then(response => {
@@ -34,10 +37,34 @@ export const Stats: React.FC<Props> = ({username}) => {
 		});
 	}
 
+	const fetchUserBadges = () => {
+		userAchievements(username).then(response => {
+			setUserGameData({
+				...userGameData,
+				badges: response
+			})
+		}).catch(e => {
+			console.log("something went wrong getting user badges : ", e);
+		})
+	}
+
+	const fetchUserHistory = () => {
+		userMatchHistory(username).then(response => {
+			setUserGameData({
+				...userGameData,
+				history: response
+			})
+		}).catch(e => {
+			console.log("something went wrong getting user history: ", e);	
+		})
+	}
+
 	
 
 	React.useEffect(() => {
 		fetchUserStatus()
+		fetchUserBadges()
+		fetchUserHistory()
 	}, []);
 
 	return (
@@ -46,7 +73,6 @@ export const Stats: React.FC<Props> = ({username}) => {
 						<GridItem colSpan={{md: 6, base: 12}} pos={"relative"}>
 							<Box mb={'20px'} fontWeight={'bold'} fontSize={'30px'} display={'flex'} justifyContent={'space-between'} alignItems={'baseline'}>
 								Stats
-								<Text float={"right"} fontSize={'sm'} display={'inline-block'} p={'5px 20px'} bg={'black'} fontWeight={'bold'} color={'white'} rounded={"15px"} >Ranked #12</Text>
 							</Box>
 							<Box>
 								<Text fontWeight={'bold'} fontSize={"14px"} mb="3px" >Wins ({userGameData.wins}%)</Text>
@@ -63,7 +89,7 @@ export const Stats: React.FC<Props> = ({username}) => {
 							<Text  bottom={"10px"} fontSize={"14px"} opacity={.8}>This statistics are based on the games you played.</Text>
 						</GridItem>
 						<GridItem colSpan={{md: 6, base: 12}} mt={{base: '20px', md: '10px'}}>
-							<Badges />
+							<Badges badges={userGameData.badges} />
 						</GridItem>
 					</Grid>
 					<Text mt="40px" mb={'20px'} fontWeight={'bold'} fontSize={'30px'}>History</Text>
@@ -78,30 +104,16 @@ export const Stats: React.FC<Props> = ({username}) => {
 								</Tr>
 							</Thead>
 							<Tbody>
-								<Tr rounded={'10px'} fontWeight={'bold'}>
-									<Td>1v1</Td>
-									<Td>Win</Td>
-									<Td>@marcos</Td>
-									<Td isNumeric>24/8/2023</Td>
-								</Tr>
-								<Tr rounded={'10px'} fontWeight={'bold'} >
-									<Td>1v1</Td>
-									<Td>Win</Td>
-									<Td>@marcos</Td>
-									<Td isNumeric>24/8/2023</Td>
-								</Tr>
-								<Tr rounded={'10px'} fontWeight={'bold'} >
-									<Td>1v1</Td>
-									<Td>Win</Td>
-									<Td>@marcos</Td>
-									<Td isNumeric>24/8/2023</Td>
-								</Tr>
-								<Tr rounded={'10px'} fontWeight={'bold'} >
-									<Td>1v1</Td>
-									<Td>Win</Td>
-									<Td>@marcos</Td>
-									<Td isNumeric>24/8/2023</Td>
-								</Tr>
+								{
+									userGameData.history.map((record:any, key:any) => (
+										<Tr>
+											<Th>{record.mode}</Th>
+											<Th>{record.status}</Th>
+											<Th>{record.opponent_username}</Th>
+											<Th isNumeric>{record.date}</Th>
+										</Tr>
+									))
+								}
 							</Tbody>
 							
 						</Table>
