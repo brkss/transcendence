@@ -16,7 +16,7 @@ export const Badges : React.FC<Props> = ({badges}) => {
 			<Box overflow={'auto'} whiteSpace={'nowrap'}>
 				{
 					badges.map((badge, key) => (
-						<Center  h={'150px'} w={'200px'} >
+						<Center key={key} h={'150px'} w={'200px'} >
 							<Box>
 								<Image  w={'130px'} rounded={'18px'} src={badge.path} borderRadius={'18px'} />
 								<Text fontWeight={'bold'} fontSize={'15px'} >{badge.min_win} wins</Text>

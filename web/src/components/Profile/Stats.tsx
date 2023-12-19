@@ -106,7 +106,7 @@ export const Stats: React.FC<Props> = ({username}) => {
 							<Tbody>
 								{
 									userGameData.history.map((record:any, key:any) => (
-										<Tr>
+										<Tr key={key}>
 											<Th>{record.mode}</Th>
 											<Th>{record.status}</Th>
 											<Th>{record.opponent_username}</Th>
