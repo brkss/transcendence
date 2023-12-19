@@ -723,3 +723,5 @@ export class UserService {
 		    }
 
 }
+
+}
