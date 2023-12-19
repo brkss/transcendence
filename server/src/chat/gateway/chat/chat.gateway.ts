@@ -32,6 +32,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleConnection(socket: Socket) {
+    console.error("new socket connection");
     this.gatewayService.socketConnection(socket)
   }
 
@@ -71,6 +72,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('privateMessage')
   async handlePrivateMessage(socket: Socket, payload: PrivateMessageDTO) {
+    console.error("server recived socket event")
     await this.chatService.SendPrivateChatMessage(socket, payload)
   }
 

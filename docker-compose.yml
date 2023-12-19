@@ -10,7 +10,7 @@ services:
             - front 
         restart: always
         ports:
-            - "8001:8001"
+            - "80:80"
             
     postgres:
         container_name: postgres_db
@@ -19,6 +19,8 @@ services:
             - "5432:5432"
         env_file:
             - ./server/.env
+        volumes:
+            - "/tmp/pgdata:/var/lib/postgresql/data"
 
     server:
         container_name: transcendance_api
@@ -36,6 +38,7 @@ services:
         volumes:
             - "./server/:/var/www/html/app" 
             - /var/www/html/app/node_modules/
+            - /var/www/html/app/dist/
     
     front:
         container_name: transcendance_front
@@ -49,4 +52,5 @@ services:
         volumes:
             - "./web/:/var/www/html/app" 
             - /var/www/html/app/node_modules/
+            - /var/www/html/app/.next/
     

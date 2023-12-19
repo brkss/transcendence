@@ -12,10 +12,11 @@ export class authController {
         private userServce: UserService) {
     }
     @Post("refresh-token")
-    async refreshToken(@Req() req: Request, @Res() res: Response) {
+    async refreshToken(@Req() req: Request) {
         const refresh_token = req.cookies["refresh_token"];
         const response = await this.auth_service.refreshToken(refresh_token);
-        res.send({ status: response.status, access_token: response.access_token });
+        console.error({ status: response.status, access_token: response.access_token })
+        return ({ status: response.status, access_token: response.access_token });
     }
 
     @Get('sync/')
@@ -26,8 +27,8 @@ export class authController {
         if (auth2fa_active) {
             const auth2fa_token = await this.auth_service.login2fa(req)
             resp.cookie('auth2fa_token', auth2fa_token)
-            resp.redirect("http://localhost:3000/2fa/otp")
-            //resp.redirect("http://localhost:8001/2fa/otp/")
+            resp.redirect("/2fa/otp/")
+            //resp.redirect("http://localhost:3000/2fa/otp")
             return 
         }
         const refresh_token = generateRefreshToken(user.id);
@@ -35,7 +36,7 @@ export class authController {
             maxAge: 7 * 24 * 3600 * 1000
             , httpOnly: true
         });
-        //resp.redirect("http://localhost:8001/")
-        resp.redirect("http://localhost:3000")
+        //resp.redirect("/")
+        resp.redirect("http://localhost:3000/")
     }
 }
