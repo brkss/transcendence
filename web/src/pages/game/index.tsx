@@ -44,7 +44,11 @@ export default function Index() {
     socketIo.on("connect", () => {
       console.log("Connected to WebSocket server");
       // socket.send("Hello, WebSocket server!");
-      socketIo.emit("joinQueue");
+      
+      if(arcadeMode)
+        socketIo.emit("joinArcadeQueue");
+      else
+        socketIo.emit("joinQueue");
     });
     socketIo.on("winner", (data: any) => {
       setWinner(data);
@@ -58,6 +62,7 @@ export default function Index() {
     });
 
     socketIo.on("currentRoomDetails", (data: any) => {
+      console.log("check room details : ", data);
       setRoomData(data);
     });
 

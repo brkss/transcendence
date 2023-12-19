@@ -63,7 +63,7 @@ export default function ChatBox(props: IChatBox) {
           ref={scrollableRef}
           className="py-4 flex flex-col gap-2 max-h-[200px] overflow-hidden overflow-y-scroll scroll-auto"
         >
-          {messages?.map(({isSelfMessage, message, date})=><Message isSelfMessage={isSelfMessage} message={message} date={date}  />)}
+          {messages?.map(({isSelfMessage, message, date}, key)=><Message key={key} isSelfMessage={isSelfMessage} message={message} date={date}  />)}
           {messages === undefined && <Text textAlign="center" fontSize="lg" color="black" fontWeight="bold">
   Chat with your opponent and make the game more exciting!
 </Text>}
