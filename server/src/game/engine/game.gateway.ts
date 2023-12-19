@@ -6,408 +6,259 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-} from '@nestjs/websockets';
+} from "@nestjs/websockets";
 
 import {
   JoinRoomDTO,
   chatMessageDTO,
   PrivateMessageDTO,
   LeaveRoomDTO,
-} from 'src/chat/dtos/chat.dto';
+} from "src/chat/dtos/chat.dto";
 
-import {
-  Socket,
-  Server,
-} from 'socket.io';
-import { ValidationExceptionFilter } from 'src/chat/dtos/chatvalidation.filer';
-import { GatewayService } from '../../chat/gateway/chat/gateway.service';
-import { ChatService } from 'src/chat/chat.service';
-import {
-  UseFilters,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
-import { GameService } from './game.service';
-import { subscribe } from 'diagnostics_channel';
+import { Socket, Server } from "socket.io";
+import { ValidationExceptionFilter } from "src/chat/dtos/chatvalidation.filer";
+import { GatewayService } from "../../chat/gateway/chat/gateway.service";
+import { ChatService } from "src/chat/chat.service";
+import { UseFilters, UsePipes, ValidationPipe } from "@nestjs/common";
+import { GameService } from "./game.service";
+import { subscribe } from "diagnostics_channel";
 
 const rooms = [];
 
 @WebSocketGateway({
   cors: true,
-  namespace: 'game',
+  namespace: "game",
 })
 @UseFilters()
 @UsePipes(
-  new ValidationPipe(
-    {
-      disableErrorMessages:
-        false,
-      whitelist:
-        true,
-      forbidNonWhitelisted:
-        true,
-    },
-  ),
+  new ValidationPipe({
+    disableErrorMessages: false,
+    whitelist: true,
+    forbidNonWhitelisted: true,
+  })
 )
-export class GameGateway
-  implements
-    OnGatewayConnection,
-    OnGatewayDisconnect
-{
+export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private gatewayService: GatewayService,
     private chatService: ChatService,
-    private gameService: GameService,
+    private gameService: GameService
   ) {}
   @WebSocketServer()
   server: Server;
-  handleConnection(
-    socket: Socket,
-  ) {
-    this.gatewayService.socketConnection(
-      socket,
-      'game',
-    );
+  handleConnection(socket: Socket) {
+    this.gatewayService.socketConnection(socket, "game");
   }
 
-  private async leaveAllRoomsOnDisconnect(
-    socket: Socket,
-    user: any,
-  ) {
+  private async leaveAllRoomsOnDisconnect(socket: Socket, user: any) {
     /*
               Deleting all member entrys should be at leaveRoom
             */
     //this.gatewayService.leavAllSocketRooms(socket, user)
   }
 
-  async handleDisconnect(
-    socket: Socket,
-  ) {
-    const user =
-      socket.data
-        .user;
-    const connected_rooms =
-      await this.chatService.getConnectedRooms(
-        user.id,
-      );
+  async handleDisconnect(socket: Socket) {
+    const user = socket.data.user;
+    const connected_rooms = await this.chatService.getConnectedRooms(user.id);
 
     for (const room of connected_rooms) {
-      const payload =
-        {
-          room_id:
-            room.roomId,
-        };
-      await this.chatService.leaveChat(
-        socket,
-        payload,
-      );
+      const payload = {
+        room_id: room.roomId,
+      };
+      await this.chatService.leaveChat(socket, payload);
     }
-    this.gatewayService.handleDisconnect(
-      socket,
-    );
-    this.gameService.handleDisconnect(
-      socket,
-      this.server,
-    );
+    this.gatewayService.handleDisconnect(socket);
+    this.gameService.handleDisconnect(socket, this.server);
   }
-  
-  @SubscribeMessage(
-    'joinArcadeQueue'
-  )
+
+  @SubscribeMessage("joinArcadeQueue")
   async joinArcadeQueue(
     @ConnectedSocket()
-    socket: Socket,
+    socket: Socket
   ) {
     // console.log(
     //   socket,
     // );
-    rooms.push(
-      socket.id,
-    );
+    rooms.push(socket.id);
     try {
-      console.log(
-        'connectedUsers',
-        this
-          .gatewayService
-          .connectedUsers,
+      console.log("connectedUsers", this.gatewayService.connectedUsers);
+      const savedSocket = this.gatewayService.connectedUsers.find(
+        (user) => user.socketId === socket.id
       );
-      const savedSocket =
-        this.gatewayService.connectedUsers.find(
-          (user) =>
-            user.socketId ===
-            socket.id,
-        );
-      console.log(
-        'savedSocket',
-        savedSocket,
-      );
-      if (
-        savedSocket
-      ) {
-        this.gameService.joinArcadeQueue(
-          socket,
-        );
+      console.log("savedSocket", savedSocket);
+      if (savedSocket) {
+        this.gameService.joinArcadeQueue(socket);
       } else {
-        socket.emit(
-          'notAllowed',
-          {
-            status:
-              '401',
-          },
-        );
+        socket.emit("notAllowed", {
+          status: "401",
+        });
       }
     } catch (error) {
-      console.log(
-        error,
-      );
+      console.log(error);
     }
   }
 
-
-
-  @SubscribeMessage(
-    'joinQueue',
-  )
+  @SubscribeMessage("joinQueue")
   async joinQueue(
     @ConnectedSocket()
-    socket: Socket,
+    socket: Socket
   ) {
     // console.log(
     //   socket,
     // );
-    rooms.push(
-      socket.id,
-    );
+    rooms.push(socket.id);
     try {
-      console.log(
-        'connectedUsers',
-        this
-          .gatewayService
-          .connectedUsers,
+      console.log("connectedUsers", this.gatewayService.connectedUsers);
+      const savedSocket = this.gatewayService.connectedUsers.find(
+        (user) => user.socketId === socket.id
       );
-      const savedSocket =
-        this.gatewayService.connectedUsers.find(
-          (user) =>
-            user.socketId ===
-            socket.id,
-        );
-      console.log(
-        'savedSocket',
-        savedSocket,
-      );
-      if (
-        savedSocket
-      ) {
-        this.gameService.joinQueue(
-          socket,
-        );
+      console.log("savedSocket", savedSocket);
+      if (savedSocket) {
+        this.gameService.joinQueue(socket);
       } else {
-        socket.emit(
-          'notAllowed',
-          {
-            status:
-              '401',
-          },
-        );
+        socket.emit("notAllowed", {
+          status: "401",
+        });
       }
     } catch (error) {
-      console.log(
-        error,
-      );
+      console.log(error);
     }
   }
 
-  @SubscribeMessage(
-    'moveLeft',
-  )
+  @SubscribeMessage("moveLeft")
   async moveLeftPaddle(
     @ConnectedSocket()
     socket: Socket,
     @MessageBody()
     payload: {
       value: number;
-    },
+    }
   ) {
-    console.log(
-      payload,
-    );
-    this.gameService.moveLeft(
-      socket,
-      payload,
-      this.server,
-    );
+    console.log(payload);
+    this.gameService.moveLeft(socket, payload, this.server);
   }
 
-  @SubscribeMessage('CrazymodePuck',
-
-  )
+  @SubscribeMessage("CrazymodePuck")
   async drawSecondBall(
     @ConnectedSocket()
-    socket:Socket,
-  )
-  {
-      this.gameService.secondBallinit(socket,this.server);
+    socket: Socket
+  ) {
+    this.gameService.secondBallinit(socket, this.server);
   }
-  @SubscribeMessage(
-    'initPuck2',
-  )
+  @SubscribeMessage("initPuck2")
   async syncCrazzyPuck(
     @ConnectedSocket()
     socket: Socket,
     @MessageBody()
     payload: {
       value: number;
-    },
+    }
   ) {
-    this.gameService.syncCrazzyPuck(
-      socket,
-      payload,
-      this.server,
-    );
+    this.gameService.syncCrazzyPuck(socket, payload, this.server);
   }
 
-  @SubscribeMessage(
-    'moveLeftRelease',
-  )
+  @SubscribeMessage("moveLeftRelease")
   async moveLeftRelease(
     @ConnectedSocket()
-    socket: Socket,
+    socket: Socket
   ) {
-    this.gameService.moveLeftRelease(
-      socket,
-      this.server,
-    );
+    this.gameService.moveLeftRelease(socket, this.server);
   }
 
-  @SubscribeMessage(
-    'paddleLeftPos',
-  )
+  @SubscribeMessage("paddleLeftPos")
   async moveLeftPaddleToPos(
     @ConnectedSocket()
     socket: Socket,
     @MessageBody()
     payload: {
       value: number;
-    },
+    }
   ) {
-    this.gameService.moveToPos(
-      socket,
-      payload,
-      this.server,
-    );
+    this.gameService.moveToPos(socket, payload, this.server);
   }
 
-  @SubscribeMessage(
-    'paddleRightPos',
-  )
+  @SubscribeMessage("paddleRightPos")
   async moveRightPaddleToPos(
     @ConnectedSocket()
     socket: Socket,
     @MessageBody()
     payload: {
       value: number;
-    },
+    }
   ) {
-    this.gameService.moveToPos(
-      socket,
-      payload,
-      this.server,
-      true,
-    );
+    this.gameService.moveToPos(socket, payload, this.server, true);
   }
-  
-  @SubscribeMessage(
-    'getScore',
-  )
+
+  @SubscribeMessage("getScore")
   async gettingScore(
     @ConnectedSocket()
     socket: Socket,
     @MessageBody()
     payload: {
       value: number;
-    },
+    }
   ) {
-    this.gameService.gettingScore(
-      socket,
-      payload,
-      this.server,
-    );
+    this.gameService.gettingScore(socket, payload, this.server);
   }
 
-  @SubscribeMessage(
-    'initPuck',
-  )
+  @SubscribeMessage("initPuck")
   async syncPuck(
     @ConnectedSocket()
     socket: Socket,
     @MessageBody()
     payload: {
       value: number;
-    },
+    }
   ) {
-    this.gameService.syncPuck(
-      socket,
-      payload,
-      this.server,
-    );
+    this.gameService.syncPuck(socket, payload, this.server);
   }
 
-@SubscribeMessage(
-  'gameChatMessage',
-)
-async sendGameChat(
-  @ConnectedSocket()
-  socket: Socket,
-  @MessageBody()
-  payload: {
-    value: number;
-  },
-) {
-  this.gameService.sendGameChat(
-    socket,
-    payload,
-    this.server,
-  );
-}
-
-  @SubscribeMessage(
-    'userReady',
-  )
-  async userReady(
+  @SubscribeMessage("gameChatMessage")
+  async sendGameChat(
     @ConnectedSocket()
     socket: Socket,
+    @MessageBody()
+    payload: {
+      value: number;
+    }
   ) {
-    this.gameService.userReady(
-      socket,
-      this.server,
-    );
+    this.gameService.sendGameChat(socket, payload, this.server);
   }
 
-  @SubscribeMessage(
-    'inviteFriend',
-  )
+  @SubscribeMessage("userReady")
+  async userReady(
+    @ConnectedSocket()
+    socket: Socket
+  ) {
+    const room = this.gameService.getRoomBySocket(socket);
+    const aroom = this.gameService.getArcadeRoomBySocket(socket);
+    if(room)
+      this.gameService.userReady(socket, this.server, room);
+    else
+      this.gameService.userReady(socket, this.server, aroom);
+  }
+
+  @SubscribeMessage("inviteFriend")
   async inviteFriend(
     @ConnectedSocket()
     socket: Socket,
-  @MessageBody()
+    @MessageBody()
     payload: {
       fid: number;
-      gameId: number
-    },
+      gameId: number;
+    }
   ) {
-      // console.log('testing friend invite')
-      this.server.to("main-socket-" + String(payload.fid))
-      .emit("invited", { success: true, gameId: payload.gameId })
-      if (this.gameService.isPrivateRoomCreated(socket, payload.gameId)) {
-        await this.gameService.joinRoom(socket, payload.gameId)
-      } else {
-        await this.gameService.createPrivateRoom(socket, payload.gameId);
-      }
+    // console.log('testing friend invite')
+    this.server
+      .to("main-socket-" + String(payload.fid))
+      .emit("invited", { success: true, gameId: payload.gameId });
+    if (this.gameService.isPrivateRoomCreated(socket, payload.gameId)) {
+      await this.gameService.joinRoom(socket, payload.gameId);
+    } else {
+      await this.gameService.createPrivateRoom(socket, payload.gameId);
+    }
   }
 
-  
-
-  // // invite to game 
+  // // invite to game
   // @SubscribeMessage(
   //   'inviteFriend',
   // )
@@ -423,3 +274,4 @@ async sendGameChat(
   //   socket.emit("invited", {uid: -1, gid: -2});
   // }
 }
+

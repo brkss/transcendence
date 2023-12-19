@@ -53,7 +53,14 @@ import {
       //   2000,
       // );
       console.log(
-        'move x emited',
+        'move x emited',this.connectedUsers.find(
+          (user) =>
+            user.userID ===
+            socket
+              .data
+              .user
+              .userID,
+        )
       );
   
       if (

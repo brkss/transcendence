@@ -26,14 +26,19 @@ export default function Index() {
   const [isNotAllowed, setIsNotAllowed] = React.useState(false);
   const [winner, setWinner] = React.useState<IConnectedUser | null>(null);
   const [userRoomData, setRoomData] = React.useState<{ hostUserId: number, label: string, id: string }>();
-  const [socketIo, setSocketIo] = React.useState<any>(
-    //io("http://localhost:8001/api/game", {
-    io("http://localhost:8000/game", {
-      extraHeaders: {
-        Authorization: getAccessToken(),
-      },
-    })
-  );
+  let socketIo = React.useMemo(() => io("http://localhost:8000/game", {
+		extraHeaders: {
+			Authorization: getAccessToken()
+		}
+	}), []);
+  // const [socketIo, setSocketIo] = React.useState<any>(
+  //   //io("http://localhost:8001/api/game", {
+  //   io("http://localhost:8000/game", {
+  //     extraHeaders: {
+  //       Authorization: getAccessToken(),
+  //     },
+  //   })
+  // );
   const user: IConnectedUser = getPayload() as IConnectedUser;
   const arcadeMode = searchParams.get("arcade");
 
@@ -43,18 +48,23 @@ export default function Index() {
     console.log("joinQueue emit", socketIo.id);
     socketIo.on("connect", () => {
       console.log("Connected to WebSocket server");
-      // socket.send("Hello, WebSocket server!");
-      
-      if(arcadeMode)
-        socketIo.emit("joinArcadeQueue");
-      else
-        socketIo.emit("joinQueue");
+      // socket.send("Hello, WebSocket server!");  
+        if(arcadeMode)
+        {
+          socketIo.emit("joinArcadeQueue");
+          console.log("CONNECTED TO ARCADE QUEUE", arcadeMode);
+        }
+          
+        else
+          socketIo.emit("joinQueue");
+
     });
     socketIo.on("winner", (data: any) => {
+      console.log("winner what ?", data);
       setWinner(data);
     });
     socketIo.on("moveX", () => console.log("movex"));
-    socketIo.on("joinedQueue", (data: any) => {
+    socketIo.on("joinedQueue", (data: any) => {``
       console.log("queue joined", data);
     });
     socketIo.on("notAllowed", (data: any) => {
@@ -62,7 +72,7 @@ export default function Index() {
     });
 
     socketIo.on("currentRoomDetails", (data: any) => {
-      console.log("check room details : ", data);
+
       setRoomData(data);
     });
 
@@ -77,7 +87,7 @@ export default function Index() {
     return () => {
       socketIo.disconnect();
     };
-  }, []);
+  }, [socketIo]);
 
   return (
     <Layout disablePadding>
@@ -106,7 +116,7 @@ export default function Index() {
                   "notReady"
                 )}
               </div>
-              <ChatBox socket={socketIo} roomDetails = {userRoomData} />
+              {userRoomData?.hostUserId !== null && <ChatBox socket={socketIo} roomDetails = {userRoomData} />}
             </>
           )}
         </>
