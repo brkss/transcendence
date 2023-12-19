@@ -15,7 +15,6 @@ export class authController {
     async refreshToken(@Req() req: Request) {
         const refresh_token = req.cookies["refresh_token"];
         const response = await this.auth_service.refreshToken(refresh_token);
-        console.error({ status: response.status, access_token: response.access_token })
         return ({ status: response.status, access_token: response.access_token });
     }
 
@@ -28,7 +27,6 @@ export class authController {
             const auth2fa_token = await this.auth_service.login2fa(req)
             resp.cookie('auth2fa_token', auth2fa_token)
             resp.redirect("/2fa/otp/")
-            //resp.redirect("http://localhost:3000/2fa/otp")
             return 
         }
         const refresh_token = generateRefreshToken(user.id);
@@ -36,7 +34,6 @@ export class authController {
             maxAge: 7 * 24 * 3600 * 1000
             , httpOnly: true
         });
-        //resp.redirect("/")
-        resp.redirect("http://localhost:3000/")
+        resp.redirect("/")
     }
 }

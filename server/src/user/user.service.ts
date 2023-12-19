@@ -524,9 +524,7 @@ export class UserService {
 	}
 
 	async updateAvatar(user_id: number, file: Express.Multer.File) {
-		//const avatar_link: string = "http://localhost:8001/api/user/avatar/" + file.filename
 		const avatar_link: string = "http://localhost/api/user/avatar/" + file.filename
-		//const avatar_link: string = "https://b476-197-230-122-199.ngrok-free.app/api/user/avatar/" + file.filename
 		const is_valid_image = await this.validateImageType(file)
 
 		if (is_valid_image == false) {
