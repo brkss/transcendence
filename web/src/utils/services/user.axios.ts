@@ -120,3 +120,8 @@ export const userStatus = async (username: string) => {
 	const response = await api.get(`${API_URL}/user/status/${username}`);
 	return response.data;
 }
+
+export const userAchievements = async () => {
+	const response = await api.get(`${API_URL}/user/achivements`);
+	return response.data;
+}
