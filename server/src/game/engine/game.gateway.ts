@@ -229,7 +229,12 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket()
     socket: Socket
   ) {
-    this.gameService.userReady(socket, this.server);
+    const room = this.gameService.getRoomBySocket(socket);
+    const aroom = this.gameService.getArcadeRoomBySocket(socket);
+    if(room)
+      this.gameService.userReady(socket, this.server, room);
+    else
+      this.gameService.userReady(socket, this.server, aroom);
   }
 
   @SubscribeMessage("inviteFriend")

@@ -19,6 +19,14 @@ export class GameService {
   gamingArcadeRooms: IRoom[] = [];
   constructor(private gatewayService: GatewayService) {}
 
+  connectionSuccess(
+    socket: Socket,
+    connectedUser: IConnectedUser,
+    namespace?: string,
+  ) { 
+    console.log('game service', socket.data.user.userID, socket);
+  }
+
   async hostRoom(socket: Socket) {
     const user = await this.gatewayService.getUserBySocket(socket);
     const roomId = Math.random().toString();
@@ -65,9 +73,9 @@ export class GameService {
     console.log("gamingArcadeRooms", this.gamingArcadeRooms);
   }
 
-  async userReady(socket: Socket, server: Server) {
+  async userReady(socket: Socket, server: Server, room: IRoom) {
     let readyCount = 0;
-    const room = this.getRoomBySocket(socket);
+    //const room = this.getRoomBySocket(socket);
     const user = await this.gatewayService.getUserBySocket(socket);
     if (room && room.readyCount && !room.readyCount.includes(user.userID)) {
       {
@@ -102,7 +110,8 @@ export class GameService {
     socket.join(selectedRoom.id);
 
     const Room = this.getRoomBySocket(socket);
-    socket.emit("currentRoomDetails", Room);
+    setTimeout(()=>socket.emit("currentRoomDetails", Room), 1000)
+
     console.log("TWO USERS CONNEDTED STARTING GAME", this.gamingRooms);
   }
 
@@ -119,16 +128,26 @@ export class GameService {
     ];
     socket.join(selectedRoom.id);
     const room = this.getArcadeRoomBySocket(socket);
-    socket.emit("currentRoomDetails", room);
-    console.log("TWO USERS CONNEDTED STARTING GAME", this.gamingArcadeRooms);
+
+    setTimeout(()=>socket.emit("currentRoomDetails", room), 1000)
+    
+    console.log("TWO USERS CONNEDTED STARTING GAME ARCADE", this.gamingArcadeRooms);
   }
 
   getRoomBySocket(socket: Socket) {
-    return this.gamingRooms.find(
+    let room = this.gamingRooms.find(
       (room) =>
         room?.sockets &&
         room.sockets.find((rSocket) => rSocket.socketId === socket.id)
     );
+    if(!room){
+      room = this.gamingArcadeRooms.find(
+        (room) =>
+          room?.sockets &&
+          room.sockets.find((rSocket) => rSocket.socketId === socket.id)
+      );
+    }
+    return room;
   }
 
   getArcadeRoomBySocket(socket: Socket) {
@@ -143,7 +162,7 @@ export class GameService {
     socket: Socket,
     server: Server,
     event: string,
-    data?: any
+    data?: any,
   ) {
     const room = this.getRoomBySocket(socket);
 
@@ -155,15 +174,27 @@ export class GameService {
   }
 
   async handleDisconnect(socket: Socket, server: Server) {
-    const room = this.getRoomBySocket(socket);
+    // normal 
+    let room = this.getRoomBySocket(socket);
+    let aroom = this.getArcadeRoomBySocket(socket);
 
-    this.gamingRooms = this.gamingRooms?.filter(
-      (gRoom) => gRoom?.id !== room?.id
-    );
-
-    const winner = room?.sockets.find((s) => s.socketId !== socket.id);
-
-    server?.to(room?.id).emit("winner", winner);
+    let winner;
+    if(room){
+      this.gamingRooms = this.gamingRooms?.filter(
+        (gRoom) => gRoom?.id !== room?.id
+      );  
+      winner = room?.sockets.find((s) => s.socketId !== socket.id);
+    }else if(aroom){
+      this.gamingArcadeRooms = this.gamingArcadeRooms?.filter(
+        (gRoom) => gRoom?.id !== aroom?.id
+      );  
+      winner = aroom?.sockets.find((s) => s.socketId !== socket.id);
+    }
+        
+   
+    
+    console.log("room ar : ", room, aroom);
+    server?.to(room ? room?.id : aroom?.id).emit("winner", winner);
     // FIXME: add db handling
   }
 

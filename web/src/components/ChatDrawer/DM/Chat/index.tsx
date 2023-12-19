@@ -23,7 +23,8 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 	let socket = React.useMemo(() => io(API_URL, {
 		extraHeaders: {
 			Authorization: getAccessToken()
-		}
+		},
+		autoConnect: false,
 	}), []);
 
 	let gameSocket = React.useMemo(() => io(`${API_URL}/game`, {
