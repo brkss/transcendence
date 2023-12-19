@@ -22,36 +22,40 @@ import { GameService } from './game/game.service';
 export const app_root: string = process.cwd()
 
 @Module({
-  imports: [
-    AuthModule,
-    PrismaModule,
-    UserModule,
-    ConfigModule.forRoot(
-      {
-        isGlobal:
-          true,
-      },
-    ),
-    ServeStaticModule.forRoot({
-      rootPath: path.join(app_root, '/uploads/images'),
-      serveRoot: '/user/avatar/'
-    }),
-    ChatModule,
-    GameModule,
-  ],
-  controllers: [
-    AppController,
-    TwofactorauController,
-    UserController,
-    RoomController,
-    GameController,
-  ],
-  providers: [
-    AppService,
-    AuthService,
-    TwofactorauthService,
-    RoomService,
-    GameService,
-  ],
+	imports: [
+		AuthModule,
+		PrismaModule,
+		UserModule,
+		ConfigModule.forRoot(
+			{
+				isGlobal:
+					true,
+			},
+		),
+		ServeStaticModule.forRoot({
+			rootPath: path.join(app_root, '/uploads/images'),
+			serveRoot: '/user/avatar/'
+		}),
+		ServeStaticModule.forRoot({
+			rootPath: path.join(app_root, '/uploads/badges'),
+			serveRoot: '/user/badges/'
+		}),
+		ChatModule,
+		GameModule,
+	],
+	controllers: [
+		AppController,
+		TwofactorauController,
+		UserController,
+		RoomController,
+		GameController,
+	],
+	providers: [
+		AppService,
+		AuthService,
+		TwofactorauthService,
+		RoomService,
+		GameService,
+	],
 })
 export class AppModule {}

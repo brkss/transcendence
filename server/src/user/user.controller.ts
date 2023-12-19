@@ -147,10 +147,12 @@ export class UserController {
 		return [status_wins, status_loses];
 	}
 
-	@Get("history")
-	async getPlayerHistory(@Req() request: any) {
-		const user = request.user;
-		const history = this.userService.getUserHistory(user.id);
+	@Get("history/:username")
+	async getPlayerHistory(@Req() request: any, @Param("username") username: string) {
+		const userID = await this.userService.getUserId(username);
+		if (userID == undefined)
+			return null;
+		const history = this.userService.getUserHistory(userID);
 		return (history);
 
 	}
@@ -159,5 +161,15 @@ export class UserController {
 		const ranks: UsersRanks[] = await this.userService.getRanks();
 		return (ranks);
 	}
+
+	 @Get("achievements:/username")
+        async getAchievements(@Req() request: any, @Param("username") username: string)
+        {
+                const userID = await this.userService.getUserId(username);
+		if (userID == undefined)
+			return null;
+                return await this.userService.getUserBadges(userID);
+        }
+
 
 }
