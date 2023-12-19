@@ -75,9 +75,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket()
     socket: Socket
   ) {
-    // console.log(
-    //   socket,
-    // );
     rooms.push(socket.id);
     try {
       console.log("connectedUsers", this.gatewayService.connectedUsers);
@@ -237,26 +234,38 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.gameService.userReady(socket, this.server, aroom);
   }
 
-  @SubscribeMessage("inviteFriend")
-  async inviteFriend(
-    @ConnectedSocket()
-    socket: Socket,
-    @MessageBody()
-    payload: {
-      fid: number;
-      gameId: number;
-    }
-  ) {
-    // console.log('testing friend invite')
-    this.server
-      .to("main-socket-" + String(payload.fid))
-      .emit("invited", { success: true, gameId: payload.gameId });
-    if (this.gameService.isPrivateRoomCreated(socket, payload.gameId)) {
-      await this.gameService.joinRoom(socket, payload.gameId);
-    } else {
-      await this.gameService.createPrivateRoom(socket, payload.gameId);
-    }
+  @SubscribeMessage("joinPrivateGame")
+  async joinPrivateGame(socket: Socket, payload: { gid: number }){
+     
+      if (this.gameService.isPrivateRoomCreated(socket, payload.gid)) {
+        console.log("join private room : ", payload.gid);
+        await this.gameService.joinRoom(socket, payload.gid);
+      } else {
+        console.log("create private room : ", payload.gid);
+        await this.gameService.createPrivateRoom(socket, payload.gid);
+      }
   }
+
+  // @SubscribeMessage("inviteFriend")
+  // async inviteFriend(
+  //   @ConnectedSocket()
+  //   socket: Socket,
+  //   @MessageBody()
+  //   payload: {
+  //     fid: number;
+  //     gameId: number;
+  //   }
+  // ) {
+  //   // console.log('testing friend invite')
+  //   this.server
+  //     .to("main-socket-" + String(payload.fid))
+  //     .emit("invited", { success: true, gameId: payload.gameId });
+  //   if (this.gameService.isPrivateRoomCreated(socket, payload.gameId)) {
+  //     await this.gameService.joinRoom(socket, payload.gameId);
+  //   } else {
+  //     await this.gameService.createPrivateRoom(socket, payload.gameId);
+  //   }
+  // }
 
   // // invite to game
   // @SubscribeMessage(

@@ -74,6 +74,25 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.chatService.SendPrivateChatMessage(socket, payload)
   }
 
+  @SubscribeMessage("inviteFriend")
+  async inviteFriend(
+    socket: Socket,
+    payload: {
+      fid: number;
+      gameId: number;
+    }
+  ) {
+    // console.log('testing friend invite')
+    
+    console.log("emited to firend : ","main-socket-" + String(payload.fid), payload);
+    socket.to("main-socket-" + String(payload.fid)).emit("invited", { success: true, gameId: payload.gameId });
+    // if (this.gameService.isPrivateRoomCreated(socket, payload.gameId)) {
+    //   await this.gameService.joinRoom(socket, payload.gameId);
+    // } else {
+    //   await this.gameService.createPrivateRoom(socket, payload.gameId);
+    // }
+  }
+
 
   // invite to game 
   

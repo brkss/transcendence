@@ -55,6 +55,8 @@ export class GameService {
       isPrivate: true,
     };
     this.gamingRooms.push(currentRoom);
+    socket.join(gameId.toString());
+    socket.emit("currentRoomDetails", currentRoom);
   }
 
   async hostArcadeRoom(socket: Socket) {
@@ -138,13 +140,13 @@ export class GameService {
     let room = this.gamingRooms.find(
       (room) =>
         room?.sockets &&
-        room.sockets.find((rSocket) => rSocket.socketId === socket.id)
+        room?.sockets.find((rSocket) => rSocket?.socketId === socket?.id)
     );
     if(!room){
       room = this.gamingArcadeRooms.find(
         (room) =>
           room?.sockets &&
-          room.sockets.find((rSocket) => rSocket.socketId === socket.id)
+          room?.sockets.find((rSocket) => rSocket?.socketId === socket?.id)
       );
     }
     return room;
@@ -178,17 +180,17 @@ export class GameService {
     let room = this.getRoomBySocket(socket);
     let aroom = this.getArcadeRoomBySocket(socket);
 
-    let winner;
+    let winner = null;
     if(room){
       this.gamingRooms = this.gamingRooms?.filter(
         (gRoom) => gRoom?.id !== room?.id
       );  
-      winner = room?.sockets.find((s) => s.socketId !== socket.id);
+      winner = room?.sockets ? room?.sockets.find((s) => s.socketId !== socket.id) : null;
     }else if(aroom){
       this.gamingArcadeRooms = this.gamingArcadeRooms?.filter(
         (gRoom) => gRoom?.id !== aroom?.id
       );  
-      winner = aroom?.sockets.find((s) => s.socketId !== socket.id);
+      winner = aroom?.sockets? aroom?.sockets.find((s) => s.socketId !== socket.id) : null;
     }
         
    
