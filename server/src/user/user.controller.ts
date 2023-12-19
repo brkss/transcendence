@@ -134,13 +134,15 @@ export class UserController {
 		return (resp)
 	}
 
-	@Get("status")
-	async getUserStatus(@Req() request: any) {
-		const user = request.user;
-		const total_games = await this.userService.getNumberOfGames(user.id);
+	@Get("status/:username")
+	async getUserStatus(@Req() request: any, @Param("username") username: string) {
+		const userID = await this.userService.getUserId(username);
+		if(userID === undefined)
+			return [0, 0];
+		const total_games = await this.userService.getNumberOfGames(userID);
 		if (total_games == 0)
 			return [0, 0];
-		const [wins, loses] = await this.userService.getUserLosesWins(user.id);
+		const [wins, loses] = await this.userService.getUserLosesWins(userID);
 		const [status_wins, status_loses] = [(wins / total_games) * 100, (loses / total_games) * 100]
 		return [status_wins, status_loses];
 	}

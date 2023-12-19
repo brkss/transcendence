@@ -26,8 +26,6 @@ function Profile(){
 	const [relationship, setRelationship] = React.useState("none");
 	const { onOpen, onClose, isOpen } = useDisclosure();
 
-	
-
 	React.useEffect(() => {
 		
 		if(router.isReady){
@@ -72,7 +70,7 @@ function Profile(){
 			<Box display={'none'} pos="absolute" h={"27%"} w={"100%"} top="-40px" left="0" width={"100%"} background={"linear-gradient(180deg, rgba(0,0,0,0.7343531162464986) 0%, rgba(0,0,0,0.5214679621848739) 22%, rgba(255,255,255,0) 100%);"} />
 			<Box>
 				<PersonalInfo editProfile={onOpen} image={data.avatar} username={data.username} name={data.fullName} relationship={relationship} />
-				<Stats />
+				<Stats username={data.username} />
 			</Box>
 			<SettingsDrawer onClose={onClose} isOpen={isOpen} />
 		</Layout>

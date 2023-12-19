@@ -342,6 +342,7 @@ export class UserService {
 				username: username
 			},
 			select: {
+				id: true,
 				username: true,
 				email: true,
 				fullName: true,
