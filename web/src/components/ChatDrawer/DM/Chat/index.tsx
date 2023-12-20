@@ -75,8 +75,9 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 		userChatHistory(userId).then(response => {
 			const me = jwtDecode(getAccessToken()) as any;
 			if(me){
+				console.log("DM messages : ", response)
 				setMessages([...messages, ...response.map((msg: any) => (
-					{ from: msg.sender.username === me.username ? "me" : msg.sender.username, text: msg.message }
+					{ from: msg.sender.username === me.username ? "me" : msg.sender.username, text: msg.message, avatar: msg.sender.avatar }
 				))])
 			}
 			//console.log("chat hostory dm response : ", response);
