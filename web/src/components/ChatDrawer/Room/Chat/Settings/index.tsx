@@ -58,7 +58,6 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 		getMutedMembers();
 		(async () => {
 			const response = await getRoomMembers(roomId);
-			console.log("room members : ", response);
 			setMembers([...response]);
 		})();
 	}, [roomId]);

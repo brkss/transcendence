@@ -48,9 +48,9 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 		setInputMessage("");
 	};
 
-	const handleRecievingMessage = (data: { user: string, message: string, time: string }) => {
+	const handleRecievingMessage = (data: { user: string, message: string, time: string, avatar: string }) => {
 		console.log("recieved message : ", data, messages);
-		setMessages((old: any) => [...old, { from: data.user, text: data.message}])
+		setMessages((old: any) => [...old, { from: data.user, text: data.message, avatar: data.avatar}])
 	}
 
 	const fetchChatHostory = async () => {
@@ -71,6 +71,8 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 	React.useEffect(() => {
 		socket.on('connect', () => {
 			console.log("socket connected");
+			console.log("join data : ",  {room_id: chatId, roomType: "PUBLIC"});
+			socket.emit("joinChat", {room_id: chatId, roomType: "PUBLIC"});
 		})
 
 		fetchChatHostory();
@@ -92,7 +94,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 			console.log("got success : ", data);
 		});
 		
-		socket.emit("joinChat", {room_id: chatId, roomType: "PUBLIC"});
+		
 
 		return () => {
 			socket.off("connect")
