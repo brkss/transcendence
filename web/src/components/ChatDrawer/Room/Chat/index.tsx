@@ -92,8 +92,8 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 			console.log("got success : ", data);
 		});
 		
-
 		socket.emit("joinChat", {room_id: chatId, roomType: "PUBLIC"});
+
 		return () => {
 			socket.off("connect")
 			socket.off("message")
@@ -116,14 +116,15 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 				<Flex w="100%" h={{base: "calc(100% - 81px)", md: "100%"}} justify="center" align="center" zIndex={9999}>
 				
 					<Flex w="100%" h="100%" flexDir="column">
-						<ChatHeader roomName={name} openSettings={_settings.onOpen} />
 						
-						<ChatMessages messages={messages} />
-						<ChatFooter
-							inputMessage={inputMessage}
-							setInputMessage={setInputMessage}
-							handleSendMessage={handleSendMessage}
-						/>
+							<ChatHeader roomName={name} openSettings={_settings.onOpen} />
+							<ChatMessages messages={messages} />
+							<ChatFooter
+								inputMessage={inputMessage}
+								setInputMessage={setInputMessage}
+								handleSendMessage={handleSendMessage}
+							/>
+							
 					</Flex>
 				</Flex>
 			</DrawerContent>

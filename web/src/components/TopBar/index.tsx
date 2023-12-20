@@ -88,9 +88,12 @@ export const TopBar : React.FC = () => {
 		socket.connect()
 
 		socket.on("invited", payload => {
-			setInvGID(payload.gameId);	
-			gameInviteDisclosure.onOpen();		
+			if(path != "/game"){
+				setInvGID(payload.gameId);	
+				gameInviteDisclosure.onOpen();		
+			}
 		});
+		
 		socket.on("Error", (data) => {
 			toast({
 				status: 'error',
