@@ -111,6 +111,11 @@ export const updateUserProfile = async (name: string, username: string) => {
 	return response.data;
 }
 
+export const blockedUsers = async () => {
+	const response = await api.get(`${API_URL}/user/blocked`);
+	return response.data;
+}
+
 export const userLeaderBoard = async () => {
 	const response = await api.get(`${API_URL}/user/leaderboard`);
 	return response.data;

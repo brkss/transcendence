@@ -43,6 +43,12 @@ export class UserController {
 		return (await this.userService.unblockUser(user_id, blockee_id))
 	}
 
+	@Get("blocked")
+	async blocked(@Req() req){
+		const user_id = req.user.userID;
+		return ( await this.userService.getBlockedFriends(user_id) );
+	}
+
 	@Post('friends/add')
 	async addFriend(@Req() req, @Body() body: addFriendDTO) {
 		const user_id: number = req.user.userID
