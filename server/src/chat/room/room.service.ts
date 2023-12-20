@@ -166,12 +166,14 @@ export class RoomService {
                 roomType: {
                     not: RoomType.PRIVATE
                 },
+                
                 name: {
                     contains: room_name,
                     mode: 'insensitive', // Case-insensitive search
                 }
             }
-        })
+        });
+        
         return (matched_rooms)
     }
     async getRoomById(room_id: number): Promise<any> {
@@ -445,6 +447,17 @@ export class RoomService {
             }
         })
         return (ban_id != null ? true : false)
+    }
+    async getUserBannedRooms(userId: number) {
+        const banned_rooms = await this.prismaService.roomBan.findMany({
+            where: {
+                user_id: userId
+            },
+            select: {
+                room_id: true
+            }
+        })
+        return (banned_rooms)
     }
     async getAllBannedUsers(roomId: number) {
         const banned_users = await this.prismaService.roomBan.findMany({
