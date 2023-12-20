@@ -134,6 +134,7 @@ const setup = (
     keyPressed(p5, ev, socket, puck);
     if (ev.key === "Enter") {
       socket.emit("userReady");
+      console.log("user ready event emited!!!!!!!! ")
     }
   });
   window.addEventListener("keyup", () => keyReleased(socket));

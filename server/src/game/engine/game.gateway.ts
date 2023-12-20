@@ -8,20 +8,11 @@ import {
   WebSocketServer,
 } from "@nestjs/websockets";
 
-import {
-  JoinRoomDTO,
-  chatMessageDTO,
-  PrivateMessageDTO,
-  LeaveRoomDTO,
-} from "src/chat/dtos/chat.dto";
-
 import { Socket, Server } from "socket.io";
-import { ValidationExceptionFilter } from "src/chat/dtos/chatvalidation.filer";
-import { GatewayService } from "../../chat/gateway/chat/gateway.service";
-import { ChatService } from "src/chat/chat.service";
+//import { GatewayService } from "../../chat/gateway/chat/gateway.service";
+import { GatewayService } from "./gateway.service";
 import { UseFilters, UsePipes, ValidationPipe } from "@nestjs/common";
 import { GameService } from "./game.service";
-import { subscribe } from "diagnostics_channel";
 
 const rooms = [];
 
@@ -40,7 +31,6 @@ const rooms = [];
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private gatewayService: GatewayService,
-    private chatService: ChatService,
     private gameService: GameService
   ) {}
   @WebSocketServer()
@@ -49,24 +39,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.gatewayService.socketConnection(socket, "game");
   }
 
-  private async leaveAllRoomsOnDisconnect(socket: Socket, user: any) {
-    /*
-              Deleting all member entrys should be at leaveRoom
-            */
-    //this.gatewayService.leavAllSocketRooms(socket, user)
-  }
-
   async handleDisconnect(socket: Socket) {
-    const user = socket.data.user;
-    const connected_rooms = await this.chatService.getConnectedRooms(user.id);
-
-    for (const room of connected_rooms) {
-      const payload = {
-        room_id: room.roomId,
-      };
-      await this.chatService.leaveChat(socket, payload);
-    }
-    this.gatewayService.handleDisconnect(socket);
+    this.gatewayService.handleDisconnect(socket)
     this.gameService.handleDisconnect(socket, this.server);
   }
 
@@ -77,11 +51,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     rooms.push(socket.id);
     try {
-      console.log("connectedUsers", this.gatewayService.connectedUsers);
       const savedSocket = this.gatewayService.connectedUsers.find(
         (user) => user.socketId === socket.id
       );
-      console.log("savedSocket", savedSocket);
       if (savedSocket) {
         this.gameService.joinArcadeQueue(socket);
       } else {
@@ -99,16 +71,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket()
     socket: Socket
   ) {
-    // console.log(
-    //   socket,
-    // );
     rooms.push(socket.id);
     try {
-      console.log("connectedUsers", this.gatewayService.connectedUsers);
       const savedSocket = this.gatewayService.connectedUsers.find(
         (user) => user.socketId === socket.id
       );
-      console.log("savedSocket", savedSocket);
       if (savedSocket) {
         this.gameService.joinQueue(socket);
       } else {
@@ -130,7 +97,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       value: number;
     }
   ) {
-    console.log(payload);
     this.gameService.moveLeft(socket, payload, this.server);
   }
 
@@ -226,8 +192,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket()
     socket: Socket
   ) {
-    const room = this.gameService.getRoomBySocket(socket);
+    const room = this.gameService.getRoomByPlayer(socket.data.user.id);
     const aroom = this.gameService.getArcadeRoomBySocket(socket);
+    console.error("user ready room : ", room)
+    console.error("user ready arcade : ", aroom)
     if(room)
       this.gameService.userReady(socket, this.server, room);
     else
@@ -236,51 +204,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage("joinPrivateGame")
   async joinPrivateGame(socket: Socket, payload: { gid: number }){
-     
+      console.error("user:", socket.data.user.username, "emit socket ID:", socket.id) 
       if (this.gameService.isPrivateRoomCreated(socket, payload.gid)) {
-        console.log("join private room : ", payload.gid);
         await this.gameService.joinRoom(socket, payload.gid);
       } else {
-        console.log("create private room : ", payload.gid);
         await this.gameService.createPrivateRoom(socket, payload.gid);
       }
   }
 
-  // @SubscribeMessage("inviteFriend")
-  // async inviteFriend(
-  //   @ConnectedSocket()
-  //   socket: Socket,
-  //   @MessageBody()
-  //   payload: {
-  //     fid: number;
-  //     gameId: number;
-  //   }
-  // ) {
-  //   // console.log('testing friend invite')
-  //   this.server
-  //     .to("main-socket-" + String(payload.fid))
-  //     .emit("invited", { success: true, gameId: payload.gameId });
-  //   if (this.gameService.isPrivateRoomCreated(socket, payload.gameId)) {
-  //     await this.gameService.joinRoom(socket, payload.gameId);
-  //   } else {
-  //     await this.gameService.createPrivateRoom(socket, payload.gameId);
-  //   }
-  // }
-
-  // // invite to game
-  // @SubscribeMessage(
-  //   'inviteFriend',
-  // )
-  // async inviteFriend(
-  //   @ConnectedSocket()
-  //   socket: Socket,
-  //   @MessageBody()
-  //   payload: {
-  //     fid: number;
-  //   },
-  // ) {
-  //   console.log("invite a friend : ", payload);
-  //   socket.emit("invited", {uid: -1, gid: -2});
-  // }
 }
 

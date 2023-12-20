@@ -1,20 +1,23 @@
 import { Module } from '@nestjs/common';
 import { GameGateway } from './game.gateway';
-import { GatewayService } from 'src/chat/gateway/chat/gateway.service';
 import { ChatModule } from 'src/chat/chat.module';
 import { GameService } from './game.service';
+import { GatewayService } from './gateway.service';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
     ChatModule,
+    AuthModule,
   ],
   exports: [
     GameGateway,
-    GameService
+    GameService,
   ],
   providers: [
     GameGateway,
-    GameService
+    GameService,
+    GatewayService,
   ],
 })
 export class GameModule {}

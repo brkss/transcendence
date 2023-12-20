@@ -1,8 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { ConnectedSocket, WebSocketServer } from "@nestjs/websockets";
 import { Socket, Server } from "socket.io";
-import { GatewayService } from "src/chat/gateway/chat/gateway.service";
+import { GatewayService } from "./gateway.service";
 import { IConnectedUser } from "src/utils";
+import { InternalOAuthError } from "passport-oauth2";
 
 interface IRoom {
   id: string;
@@ -24,7 +25,6 @@ export class GameService {
     connectedUser: IConnectedUser,
     namespace?: string,
   ) { 
-    console.log('game service', socket.data.user.userID, socket);
   }
 
   async hostRoom(socket: Socket) {
@@ -44,8 +44,9 @@ export class GameService {
   }
 
   async createPrivateRoom(socket: Socket, gameId: number) {
-    const user = await this.gatewayService.getUserBySocket(socket);
-    console.log(this.gatewayService.connectedUsers, socket.id);
+    //const user = await this.gatewayService.getUserBySocket(socket);
+    const socket_user = socket.data.user
+    const user = this.gatewayService.getConnectedUserById(socket_user.id)
     const currentRoom: IRoom = {
       id: gameId?.toString(),
       label: `Room-${user?.username}`,
@@ -77,12 +78,11 @@ export class GameService {
 
   async userReady(socket: Socket, server: Server, room: IRoom) {
     let readyCount = 0;
-    //const room = this.getRoomBySocket(socket);
-    const user = await this.gatewayService.getUserBySocket(socket);
+    //const room = this.getRoomByPlayer(socket.data.user.id);
+    //const user = await this.gatewayService.getUserBySocket(socket);
+    const user = await this.gatewayService.getConnectedUserById(socket.data.user.id)
     if (room && room.readyCount && !room.readyCount.includes(user.userID)) {
-      {
-        room.readyCount.push(user.userID);
-      }
+      {room.readyCount.push(user.userID);}
     }
     if (room && room.sockets) {
       room.sockets.forEach(
@@ -90,19 +90,24 @@ export class GameService {
       );
       if (room.readyCount.length >= 2 && readyCount === 2) {
         console.log(room.sockets.map((s) => console.log(s)));
-
         this.emitToRoomBySocket(socket, server, "startGame");
       }
     }
   }
 
   async joinRoom(socket: Socket, roomId?: number) {
-    const user = await this.gatewayService.getUserBySocket(socket);
+    //const user = await this.gatewayService.getUserBySocket(socket);
+    const socket_user = socket.data.user
+    const user = this.gatewayService.getConnectedUserById(socket_user.id)
+    if (user != undefined) {
+      // user is not in game mode
+      // do somthing
+    }
     const selectedRoom = !roomId
       ? this.gamingRooms.find((room) => room.sockets.length < 2)
       : this.gamingRooms.find((room) => room.id === roomId.toString());
 
-    console.log(selectedRoom);
+    //console.log(selectedRoom);
     selectedRoom.sockets.push(user);
 
     this.gamingRooms = [
@@ -111,10 +116,12 @@ export class GameService {
     ];
     socket.join(selectedRoom.id);
 
-    const Room = this.getRoomBySocket(socket);
-    setTimeout(()=>socket.emit("currentRoomDetails", Room), 1000)
+    // Selected Room Is Same As Room ?
+    //const Room = this.getRoomByPlayer(socket.data.user.id);
+    const Room = selectedRoom
 
-    console.log("TWO USERS CONNEDTED STARTING GAME", this.gamingRooms);
+    setTimeout(()=>socket.emit("currentRoomDetails", Room), 1000)
+    console.log("TWO USERS CONNEDTED STARTING GAME", Room);
   }
 
   async joinArcadeRoom(socket: Socket) {
@@ -152,6 +159,23 @@ export class GameService {
     return room;
   }
 
+
+  getRoomByPlayer(player_id: number) {
+    let room = this.gamingRooms.find(
+      (room) =>
+        room?.sockets &&
+        room?.sockets.find((rSocket) => rSocket.id === player_id)
+    );
+    if(!room){
+      room = this.gamingArcadeRooms.find(
+        (room) =>
+          room?.sockets &&
+          room?.sockets.find((rSocket) => rSocket?.id === player_id)
+      );
+    }
+    return room;
+  }
+
   getArcadeRoomBySocket(socket: Socket) {
     return this.gamingArcadeRooms.find(
       (room) =>
@@ -166,7 +190,7 @@ export class GameService {
     event: string,
     data?: any,
   ) {
-    const room = this.getRoomBySocket(socket);
+    const room = this.getRoomByPlayer(socket.data.user.id);
 
     server?.to(room?.id).emit(event, data);
   }
@@ -177,7 +201,7 @@ export class GameService {
 
   async handleDisconnect(socket: Socket, server: Server) {
     // normal 
-    let room = this.getRoomBySocket(socket);
+    let room = this.getRoomByPlayer(socket.data.user.id);
     let aroom = this.getArcadeRoomBySocket(socket);
 
     let winner = null;
@@ -185,7 +209,7 @@ export class GameService {
       this.gamingRooms = this.gamingRooms?.filter(
         (gRoom) => gRoom?.id !== room?.id
       );  
-      winner = room?.sockets ? room?.sockets.find((s) => s.socketId !== socket.id) : null;
+      winner = room?.sockets ? room?.sockets?.find((s) => s.socketId !== socket.id) : null;
     }else if(aroom){
       this.gamingArcadeRooms = this.gamingArcadeRooms?.filter(
         (gRoom) => gRoom?.id !== aroom?.id
@@ -195,7 +219,7 @@ export class GameService {
         
    
     
-    console.log("room ar : ", room, aroom);
+    //console.log("room ar : ", room, aroom);
     server?.to(room ? room?.id : aroom?.id).emit("winner", winner);
     // FIXME: add db handling
   }
@@ -236,7 +260,7 @@ export class GameService {
     },
     server: Server
   ) {
-    const room = this.getRoomBySocket(socket);
+    const room = this.getRoomByPlayer(socket.data.user.id);
     console.log("moveLeft", room, data);
     server
       ?.to(room?.id)
@@ -248,7 +272,7 @@ export class GameService {
     socket: Socket,
     server: Server
   ) {
-    const room = this.getRoomBySocket(socket);
+    const room = this.getRoomByPlayer(socket.data.user.id);
     server?.to(room?.id).emit("moveLeftRelease");
   }
 
@@ -261,8 +285,14 @@ export class GameService {
     server: Server,
     isRight?: boolean
   ) {
-    const room = this.getRoomBySocket(socket);
-    console.log("moveToPos", room, data);
+    //const room = this.getRoomByPlayer(socket.data.user.id);
+    const room = this.getRoomByPlayer(socket.data.user.id)
+    //console.log("moveToPos", room, data);
+    if (!room) {
+    console.log("move TO pos : ", socket.data.user)
+    console.log("current room :" , room)
+    throw new InternalServerErrorException();
+    }
     server?.to(room?.id).emit(isRight ? "setRightPos" : "setLeftPos", data);
   }
 
@@ -319,7 +349,7 @@ export class GameService {
     server: Server,
     isRight?: boolean
   ) {
-    const room = this.getRoomBySocket(socket);
+    const room = this.getRoomByPlayer(socket.data.user.id);
     console.log(room, data);
     server?.to(room?.id).emit("initPuck", data);
   }
