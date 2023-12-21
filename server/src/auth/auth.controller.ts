@@ -36,4 +36,11 @@ export class authController {
         });
         resp.redirect("/")
     }
+
+    @Post("/logout")
+    async logoutUser(@Req() req: any, @Res() resp: Response){
+        return resp.cookie('refresh_token', "", {
+            httpOnly: true 
+        })
+    }
 }

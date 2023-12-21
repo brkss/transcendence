@@ -51,6 +51,14 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 		console.log("accespt friend : ", reqIndex, requests, friends);
 	}
 
+	const requestRejected = (uid: number) => {
+		const reqIndex = requests.findIndex(x => x.id === uid);
+		if(reqIndex > -1){
+			const user = requests.splice(reqIndex, 1)[0];
+			setRequests([...requests]);
+		}
+	}
+
 
 	const handleUnblockingUser = (uid: number) => {
 		unblockUser(uid).then(response => {
@@ -113,7 +121,7 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 					<Box pb={'25px'} mb={'10px'} borderBottom={'1px dotted #c5c4c4'}>
 						{
 							requests.map((req: any, key: number) => (
-								<RequestItem key={key} name={req.fullName} username={req.username} image={req.avatar} accepted={() => friendAccepted(req.id)} />
+								<RequestItem key={key} name={req.fullName} username={req.username} image={req.avatar} accepted={() => friendAccepted(req.id)} reject={() => requestRejected(req.id)} />
 							))
 						}
 					</Box>
