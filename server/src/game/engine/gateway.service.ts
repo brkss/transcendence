@@ -36,7 +36,7 @@ export class GatewayService {
       (user) => user.socketId !== socket.id
     );
         // debug //
-        this.connectedUsers = []
+        //this.connectedUsers = []
         // debug //
   }
 

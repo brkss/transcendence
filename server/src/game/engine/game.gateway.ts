@@ -193,7 +193,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     socket: Socket
   ) {
     const room = this.gameService.getRoomByPlayer(socket.data.user.id);
-    const aroom = this.gameService.getArcadeRoomBySocket(socket);
+    const aroom = this.gameService.getRoomByPlayer(socket.data.user.id);
     console.error("user ready room : ", room)
     console.error("user ready arcade : ", aroom)
     if(room)

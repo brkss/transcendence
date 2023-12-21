@@ -115,7 +115,7 @@ export default function Index() {
                   <PongSketch
                     isHost={user.userID === userRoomData?.hostUserId}
                     socket={socketIo}
-                    isSecondaryModeOn={arcadeMode === "on"}
+                    isSecondaryModeOn={arcadeMode === "on" && false}
                     isSecond={currentMode === "NUKE"}
                   />
                 ) : (
