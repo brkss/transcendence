@@ -19,6 +19,8 @@ services:
             - "5432:5432"
         env_file:
             - ./server/.env
+        volumes:
+            - "tmp/pgdata:/var/lib/postgresql/data"
 
     server:
         container_name: transcendance_api
