@@ -12,11 +12,12 @@ import {
 	, UseInterceptors, UploadedFile
 } from "@nestjs/common"
 import { UserHistory, UsersRanks } from 'src/user/history.interface';
+import { GameService } from 'src/game/game.service';
 
 @Controller('user')
 @UseGuards(JwtAuth)
 export class UserController {
-	constructor(private userService: UserService) {
+	constructor(private userService: UserService, private gameService: GameService) {
 
 	}
 
@@ -145,11 +146,12 @@ export class UserController {
 		const userID = await this.userService.getUserId(username);
 		if(userID === undefined)
 			return [0, 0];
-		const total_games = await this.userService.getNumberOfGames(userID);
+		let total_games = await this.userService.getNumberOfGames(userID);
 		if (total_games == 0)
 			return [0, 0];
+		console.log("number of games: " , total_games);
 		const [wins, loses] = await this.userService.getUserLosesWins(userID);
-		const [status_wins, status_loses] = [(wins / total_games) * 100, (loses / total_games) * 100]
+		const [status_wins, status_loses] = [(wins / total_games) * 100, (loses / total_games) * 100];
 		return [status_wins, status_loses];
 	}
 
@@ -174,7 +176,7 @@ export class UserController {
 		const userID = await this.userService.getUserId(username);
 		if (userID == undefined)
 			return null;
-				return await this.userService.getUserBadges(userID);
+		return await this.userService.getUserBadges(userID);
 	}
 
 
