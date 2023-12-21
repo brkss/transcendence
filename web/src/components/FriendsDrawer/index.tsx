@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { FriendBox } from './Item';
 import { RequestItem } from './RequestItem'
-import { blockUser, getFriends, getRequests } from '@/utils/services';
+import { blockUser, getFriends, getRequests, blockedUsers, unblockUser } from '@/utils/services';
 
 interface Props {
 	isOpen: boolean;
@@ -31,7 +31,8 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 		if(isOpen === true){
 			(async () => {
 				const reqs = await getRequests();
-				const frds = await getFriends(); 
+				const frds = await getFriends();
+				console.log("frds : ", frds);
 				console.log("get friends : ", frds);
 				setFriends(frds);
 				setRequests(reqs);
@@ -50,6 +51,29 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 		console.log("accespt friend : ", reqIndex, requests, friends);
 	}
 
+
+	const handleUnblockingUser = (uid: number) => {
+		unblockUser(uid).then(response => {
+			console.log("block user response : ", response);
+			toast({
+				status: 'success',
+				title: "You unblocked user successfuly",
+				isClosable: true,
+				duration: 9000,
+			});
+			const tmp = friends.map(f => { if(f.id === uid) f.isBlocked = false; return f })
+			setFriends([...tmp]);	
+		}).catch(e => {
+			console.log("got an error unblocking user : ", e);
+			toast({
+				status: 'error',
+				title: "Error: Can't unblock user !",
+				isClosable: true,
+				duration: 9000
+			});	
+		})
+	}
+
 	const handleBlockingUser = (uid: number) => {
 		blockUser(uid).then(response => {
 			console.log("block user response : ", response);
@@ -59,6 +83,8 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 				isClosable: true,
 				duration: 9000,
 			});
+			const tmp = friends.map(f => { if(f.id === uid) f.isBlocked = true; return f })
+			setFriends([...tmp]);
 		}).catch(e => {
 			console.log("got an error : ", e);
 			toast({
@@ -93,8 +119,8 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 					</Box>
 					<Box>
 						{
-							friends.map((friend: any, key: number) => (
-								<FriendBox blockUser={() => handleBlockingUser(friend.id)} sendMessage={() => sendMessage(friend.id)} key={key} name={friend.name} username={friend.username} image={friend.avatar} />
+							friends?.map((friend: any, key: number) => (
+								<FriendBox unblockUser={() => handleUnblockingUser(friend.id)} blockUser={() => handleBlockingUser(friend.id)} sendMessage={() => sendMessage(friend.id)} key={key} name={friend.name} username={friend.username} image={friend.avatar} isBlocked={friend.isBlocked} />
 							))
 						}
 					</Box>

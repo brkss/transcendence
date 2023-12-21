@@ -8,10 +8,11 @@ import { Menu, MenuList, MenuItem, MenuButton, Switch } from "@chakra-ui/react";
 import ChatBox from "@/components/Game/chat/ChatBox";
 import { getPayload } from "@/utils/helpers";
 import { Socket } from "socket.io";
+import { GameMode } from '@/components';
 
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { useSearchParams } from "next/navigation";
-
+import { API_URL } from "@/utils/constants";
 export interface IConnectedUser {
   id: number;
   userID: number;
@@ -21,15 +22,17 @@ export interface IConnectedUser {
 
 export default function Index() {
   console.log("initsocket");
+  const [currentMode, setCurrentMode] = React.useState("NORMAL");
   const searchParams = useSearchParams();
   const [gameMode, setGameMode] = React.useState(false);
   const [isNotAllowed, setIsNotAllowed] = React.useState(false);
   const [winner, setWinner] = React.useState<IConnectedUser | null>(null);
   const [userRoomData, setRoomData] = React.useState<{ hostUserId: number, label: string, id: string }>();
-  let socketIo = React.useMemo(() => io("http://localhost:8000/game", {
+  let socketIo = React.useMemo(() => io(`${API_URL}/game`, {
 		extraHeaders: {
 			Authorization: getAccessToken()
-		}
+		},
+    //autoConnect: false
 	}), []);
   // const [socketIo, setSocketIo] = React.useState<any>(
   //   //io("http://localhost:8001/api/game", {
@@ -41,6 +44,7 @@ export default function Index() {
   // );
   const user: IConnectedUser = getPayload() as IConnectedUser;
   const arcadeMode = searchParams.get("arcade");
+  const gid = searchParams.get("gid");
 
   console.log("user", socketIo);
 
@@ -49,12 +53,10 @@ export default function Index() {
     socketIo.on("connect", () => {
       console.log("Connected to WebSocket server");
       // socket.send("Hello, WebSocket server!");  
-        if(arcadeMode)
-        {
+        if(gid)
+          socketIo.emit("joinPrivateGame", { gid: gid });
+        else if(arcadeMode)
           socketIo.emit("joinArcadeQueue");
-          console.log("CONNECTED TO ARCADE QUEUE", arcadeMode);
-        }
-          
         else
           socketIo.emit("joinQueue");
 
@@ -84,6 +86,8 @@ export default function Index() {
       console.log("Disconnected from WebSocket server");
     });
 
+    socketIo.connect();
+
     return () => {
       socketIo.disconnect();
     };
@@ -105,12 +109,14 @@ export default function Index() {
             </div>
           ) : (
             <>
+              <GameMode select={(mode) => setCurrentMode(mode)} />
               <div className="flex flex-row justify-center w-full">
                 {userRoomData?.hostUserId !== null ? (
                   <PongSketch
                     isHost={user.userID === userRoomData?.hostUserId}
                     socket={socketIo}
-                    isSecondaryModeOn={arcadeMode === "on"}
+                    isSecondaryModeOn={arcadeMode === "on" && false}
+                    isSecond={currentMode === "NUKE"}
                   />
                 ) : (
                   "notReady"

@@ -58,7 +58,6 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 		getMutedMembers();
 		(async () => {
 			const response = await getRoomMembers(roomId);
-			console.log("room members : ", response);
 			setMembers([...response]);
 		})();
 	}, [roomId]);
@@ -198,12 +197,12 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 			setMuted([...response.mutedUsers]);
 		}).catch(e => {
 			console.log("get muted members error : ", e);
-			toast({
-				title: "Something went wrong: Can't get muted users",
-				status: "error",
-				duration: 9000,
-				isClosable: true	
-			})
+			// toast({
+			// 	title: "Something went wrong: Can't get muted users",
+			// 	status: "error",
+			// 	duration: 9000,
+			// 	isClosable: true	
+			// })
 		});
 	}
 
@@ -213,12 +212,12 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 			setBanned([...response.bannedUsers]);
 		}).catch(e => {
 			console.log("get banned members error : ", e);
-			toast({
-				title: "Something went wrong: Can't get banned users",
-				status: "error",
-				duration: 9000,
-				isClosable: true	
-			})
+			// toast({
+			// 	title: "Something went wrong: Can't get banned users",
+			// 	status: "error",
+			// 	duration: 9000,
+			// 	isClosable: true	
+			// })
 		});
 	}
 

@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Req, UseGuard
 import { RoomService } from "./room.service";
 import { JwtAuth } from "src/auth/guards/jwtauth.guard";
 import { BanDTO, JoinRoomDTO, MuteUserDTO, RoomDTO, createRoomDTO, findRoomDTO, kickDTO, setAdminDTO, updateRoomDTO, UnMuteUserDTO } from "../dtos/chat.dto";
+import { all } from "axios";
 
 @Controller('room')
 @UseGuards(JwtAuth)
@@ -15,7 +16,20 @@ export class RoomController {
     }
     @Post("search")
     async hadleSearchRoom(@Req() request: any, @Body() body: findRoomDTO) {
-      return (await this.roomService.findRoomByName(body))
+      const user = request.user
+      const all_rooms = await this.roomService.findRoomByName(body);
+      const user_banned_rooms = await this.roomService.getUserBannedRooms(user.id)
+      console.log("user banned : ", user_banned_rooms)
+      const rooms  = all_rooms.map((room) => {
+        if(user_banned_rooms.findIndex(x => x.room_id === room.id) === -1)
+          return room;
+      }).filter((room) => room !== undefined);
+      console.log("rooms : ", rooms);
+      // all_rooms.filter((room) => (
+      //   user_banned_rooms.indexOf({room_id :room.id}) > -1
+      // ))
+      return (rooms);
+      //return (await this.roomService.findRoomByName(body))
     }
     @Post("add")
     async handleRoomCreate(@Req() request: any, @Body() body: createRoomDTO): Promise<any> {

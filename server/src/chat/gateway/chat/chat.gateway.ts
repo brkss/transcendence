@@ -16,7 +16,7 @@ import { GatewayService } from "./gateway.service";
 import { ChatService } from "src/chat/chat.service";
 import { UseFilters, UsePipes, ValidationPipe } from "@nestjs/common"
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway({ cors: true})// , namespace: 'chat'})
 @UseFilters(ValidationExceptionFilter)
 @UsePipes(new ValidationPipe({
   disableErrorMessages: false,
@@ -74,12 +74,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.chatService.SendPrivateChatMessage(socket, payload)
   }
 
-
-  // invite to game 
-  
-  
-  // @SubscribeMessage('myChats')
-  // async getMychats(socket: Socket, payload) {
-  //   await this.chatService.getMyChats(socket)
-  // }
+  @SubscribeMessage("inviteFriend")
+  async inviteFriend(
+    socket: Socket,
+    payload: {
+      fid: number;
+      gameId: number;
+    }
+  ) {
+    
+    console.log("emited to firend : ","main-socket-" + String(payload.fid), payload);
+    socket.to("main-socket-" + String(payload.fid)).emit("invited", { success: true, gameId: payload.gameId });
+  }
 }

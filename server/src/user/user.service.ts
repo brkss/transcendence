@@ -300,6 +300,25 @@ export class UserService {
 			    }
 		    }
 
+			async getBlockedFriends(uid: number){
+				const blocked = await this.prismaService.block.findMany({
+					where: { OR: [{blocker: uid}, {blockee: uid}] },
+					select: {
+						blockee: true,
+					}
+				});
+				const blockedFriends = [];
+				for(let i = 0; i < blocked.length; i++){
+					const user = await this.prismaService.user.findFirst({
+						where: { id: blocked[i].blockee },
+						select: { id: true, username: true, email: true, avatar: true }
+					});
+					blockedFriends.push(user);
+				}
+				console.log('blocked users: ', blockedFriends);
+				return ( blockedFriends );
+			}
+
 		    async getAllFriends(username: string) {
 			    const userId = await this.getUserId(username)
 			    const friends = await this.prismaService.friendship.findMany({
@@ -315,8 +334,24 @@ export class UserService {
 			    })
 			    const user_friends = friends.map((ff) => {
 				    return ff.user.id == userId ? ff.friend : ff.user;
-			    })
-			    return (user_friends)
+			    });
+				const friendsResponse = [];
+				// check if blocked
+				for(let i = 0; i < user_friends.length; i++){
+					let isBlocked = false;
+			
+					const blocked = await this.prismaService.block.findFirst({
+						where: { OR: [{blockee: user_friends[i].id}, {blocker: user_friends[i].id}]}
+					})
+					console.log("blocked : ", blocked);
+					if(blocked)
+						isBlocked = true;
+					friendsResponse.push({
+						...user_friends[i],
+						isBlocked
+					})
+				}
+			    return (friendsResponse)
 		    }
 		    async updateUserAvatar(user_id: number, avatar: string) {
 			    const avatar_link = await this.prismaService.user.update({

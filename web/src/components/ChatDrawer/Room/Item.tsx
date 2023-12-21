@@ -22,7 +22,7 @@ export const ChatBox: React.FC<Props> = ({type, name, enter}) => {
 					<Text bg={'green.100'} rounded={'4px'} fontWeight={'bold'} fontSize={'13px'} p={'1px 6px'} display={'inline-block'}>{type}</Text>
 				</Box>
 				<Box ml={'auto'}>
-					<Text fontSize={'14px'} fontWeight={'bold'}>2 online</Text>
+					
 				</Box>
 			</Stack>
 		</Box>

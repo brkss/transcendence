@@ -10,6 +10,7 @@ import decode from 'jwt-decode';
 import { getUserById, userChatHistory } from '@/utils/services';
 import { Loading } from '@/components/General';
 import jwtDecode from 'jwt-decode';
+import { useRouter } from 'next/router';
 
 interface Props {
 	isOpen: boolean;
@@ -19,6 +20,7 @@ interface Props {
 
 export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 
+	const router = useRouter();
 	// init socket 
 	let socket = React.useMemo(() => io(API_URL, {
 		extraHeaders: {
@@ -73,8 +75,9 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 		userChatHistory(userId).then(response => {
 			const me = jwtDecode(getAccessToken()) as any;
 			if(me){
+				console.log("DM messages : ", response)
 				setMessages([...messages, ...response.map((msg: any) => (
-					{ from: msg.sender.username === me.username ? "me" : msg.sender.username, text: msg.message }
+					{ from: msg.sender.username === me.username ? "me" : msg.sender.username, text: msg.message, avatar: msg.sender.avatar }
 				))])
 			}
 			//console.log("chat hostory dm response : ", response);
@@ -124,11 +127,12 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 	}, [socket, userId])
 
 	const handleInvteToGame = (uid: number) => {
-		console.log('invite friend')
-		gameSocket.emit("inviteFriend", {
+		const gid = Math.random();
+		socket.emit("inviteFriend", {
 			fid: uid,
-			gameId: Math.random()
-		})
+			gameId: gid
+		});
+		router.replace(`/game?gid=${gid}`);
 	}
 
 	return (

@@ -108,6 +108,7 @@ export class ChatService {
             payload.room_id,
             user.id
         )
+
         if (room != null) {
             message.message = "Welcome to Ch4t!"
             socket.emit("message", message)
@@ -119,24 +120,29 @@ export class ChatService {
             await this.roomService.setUserInChat(user.id, room.id, true);
             const chat_users =  await this.roomService.getChatUsers(room.id)
             socket.nsp.to(room.name).emit("users", chat_users)
+        }else {
+            socket.emit("Error", "You're banned" );
         }
     }
 
     async SendChatMessage(socket: Socket, payload: chatMessageDTO) {
         const user = socket.data.user;
+        const userData = await this.userService.getUserByID(user.id);
         const room = await this.verify_payload(socket, payload.room_id, user.id)
         if (room != null) {
             const message = {
                 user: user.username,
                 message: payload.message,
-                time: Date()
+                time: Date(),
+                avatar: userData.avatar
             }
             const data = {
                 userId: user.id,
                 //sender_username: user.username,
                 roomId: room.id,
                 recepient_id: null,
-                message: payload.message
+                message: payload.message,
+                
             }
             socket.to(room.name).emit("message", message)
             this.roomService.saveMessageInDB(data)

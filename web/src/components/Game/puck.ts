@@ -63,6 +63,8 @@ export class Puck {
   y: number;
   xspeed: number;
   yspeed: number;
+  currentTime: number;
+  isSecond: boolean;
   constructor(
     canvasWidth: number,
     canvasHeight: number,
@@ -72,7 +74,9 @@ export class Puck {
     socket: Socket,
     isHost: boolean,
     isSecondaryModeOn: boolean,
-    isSecondaryBall: boolean
+    isSecond: boolean,
+    isSecondaryBall: boolean,
+    
   ) {
     this.r = 12;
     this.xspeed = 0;
@@ -89,7 +93,9 @@ export class Puck {
     this.isSecondaryBall = isSecondaryBall;
     this.isSecondaryModeOn = isSecondaryModeOn;
     this.x = this.canvasWidth / 2;
-    this.y = this.canvasHeight / 2;``
+    this.y = this.canvasHeight / 2;
+    this.currentTime = Date.now();
+    this.isSecond = isSecond;
     
     console.log("isHost:", this.x, isHost);
     this.isHost = isHost;
@@ -237,9 +243,15 @@ export class Puck {
 
   show() {
     if (this.isGameOver) return;
-    this.p5.fill(255);
+    if(this.isSecond){
+      this.p5.fill(0);
+    }else {
+      this.p5.fill(255);
+    }
+    //this.p5.fill(255);
+    
     this.p5.ellipse(this.x, this.y, this.r * 2);
-    this.showParticles();
+    this.showParticles(); 
   }
   destroy() {
     this.isGameOver = true;

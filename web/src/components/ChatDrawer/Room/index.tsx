@@ -107,7 +107,7 @@ export const ChatRooms: React.FC<Props> = ({}) => {
 		}).catch(e => {
 			console.log("join exp : ", e);
 			toast({
-				title: 'Invalid Password',
+				title: "Can't joint",
 				status: 'error',
 				duration: 9000,
 				isClosable: true,
