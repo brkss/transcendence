@@ -23,9 +23,9 @@ let isGameOver = false;
 let isReady = false;
 let leftscore = 0;
 let rightscore = 0;
-const keyReleased = (socket: Socket) => {
-  socket.emit("moveLeftRelease");
-  socket.emit("moveRightRelease");
+const keyReleased = (socket: Socket, key: string) => {
+    socket.emit("moveLeftRelease");
+    socket.emit("moveRightRelease");
 };
 
 const keyPressed = (
@@ -54,7 +54,8 @@ const setup = (
   canvasParentRef: any,
   isSecondaryModeOn: boolean,
   socket: Socket,
-  isHost: boolean
+  isHost: boolean,
+  isSecond: boolean
 ) => {
   p5.createCanvas(canvasWidth, canvasHeight).parent(canvasParentRef);
   crazyModePuck = undefined;
@@ -71,6 +72,7 @@ const setup = (
     socket,
     isHost,
     false,
+    isSecond,
     false
   );
   left = new Paddle(
@@ -125,7 +127,8 @@ const setup = (
         socket,
         isHost,
         isSecondaryModeOn,
-        true
+        isSecond,
+        true,
       );
     }
   });
@@ -137,7 +140,7 @@ const setup = (
       console.log("user ready event emited!!!!!!!! ")
     }
   });
-  window.addEventListener("keyup", () => keyReleased(socket));
+  window.addEventListener("keyup", (e) => keyReleased(socket, e.key));
   if (isGameStarted) {
     leftscore = 0;
     rightscore = 0;
@@ -181,6 +184,7 @@ const resetGame = (p5: any, isSecondaryModeOn: boolean, socket: Socket) => {
     socket,
     false,
     false,
+    false,
     false
   );
   left = new Paddle(
@@ -205,7 +209,8 @@ const draw = (
   p5: any,
   isSecondaryModeOn: boolean,
   socket: Socket,
-  isHost: boolean
+  isHost: boolean,
+  isSecond: boolean
 ) => {
   p5.background(0);
   puck.checkPaddleRight(right);
@@ -242,6 +247,7 @@ const draw = (
       socket,
       isHost,
       isSecondaryModeOn,
+      isSecond,
       true
     );
     socket.emit("CrazymodePuck");
@@ -285,20 +291,23 @@ const sketch = (
   p5: any,
   isSecondary: boolean,
   socket: Socket,
-  isHost: boolean
+  isHost: boolean,
+  isSecond: boolean
 ) => {
-  p5.setup = () => setup(p5, undefined, isSecondary, socket, isHost);
-  p5.draw = () => draw(p5, isSecondary, socket, isHost);
+  p5.setup = () => setup(p5, undefined, isSecondary, socket, isHost, isSecond);
+  p5.draw = () => draw(p5, isSecondary, socket, isHost, isSecond);
 };
 
 const PongSketch = ({
   isSecondaryModeOn,
   socket,
   isHost,
+  isSecond
 }: {
   isSecondaryModeOn: boolean;
   socket: Socket;
   isHost: boolean;
+  isSecond: boolean
 }): JSX.Element => {
   useEffect(() => {
     isGameStarted = false;
@@ -307,7 +316,7 @@ const PongSketch = ({
 
   return (
     <NextReactP5Wrapper
-      sketch={(p5) => sketch(p5, isSecondaryModeOn, socket, isHost)}
+      sketch={(p5) => sketch(p5, isSecondaryModeOn, socket, isHost, isSecond)}
     />
   );
 };

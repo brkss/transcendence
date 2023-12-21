@@ -19,10 +19,10 @@ const _items = [
     name: "normal game",
     Icon: IoGameControllerOutline,
   },
-  {
-    name: "arcade game",
-    Icon: SiRiotgames,
-  },
+  // {
+  //   name: "arcade game",
+  //   Icon: SiRiotgames,
+  // },
   {
     name: "board",
     Icon: MdOutlineLeaderboard,

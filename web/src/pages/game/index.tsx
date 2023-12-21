@@ -8,6 +8,7 @@ import { Menu, MenuList, MenuItem, MenuButton, Switch } from "@chakra-ui/react";
 import ChatBox from "@/components/Game/chat/ChatBox";
 import { getPayload } from "@/utils/helpers";
 import { Socket } from "socket.io";
+import { GameMode } from '@/components';
 
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { useSearchParams } from "next/navigation";
@@ -21,6 +22,7 @@ export interface IConnectedUser {
 
 export default function Index() {
   console.log("initsocket");
+  const [currentMode, setCurrentMode] = React.useState("NORMAL");
   const searchParams = useSearchParams();
   const [gameMode, setGameMode] = React.useState(false);
   const [isNotAllowed, setIsNotAllowed] = React.useState(false);
@@ -107,12 +109,14 @@ export default function Index() {
             </div>
           ) : (
             <>
+              <GameMode select={(mode) => setCurrentMode(mode)} />
               <div className="flex flex-row justify-center w-full">
                 {userRoomData?.hostUserId !== null ? (
                   <PongSketch
                     isHost={user.userID === userRoomData?.hostUserId}
                     socket={socketIo}
                     isSecondaryModeOn={arcadeMode === "on"}
+                    isSecond={currentMode === "NUKE"}
                   />
                 ) : (
                   "notReady"

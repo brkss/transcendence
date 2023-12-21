@@ -81,7 +81,7 @@ export class GameService {
     //const room = this.getRoomByPlayer(socket.data.user.id);
     //const user = await this.gatewayService.getUserBySocket(socket);
     const user = await this.gatewayService.getConnectedUserById(socket.data.user.id)
-    if (room && room.readyCount && !room.readyCount.includes(user.userID)) {
+    if (room && room.readyCount && user && !room.readyCount.includes(user.userID)) {
       {room.readyCount.push(user.userID);}
     }
     if (room && room.sockets) {
@@ -289,9 +289,9 @@ export class GameService {
     const room = this.getRoomByPlayer(socket.data.user.id)
     //console.log("moveToPos", room, data);
     if (!room) {
-    console.log("move TO pos : ", socket.data.user)
-    console.log("current room :" , room)
-    throw new InternalServerErrorException();
+      console.log("move TO pos : ", socket.data.user)
+      console.log("current room :" , room)
+      throw new InternalServerErrorException();
     }
     server?.to(room?.id).emit(isRight ? "setRightPos" : "setLeftPos", data);
   }

@@ -21,7 +21,7 @@ export class GatewayService {
     const response = {
       Error: error,
     };
-    socket.emit("Error", response);
+    socket.emit("Error", error);
   }
 
     async socketConnection(socket: Socket, namespace?: string) {

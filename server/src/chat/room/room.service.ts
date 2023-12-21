@@ -498,7 +498,7 @@ export class RoomService {
     }
 
     async muteUserFor(userId: number, roomId: number, muteDuration: number) {
-        const mute_duration = (Date.now() * 60000) + muteDuration //in seconds
+        const mute_duration = (Date.now() * 1000) + muteDuration //in seconds
         const entry = await this.prismaService.roomMembers.update({
             where: {
                 userId_roomId: {
