@@ -7,6 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { validateMIMEType } from "validate-image-type";
 import path = require("path") // exported form  path (re checkit!!)
 import { UserHistory, UsersRanks } from './history.interface'
+import { API_URL_BASE } from 'src/constants';
 // ES module error: ?
 //import { fileTypeFromFile } from 'file-type';
 //import imageType from "image-type"
@@ -549,7 +550,7 @@ export class UserService {
 		    }
 
 		    async updateAvatar(user_id: number, file: Express.Multer.File) {
-			    const avatar_link: string = "http://localhost/api/user/avatar/" + file.filename
+			    const avatar_link: string = API_URL_BASE + "/api/user/avatar/" + file.filename
 			    const is_valid_image = await this.validateImageType(file)
 
 			    if (is_valid_image == false) {
