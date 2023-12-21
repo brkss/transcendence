@@ -1,4 +1,4 @@
-import { API_URL } from '../constants';
+import { API_URL, API_URL_BASE } from '../constants';
 import { api } from './axios.config';
 
 export const search = async (query: string) => {
@@ -25,6 +25,13 @@ export const acceptFriend = async (username: string) => {
 		username: username
 	});
 	console.log("accept friend response : ", response);
+	return response.data;
+}
+
+export const rejectFriend = async (username: string) => {
+	const response = await api.post(`${API_URL}/user/friends/reject`, {
+		username: username
+	});
 	return response.data;
 }
 
@@ -134,4 +141,8 @@ export const userAchievements = async (username: string) => {
 export const userMatchHistory = async (username: string) => {
 	const response = await api.get(`${API_URL}/history/${username}`)
 	return response.data;
+}
+
+export const logoutUser = async () => {
+	await api.post(`${API_URL_BASE}/auth/logout`);
 }

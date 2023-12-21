@@ -46,7 +46,7 @@ api.interceptors.response.use(
 		const originalRequest = err.config;
 		const token = getAccessToken();
 		const { exp } = jwtDecode(token) as any;
-		if(err.response.status === 401 || Date.now() >= exp * 1000){
+		if((err && err.response && err.response.status === 401) || Date.now() >= exp * 1000){
 			await refreshTokenBackground();
 			return api(originalRequest);
 		}

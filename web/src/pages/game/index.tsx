@@ -12,7 +12,7 @@ import { GameMode } from '@/components';
 
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { useSearchParams } from "next/navigation";
-import { API_URL } from "@/utils/constants";
+import { API_URL_BASE } from "@/utils/constants";
 export interface IConnectedUser {
   id: number;
   userID: number;
@@ -28,7 +28,7 @@ export default function Index() {
   const [isNotAllowed, setIsNotAllowed] = React.useState(false);
   const [winner, setWinner] = React.useState<IConnectedUser | null>(null);
   const [userRoomData, setRoomData] = React.useState<{ hostUserId: number, label: string, id: string }>();
-  let socketIo = React.useMemo(() => io(`${API_URL}/game`, {
+  let socketIo = React.useMemo(() => io(`${API_URL_BASE}/game`, {
 		extraHeaders: {
 			Authorization: getAccessToken()
 		},
@@ -97,7 +97,7 @@ export default function Index() {
     <Layout disablePadding>
       {isNotAllowed ? (
         <div className="flex flex-row justify-center w-full">
-          <p>User not allowed to play (needs further handling)</p>
+          <p>User not allowed to play</p>
         </div>
       ) : (
         <>
