@@ -29,7 +29,7 @@ export class ChatService {
             socket.emit("Error", "Can't find room")
             return null
         }
-        const is_muted = await this.IsUserMuted(user_id, room.id)
+        const is_muted = await this.roomService.IsUserMuted(user_id, room.id)
         if (is_muted) {
             socket.emit("Error", "Muted :C")
             return null
@@ -186,19 +186,6 @@ export class ChatService {
             socket.emit("Error", "User Not found")
         }
     }
-
-    async IsUserMuted(userId: number, roomId: number): Promise<boolean> {
-        const mute_entry = await this.roomService.getMuteEntry(userId, roomId)
-        if (mute_entry) {
-            const mute_time = mute_entry.mutedUntile
-            if (mute_time > Date.now())
-                return (true)
-            await this.roomService.UnmuteUser(userId, roomId)
-            return (false)
-        }
-        return (false)
-    }
-
     async getConnectedRooms(user_id: number) {
         const room_names =  await this.roomService.getConnectedRooms(user_id)
         return (room_names)
