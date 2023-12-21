@@ -48,9 +48,8 @@ export class RoomService {
         const mute_entry = await this.getMuteEntry(userId, roomId)
         if (mute_entry) { // an entry exists on table
             const mute_time = mute_entry.mutedUntile
-            if (mute_time > Date.now() / 1000)
+            if (mute_time > Math.floor(Date.now() / 1000))
                 return (true)
-            await this.UnmuteUser(userId, roomId)
             return (false)
         }
         return (false)
@@ -468,7 +467,8 @@ export class RoomService {
             where: {
                 roomId: roomId,
                 mutedUntile: {
-                    not: null
+                    not: null,
+                    gt: Math.floor(Date.now() / 1000)
                 }
             },
             select: {
@@ -485,7 +485,7 @@ export class RoomService {
     }
 
     async muteUserFor(userId: number, roomId: number, muteDuration: number) {
-        const mute_duration = (Date.now() * 60000) + muteDuration //in seconds
+        const mute_duration = Math.floor(Date.now() /1000) + muteDuration //in seconds
         const entry = await this.prismaService.roomMembers.update({
             where: {
                 userId_roomId: {
@@ -856,7 +856,7 @@ export class RoomService {
 
     async Un_muteUser(user: any, payload: UnMuteUserDTO) {
         const room = await this.getRoomById(payload.room_id)
-        const is_muted = await this.IsUserMuted(user.id, room.id)
+        const is_muted = await this.IsUserMuted(payload.user_id, room.id)
         if (!is_muted) {
             throw new BadRequestException("User not muted")
         }
@@ -869,7 +869,7 @@ export class RoomService {
         if (!await this.canAdminstrate(operation_data)) {
             throw new ForbiddenException()
         }
-        if (await this.UnmuteUser(payload.user_id, room.id)) {
+        if (!await this.UnmuteUser(payload.user_id, room.id)) {
             throw new BadRequestException()
         }
         const resp = {
