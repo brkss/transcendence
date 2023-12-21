@@ -83,7 +83,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   ) {
     
-    console.log("emited to firend : ","main-socket-" + String(payload.fid), payload);
+    //console.error("emited to firend : ","main-socket-" + String(payload.fid), payload);
     socket.to("main-socket-" + String(payload.fid)).emit("invited", { success: true, gameId: payload.gameId });
   }
 }

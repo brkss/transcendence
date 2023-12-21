@@ -39,8 +39,9 @@ export class authController {
 
     @Post("/logout")
     async logoutUser(@Req() req: any, @Res() resp: Response){
-        return resp.cookie('refresh_token', "", {
+        resp.cookie('refresh_token', "", {
             httpOnly: true 
         })
+        return ({"DevTeam": "Essayez avec cette orthographe : dégager "})
     }
 }
