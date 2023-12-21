@@ -44,7 +44,6 @@ export class UserService {
 						    fullName: user.usual_full_name,
 						    login: user.login,
 						    username: user.login,
-						    lastSeen: Date(),
 						    avatar: user.image
 					    }, select: {
 						    id: true,
@@ -379,31 +378,24 @@ export class UserService {
 					    username: true,
 					    email: true,
 					    fullName: true,
-					    lastSeen: true,
+					    status: true,
 					    avatar: true,
 					    auth2faOn: true
 				    }
 			    })
-			    //const lastSeen: bigint = BigInt(Date.now()) - profile.lastSeen
 			    if (profile == null)
 				    return (this.make_error(`User ${username} Not found`))
-
-			    let user_profile: UserProfile = profile;
-			    const ms_passed = Date.parse(Date()) - Date.parse(profile.lastSeen)
-			    user_profile.online = (ms_passed * 6000 < 3) // offline if mins_passed  3
 
 			    return (profile) // profile is const WTF!
 		    }
 
-
-
-		    async updateLastLogin(user_id: number) {
+		    async updateUserStatus(user_id: number, status: string) {
 			    await this.prismaService.user.update({
 				    where: {
 					    id: user_id
 				    },
 				    data: {
-					    lastSeen: Date()
+					    status: status
 				    }
 			    })
 		    }

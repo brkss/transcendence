@@ -15,6 +15,7 @@ import { ValidationExceptionFilter } from "src/chat/dtos/chatvalidation.filer";
 import { GatewayService } from "./gateway.service";
 import { ChatService } from "src/chat/chat.service";
 import { UseFilters, UsePipes, ValidationPipe } from "@nestjs/common"
+import { UserService } from 'src/user/user.service';
 
 @WebSocketGateway({ cors: true})// , namespace: 'chat'})
 @UseFilters(ValidationExceptionFilter)
@@ -28,11 +29,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(
     private gatewayService: GatewayService,
+    private userService: UserService,
     private chatService: ChatService) {
   }
 
-  handleConnection(socket: Socket) {
+  async handleConnection(socket: Socket) {
+    const user = socket.data.user
     this.gatewayService.socketConnection(socket)
+    if (user)
+      await this.userService.updateUserStatus(user.userID, "online")
   }
 
   private async leaveAllRoomsOnDisconnect(socket: Socket, user: any) {
@@ -44,6 +49,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect(socket: Socket) {
     const user = socket.data.user
+    if (user)
+      await this.userService.updateUserStatus(user.userID, "offline")
+
     const connected_rooms = await this.chatService.getConnectedRooms(user.id)
 
     for (const room of connected_rooms) {
