@@ -44,7 +44,6 @@ services:
         build: 
             context: ./web/
             dockerfile: Dockerfile
-        ports:
         volumes:
             - "./web/:/var/www/html/app" 
             - /var/www/html/app/node_modules/
