@@ -1,16 +1,17 @@
 import React from 'react';
 import { useToast, Menu, MenuItem, MenuList, MenuButton, Box, GridItem, Stack, Text, Button, IconButton} from '@chakra-ui/react';
 import { Avatar } from '../Avatar';
-import { acceptFriend } from '@/utils/services'
+import { acceptFriend, rejectFriend } from '@/utils/services'
 
 interface Props {
 	name: string;
 	username: string;
 	image: string;
 	accepted: () => void;
+	reject: () => void;
 }
 
-export const RequestItem: React.FC<Props> = ({name, username, image, accepted}) => {
+export const RequestItem: React.FC<Props> = ({name, username, image, accepted, reject}) => {
 
 	const toast = useToast();
 
@@ -39,6 +40,26 @@ export const RequestItem: React.FC<Props> = ({name, username, image, accepted}) 
 		//console.log("add friend : ", response);
 	}
 
+	const handleReject = () => {
+		rejectFriend(username).then( _ => {
+			toast({
+				title: "Request Rejected !",
+				status: 'success',
+				duration: 9000,
+				isClosable: true,
+			});
+			reject()
+		}).catch(e => {
+			console.log("err : ", e);
+			toast({
+				title : "Could not Reject Request !",
+				status: 'warning',
+				duration: 9000,
+				isClosable: true,
+			});
+		})
+	}
+
 	return (
 		<Box mt={'30px'}>
 			<Stack direction={['column', 'row']} spacing={'10px'}>
@@ -60,7 +81,7 @@ export const RequestItem: React.FC<Props> = ({name, username, image, accepted}) 
 							<MenuItem onClick={handleAcceptFriend} >
 								Accept	
 							</MenuItem>
-							<MenuItem >
+							<MenuItem onClick={handleReject}>
 								Reject	
 							</MenuItem>
 							

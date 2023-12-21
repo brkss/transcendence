@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { Box, Grid, Container, GridItem, useDisclosure } from '@chakra-ui/react';
 import { TopBar } from './TopBar';
 import { SideBar } from './Sidebar';
-
+import { logoutUser } from '@/utils/services'
 // Drawers --- 
 import { FriendsDrawer } from './FriendsDrawer';
 import { ChatDrawer } from './ChatDrawer';
@@ -48,7 +48,7 @@ export const Layout: React.FC<any> = ({ children, disablePadding }) => {
 	const privateChatDrawer = useDisclosure();
 	const [chatUID, setChatUID] = React.useState<number>(-1);
 
-	const handleSig = (sig: string) => {
+	const handleSig = async (sig: string) => {
 
 		console.log("handle sig : ", sig);
 		switch (sig) {
@@ -73,6 +73,7 @@ export const Layout: React.FC<any> = ({ children, disablePadding }) => {
 			case "logout":
 				console.log("log out !")
 				setAccessToken("");
+				await logoutUser();
 				router.push('/auth/login')
 			default:
 				break;

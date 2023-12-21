@@ -3,7 +3,7 @@ import { Drawer, DrawerOverlay, DrawerContent, Flex, Box, Text, Button, Input, D
 import { ChatFooter } from './Footer';
 import { ChatHeader } from './Header';
 import { ChatMessages } from './Messages'
-import { API_URL } from '@/utils/constants';
+import { API_URL, API_URL_BASE } from '@/utils/constants';
 import { getAccessToken } from '@/utils/token';
 import { io } from 'socket.io-client';
 import decode from 'jwt-decode';
@@ -22,14 +22,14 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 
 	const router = useRouter();
 	// init socket 
-	let socket = React.useMemo(() => io(API_URL, {
+	let socket = React.useMemo(() => io(API_URL_BASE, {
 		extraHeaders: {
 			Authorization: getAccessToken()
 		},
 		autoConnect: false,
 	}), []);
 
-	let gameSocket = React.useMemo(() => io(`${API_URL}/game`, {
+	let gameSocket = React.useMemo(() => io(`${API_URL_BASE}/game`, {
 		extraHeaders: {
 			Authorization: getAccessToken()
 		}

@@ -10,15 +10,21 @@ services:
             - front 
         restart: always
         ports:
-            - "8001:8001"
+            - "80:80"
+        logging:
+            driver: none
             
     postgres:
         container_name: postgres_db
         image: postgres:latest
-        ports:
-            - "5432:5432"
         env_file:
             - ./server/.env
+        ports:
+            - "5432:5432"
+        volumes:
+            - "/tmp/postgres_data:/var/lib/postgresql/data"
+        logging:
+            driver: none
 
     server:
         container_name: transcendance_api
@@ -27,15 +33,14 @@ services:
         build: 
             context: ./server/
             dockerfile: Dockerfile
-        ports:
-            - "8000:8000"
-
         env_file:
             - ./server/.env
 
         volumes:
             - "./server/:/var/www/html/app" 
             - /var/www/html/app/node_modules/
+            - /var/www/html/app/dist
+
     
     front:
         container_name: transcendance_front
@@ -44,9 +49,9 @@ services:
         build: 
             context: ./web/
             dockerfile: Dockerfile
-        ports:
-            - "3000:3000"
         volumes:
             - "./web/:/var/www/html/app" 
             - /var/www/html/app/node_modules/
-    
+            - /var/www/html/app/.next
+        logging:
+            driver: none

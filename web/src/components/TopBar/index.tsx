@@ -8,7 +8,7 @@ import jwtDecode from 'jwt-decode';
 import { getAccessToken } from '@/utils/token';
 import { profile } from '@/utils/services';
 import { Loading } from '../General';
-import { API_URL } from '@/utils/constants';
+import { API_URL, API_URL_BASE } from '@/utils/constants';
 import { io } from 'socket.io-client';
 import { GameInvitation } from '@/components'
 import { usePathname } from 'next/navigation'
@@ -33,7 +33,8 @@ export const TopBar : React.FC = () => {
 	const [user, setUser] = React.useState<any>(null);
 	const router = useRouter();
 	const [onTop, setOnTop] = React.useState(true);
-	let socket = React.useMemo(() => io(`${API_URL}`, {
+	 
+	let socket = React.useMemo(() => io(`${API_URL_BASE}`, {	// sell time and replace
 		extraHeaders: {
 			Authorization: getAccessToken()
 		},
