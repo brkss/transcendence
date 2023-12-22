@@ -23,7 +23,7 @@ import { CreateRoom } from '../CreateRoom'
 import { API_URL } from '@/utils/constants';
 import { getAccessToken } from '@/utils/token';
 import { io } from 'socket.io-client';
-import { getUserRooms, joinRoomService, searchRooms } from '@/utils/services';
+import { getUserRooms, joinRoomService, searchRooms, blockedUsers } from '@/utils/services';
 import { SearchChatBox } from './SearchItem';
 
 
@@ -44,10 +44,21 @@ export const ChatRooms: React.FC<Props> = ({}) => {
 	const [openModal, setOpenModal] = React.useState(false);
 	const [openChat, setOpenChat] = React.useState(false);
 	const _passDisclosure = useDisclosure(); 
+	const [blocked, setBlocked] = React.useState<any>();
 	const _createRoomModal = useDisclosure();
 	const _chat = useDisclosure();
 
+	const fetchBlockedUsers = () => {
+		blockedUsers().then((response: any) => {
+			setBlocked(response);
+			console.log("resp blocked :", response, blocked);
+		}).catch(e => {
+			console.log("something went wrong getting blocked friends : ", e);
+		})
+	}
+
 	React.useEffect(() => {
+		fetchBlockedUsers();
 		(async () => {
 			await fetchRooms();	
 		})();
@@ -162,7 +173,7 @@ export const ChatRooms: React.FC<Props> = ({}) => {
 			</Box>
 			
 			{ openModal && <RoomPasswordModal isOpen={_passDisclosure.isOpen} onClose={_passDisclosure.onClose} onOpen={_passDisclosure.onOpen} submit={() => requestJoinRoom()} onChange={(v) => setRoomPassword(v)} /> }
-			{ selectedRoomID && openChat && <Chat removeRoom={(id: number) => handleRemoveRoom(id)} chatId={selectedRoomID}  isOpen={_chat.isOpen} onClose={() => {setSelectedRoomID(null); _chat.onClose()}} name={rooms.find(x  => x.id === selectedRoomID)?.name || "unkown"} /> }
+			{ selectedRoomID && openChat && <Chat blocked={blocked} removeRoom={(id: number) => handleRemoveRoom(id)} chatId={selectedRoomID}  isOpen={_chat.isOpen} onClose={() => {setSelectedRoomID(null); _chat.onClose()}} name={rooms.find(x  => x.id === selectedRoomID)?.name || "unkown"} /> }
 			{ _createRoomModal.isOpen && <CreateRoom updateRooms={(room: {id: number, name: string, roomType: string}) => setRooms([room, ...rooms])} isOpen={_createRoomModal.isOpen} onClose={_createRoomModal.onClose} /> }
 		</>
 	)

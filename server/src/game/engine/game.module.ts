@@ -5,12 +5,14 @@ import { GameService } from './game.service';
 import { GameService as GameServicedb } from '../game.service';
 import { GatewayService } from './gateway.service';
 import { AuthModule } from 'src/auth/auth.module';
+import { UserModule } from 'src/user/user.module';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Module({
   imports: [
     ChatModule,
     AuthModule,
+    UserModule
   ],
   exports: [
     GameGateway,
