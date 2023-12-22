@@ -26,7 +26,7 @@ export class authController {
         if (auth2fa_active) {
             const auth2fa_token = await this.auth_service.login2fa(req)
             resp.cookie('auth2fa_token', auth2fa_token)
-            resp.redirect("http://localhost:3000" + "/2fa/otp")
+            resp.redirect("/2fa/otp")
             return 
         }
         const refresh_token = generateRefreshToken(user.id);
@@ -34,7 +34,7 @@ export class authController {
             maxAge: 7 * 24 * 3600 * 1000
             , httpOnly: true
         });
-        resp.redirect("http://localhost:3000" + "/")
+        resp.redirect("/")
     }
 
     @Post("/logout")
