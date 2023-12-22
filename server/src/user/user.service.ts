@@ -614,7 +614,7 @@ export class UserService {
 						    wins++;
 					    else if (game_status == "lost")
 						    loses++;
-						console.log(game_status);
+						//console.log(game_status);
 				    }
 
 			    return [wins, loses];

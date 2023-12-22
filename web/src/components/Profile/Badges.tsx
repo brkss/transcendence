@@ -12,7 +12,7 @@ export const Badges : React.FC<Props> = ({badges}) => {
 
 
 	React.useEffect(() => {
-		console.log("got b : ", badges);
+		//console.log("got b : ", badges);
 	}, [badges])
 
 	return (

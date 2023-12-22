@@ -20,7 +20,7 @@ function Leaderboard() {
 			setLeaderBoard(response);
 			setLoading(false);
 		}).catch(e => {
-			console.log("something went wrong getting leaderboard : ", e);
+			//console.log("something went wrong getting leaderboard : ", e);
 		})
 	}
 

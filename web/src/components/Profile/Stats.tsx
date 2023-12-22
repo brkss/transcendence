@@ -32,7 +32,7 @@ export const Stats: React.FC<Props> = ({username}) => {
 	});
 	const fetchUserStatus = () => {
 		userStatus(username).then(response => {
-			console.log("getting status : ", response);
+			//console.log("getting status : ", response);
 			setLoading(curr => curr + 1);
 			// setUserGameData({
 			// 	...userGameData,
@@ -41,32 +41,32 @@ export const Stats: React.FC<Props> = ({username}) => {
 			// })
 			setStats({wins: response[0], loss: response[1]});
 		}).catch(e => {
-			console.log("something went wrong getting status : ", e);
+			//console.log("something went wrong getting status : ", e);
 		});
 	}
 
 	const fetchUserBadges = () => {
 		userAchievements(username).then(response => {
-			console.log("badges response : ", response);
+			//console.log("badges response : ", response);
 			setBadges(response);
 			setUserGameData({
 				...userGameData,
 				badges: response
 			})
 		}).catch(e => {
-			console.log("something went wrong getting user badges : ", e);
+			//console.log("something went wrong getting user badges : ", e);
 		})
 	}
 
 	const fetchUserHistory = () => {
 		userMatchHistory(username).then(response => {
-			console.log("history response : ", response);
+			//console.log("history response : ", response);
 			setUserGameData({
 				...userGameData,
 				history: response
 			})
 		}).catch(e => {
-			console.log("something went wrong getting user history: ", e);	
+			//console.log("something went wrong getting user history: ", e);	
 		})
 	}
 

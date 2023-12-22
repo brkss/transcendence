@@ -54,11 +54,11 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 
 	const get2faState = () => {
 		is2faOn().then(response => {
-			console.log("2fa response : ", response);
+			//console.log("2fa response : ", response);
 			setTwofaState(response.auth_2fa_active);
 		}).catch(e => {
 			//
-			console.log("something went wrong 2fa : ", e);
+			//console.log("something went wrong 2fa : ", e);
 		})
 	}
 
@@ -70,7 +70,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 				const user = JSON.parse(profile || "");
 				if(user){
 						setUser(user);
-						console.log("me : ", user);
+						//console.log("me : ", user);
 				}
 			}
 			
@@ -87,7 +87,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 
 	const hansleDisable2fa = () => {
 		disable2fa().then(response => {
-			console.log("resp : ", response);
+			//console.log("resp : ", response);
 			setTwofaState(false);
 			toast({
 				title: "2 Factor authentication is now disabled",
@@ -96,7 +96,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 				isClosable: true
 			})	
 		}).catch(e => {
-			console.log("error disabling 2fa : ", e)
+			//console.log("error disabling 2fa : ", e)
 			toast({
 				title: "Something went wrong disabling 2fa",
 				status: 'error',
@@ -112,7 +112,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 			const fd = new FormData();
 			fd.append('file', avatar);
 			uploadAvatar(fd).then(response => {
-				console.log("change avatar response : ", response);
+				//console.log("change avatar response : ", response);
 				toast({
 					status: 'success',
 					title: "You've changed your avatar",
@@ -121,7 +121,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 				})
 				onClose();
 			}).catch(e => {
-				console.log("change user avatar error : ", e);
+				//console.log("change user avatar error : ", e);
 				toast({
 					status: 'error',
 					title: "Something went wrong can't change user's avatar",
@@ -133,7 +133,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 		
 		if(form && (form.username || form.name)){
 			updateUserProfile(form.name || user?.fullName, form.username || user?.username).then(response => {
-				console.log("update user profile : ", response);
+				//console.log("update user profile : ", response);
 				toast({
 					status: 'success',
 					title: "Prodile updated successfuly !",
@@ -141,7 +141,7 @@ export const SettingsDrawer : React.FC<Props> = ({isOpen, onClose}) => {
 					isClosable: true
 				})
 			}).catch(e => {
-				console.log("error : ", e);
+				//console.log("error : ", e);
 				toast({
 					status: 'error',
 					title: "Something went wrong can't change user's data",

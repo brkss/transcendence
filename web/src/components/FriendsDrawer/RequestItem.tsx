@@ -37,7 +37,7 @@ export const RequestItem: React.FC<Props> = ({name, username, image, accepted, r
 		}
 		
 		
-		//console.log("add friend : ", response);
+		////console.log("add friend : ", response);
 	}
 
 	const handleReject = () => {
@@ -50,7 +50,7 @@ export const RequestItem: React.FC<Props> = ({name, username, image, accepted, r
 			});
 			reject()
 		}).catch(e => {
-			console.log("err : ", e);
+			//console.log("err : ", e);
 			toast({
 				title : "Could not Reject Request !",
 				status: 'warning',

@@ -64,7 +64,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 
 	const handleDeleteRoom = async () => {
 		deleteRoomService(roomId).then(response => {
-			console.log("delete room response : ", response);
+			//console.log("delete room response : ", response);
 			toast({
 				title: "Room Deleted Successfuly !",
 				status: "success",
@@ -74,7 +74,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 			closeAll();
 			onClose();
 		}).catch(e => {
-			console.log("deleting room error : ", e);
+			//console.log("deleting room error : ", e);
 			toast({
 				title: "Something went wrong deleting this room",
 				status: "error",
@@ -86,7 +86,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 
 	const handleLeavingRoom = () => {
 		leaveRoomService(roomId).then(response => {
-			console.log("leaving room response", response)
+			//console.log("leaving room response", response)
 			toast({
 				title: "You're no longer part of this room",
 				status: "success",
@@ -96,7 +96,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 			closeAll();
 			onClose();
 		}).catch(e => {
-			console.log("leaving room error : ", e)
+			//console.log("leaving room error : ", e)
 			toast({
 				title: "Something went wrong trying to leave room",
 				status: "error",
@@ -109,7 +109,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 
 	const handleKickUser = (userID: number) => {
 		kickMemberService(roomId, userID).then(response => {
-			console.log("kick user response : ", response);
+			//console.log("kick user response : ", response);
 			// update members;
 			const tmp = [...members]
 			const index = tmp.findIndex(x => x.id === userID);
@@ -124,7 +124,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 				isClosable: true	
 			})
 		}).catch(e => {
-			console.log("error : ", e);
+			//console.log("error : ", e);
 			toast({
 				title: "Something went wrong: Can't kick user",
 				status: "error",
@@ -136,13 +136,13 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 
 	const handleBanUser = (userID: number) => {
 		banMemberService(roomId, userID).then(response => {
-			console.log("ban user response : ", response);
+			//console.log("ban user response : ", response);
 			// update members;
 			const tmp = [...members]
 			const index = tmp.findIndex(x => x.id === userID);
 			if(index != -1){
 				const bannedUser = tmp.splice(index, 1)[0];
-				console.log("banned user : ", bannedUser)
+				//console.log("banned user : ", bannedUser)
 				setMembers([...tmp]);
 				setBanned([bannedUser, ...banned]);
 			}
@@ -153,7 +153,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 				isClosable: true	
 			})
 		}).catch(e => {
-			console.log("error : ", e);
+			//console.log("error : ", e);
 			toast({
 				title: "Something went wrong: Can't ban user",
 				status: "error",
@@ -165,7 +165,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 
 	const handleMuteUser = (userID: number, duration: number) => {
 		muteMemberService(roomId, userID, duration * 60).then(response => {
-			console.log("mute user response : ", response);
+			//console.log("mute user response : ", response);
 			// update members;
 			const tmp = [...members]
 			const index = tmp.findIndex(x => x.id === userID);
@@ -181,7 +181,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 				isClosable: true	
 			})
 		}).catch(e => {
-			console.log("error : ", e);
+			//console.log("error : ", e);
 			toast({
 				title: "Something went wrong: Can't mute user",
 				status: "error",
@@ -193,10 +193,10 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 
 	const getMutedMembers = () => {
 		getMutedMembersService(roomId).then(response => {
-			console.log("muted users : ", response);
+			//console.log("muted users : ", response);
 			setMuted([...response.mutedUsers]);
 		}).catch(e => {
-			console.log("get muted members error : ", e);
+			//console.log("get muted members error : ", e);
 			// toast({
 			// 	title: "Something went wrong: Can't get muted users",
 			// 	status: "error",
@@ -208,10 +208,10 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 
 	const getBannedMembers = () => {
 		getBannedMembersService(roomId).then(response => {
-			console.log("banned users response : ", response);
+			//console.log("banned users response : ", response);
 			setBanned([...response.bannedUsers]);
 		}).catch(e => {
-			console.log("get banned members error : ", e);
+			//console.log("get banned members error : ", e);
 			// toast({
 			// 	title: "Something went wrong: Can't get banned users",
 			// 	status: "error",
@@ -223,7 +223,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 
 	const handleUnmuteMember = (uid: number) => {
 		unMuteMemberService(roomId, uid).then(response => {
-			console.log("unmute user response : ", response);
+			//console.log("unmute user response : ", response);
 			const index = muted.findIndex(x => x.id === uid);
 			if(index != -1){
 				const tmp = [...muted];
@@ -239,7 +239,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 			}
 			
 		}).catch(e => {
-			console.log("something went wrong unmuting user : ", e);
+			//console.log("something went wrong unmuting user : ", e);
 			toast({
 				title: `Something went wrong: can't unmute user !`,
 				duration: 9000,
@@ -251,7 +251,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 
 	const handleUnbanMember = (uid: number) => {
 		unBanMemberService(roomId, uid).then(response => {
-			console.log("unban user response : ", response);
+			//console.log("unban user response : ", response);
 			const index = banned.findIndex(x => x.id === uid);
 			if(index != -1){
 				const tmp = [...banned];
@@ -267,7 +267,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 			}
 			
 		}).catch(e => {
-			console.log("something went wrong ubnaning user : ", e);
+			//console.log("something went wrong ubnaning user : ", e);
 			toast({
 				title: `Something went wrong: can't unban user !`,
 				duration: 9000,
@@ -280,7 +280,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 	// set admin 
 	const handleSetAdmin = (uid: number) => {
 		setAdminService(roomId, uid).then(response => {
-			console.log("set admin response : ", response);
+			//console.log("set admin response : ", response);
 			const user = members.find(x => x.id === uid);
 			// update members 
 			setMembers(curr => curr.map(user => {
@@ -296,7 +296,7 @@ export const ChatSettings : React.FC<Props> = ({isOpen, onClose, roomId, closeAl
 				status: "success"
 			})
 		}).catch(e => {
-			console.log("something went wrong adding new admin : ", e);
+			//console.log("something went wrong adding new admin : ", e);
 			const user = members.find(x => x.id === uid);
 			toast({
 				title: `Something went wrong: Can't add ${user.username || ''} as an admin !`,

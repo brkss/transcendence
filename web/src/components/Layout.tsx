@@ -50,7 +50,7 @@ export const Layout: React.FC<any> = ({ children, disablePadding }) => {
 
 	const handleSig = async (sig: string) => {
 
-		console.log("handle sig : ", sig);
+		//console.log("handle sig : ", sig);
 		switch (sig) {
 			case "friends":
 				showFriends.onOpen();
@@ -71,10 +71,10 @@ export const Layout: React.FC<any> = ({ children, disablePadding }) => {
 				router.push("/leaderboard");
 				break;
 			case "logout":
-				console.log("log out !")
+				//console.log("log out !")
 				setAccessToken("");
-				await logoutUser();
 				router.push('/auth/login')
+				await logoutUser();
 			default:
 				break;
 		}

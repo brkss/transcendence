@@ -43,7 +43,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 			return;
 		}
 		const data = inputMessage;
-		console.log("sending message : ", { room_id: chatId, message: data });
+		//console.log("sending message : ", { room_id: chatId, message: data });
 		socket.emit("chatMessage", {
 			room_id: chatId,
 			message: data
@@ -53,7 +53,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 	};
 
 	const handleRecievingMessage = (data: { uid: number, user: string, message: string, time: string, avatar: string }) => {
-		console.log("recieved message : ", data, messages, blocked);
+		//console.log("recieved message : ", data, messages, blocked);
 		if(!blocked.find((x:any) => x.blockee === data.uid))
 			setMessages((old:any) => [...old, { from: data.user, text: data.message, avatar: data.avatar}])
 	}
@@ -63,20 +63,20 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 			const me = jwtDecode(getAccessToken()) as any;
 			if(me){
 				const {username} = me;
-				console.log("messages : ", response)
-				setMessages([...messages, ...response.filter((msg: any) => blocked.findIndex((x:any) => x.blockedd === msg.sender.id) === -1).map((msg: any) => (
+				const filtred = response.filter((msg: any) => !!blocked.find((x:any) => x.blockedd !== msg.sender.id));
+				setMessages([...messages, ...filtred.map((msg: any) => (
 					{ from: msg.sender.username === username ? "me" : msg.sender.username, text: msg.message, avatar: msg.sender.avatar }
 				))]);
 			}
 		}).catch(e => {
-			console.log("something went getting chat history : ", e);
+			//console.log("something went getting chat history : ", e);
 		}); 
 	}
 	
 	React.useEffect(() => {
 		socket.on('connect', () => {
-			console.log("socket connected");
-			console.log("join data : ",  {room_id: chatId, roomType: "PUBLIC"});
+			//console.log("socket connected");
+			//console.log("join data : ",  {room_id: chatId, roomType: "PUBLIC"});
 			socket.emit("joinChat", {room_id: chatId, roomType: "PUBLIC"});
 			
 		})
@@ -99,7 +99,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 		});
 
 		socket.on("success", (data) => {
-			console.log("got success : ", data);
+			//console.log("got success : ", data);
 		});
 		
 		

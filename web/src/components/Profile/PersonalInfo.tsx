@@ -41,7 +41,7 @@ export const PersonalInfo : React.FC<Props> = ({username, name, image, relations
 			});
 			setRelationshipState("sent");
 		}
-		//console.log("add friend : ", response);
+		////console.log("add friend : ", response);
 	}
 
 	const handleAcceptFriend = async () => {
@@ -62,7 +62,7 @@ export const PersonalInfo : React.FC<Props> = ({username, name, image, relations
 			});
 			setRelationshipState("accepted");
 		}
-		//console.log("add friend : ", response);
+		////console.log("add friend : ", response);
 	}
 
 	return (

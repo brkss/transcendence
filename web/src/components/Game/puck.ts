@@ -97,7 +97,7 @@ export class Puck {
     this.currentTime = Date.now();
     this.isSecond = isSecond;
     
-    console.log("isHost:", this.x, isHost);
+    //console.log("isHost:", this.x, isHost);
     this.isHost = isHost;
     if (isHost && !isSecondaryBall) {
       socket.emit("initPuck", {
@@ -121,7 +121,7 @@ export class Puck {
       socket.on("initPuck2", (data:TPuckPositionData) => {
         this.x = data.x;
         this.y = data.y;
-        console.log("INITPUCK DATA 2", data);
+        //console.log("INITPUCK DATA 2", data);
         this.servingPlayer = data.servingPlayer;
       });
     }
@@ -199,7 +199,7 @@ export class Puck {
   reset() {
     this.x = this.canvasWidth / 2;
     this.y = this.canvasHeight / 2;
-    console.log(this.servingPlayer);
+    //console.log(this.servingPlayer);
     if (this.servingPlayer === "left") {
       this.xspeed = 5; // Serve to the left
     } else {

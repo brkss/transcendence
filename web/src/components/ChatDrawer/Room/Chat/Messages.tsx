@@ -41,9 +41,9 @@ export const ChatMessages : React.FC<Props> = ({messages}) => {
 		const messagesBox = document.getElementById('messagesBox');
 		
 		if(event.deltaY > 0){
-			console.log(" > 0");
+			//console.log(" > 0");
 		}else {
-			console.log(" < 0");
+			//console.log(" < 0");
 		}
 		
 		// Simulate vertical scrolling

@@ -45,7 +45,7 @@ export class GameService {
     this.gamingRooms.push(currentRoom);
     socket.join(roomId);
     socket.emit("currentRoomDetails", currentRoom);
-    console.log("gamingrooms", this.gamingRooms);
+    //console.log("gamingrooms", this.gamingRooms);
   }
 
   async createPrivateRoom(socket: Socket, gameId: number) {
@@ -82,7 +82,7 @@ export class GameService {
     this.gamingArcadeRooms.push(currentRoom);
     socket.join(roomId);
     socket.emit("currentRoomDetails", currentRoom);
-    console.log("gamingArcadeRooms", this.gamingArcadeRooms);
+    //console.log("gamingArcadeRooms", this.gamingArcadeRooms);
   }
 
   async userReady(socket: Socket, server: Server, room: IRoom) {
@@ -98,7 +98,7 @@ export class GameService {
         (s) => room.readyCount.includes(s.userID) && readyCount++
       );
       if (room.readyCount.length >= 2 && readyCount === 2) {
-        console.log(room.sockets.map((s) => console.log(s)));
+        //console.log(room.sockets.map((s) => //console.log(s)));
         this.emitToRoomBySocket(socket, server, "startGame");
       }
     }
@@ -116,7 +116,7 @@ export class GameService {
       ? this.gamingRooms.find((room) => room.sockets.length < 2)
       : this.gamingRooms.find((room) => room.id === roomId.toString());
 
-    //console.log(selectedRoom);
+    ////console.log(selectedRoom);
     selectedRoom.sockets.push(user);
 
     this.gamingRooms = [
@@ -130,7 +130,7 @@ export class GameService {
     const Room = selectedRoom
 
     setTimeout(()=>socket.emit("currentRoomDetails", Room), 1000)
-    console.log("TWO USERS CONNEDTED STARTING GAME", Room);
+    //console.log("TWO USERS CONNEDTED STARTING GAME", Room);
   }
 
   async joinArcadeRoom(socket: Socket) {
@@ -138,7 +138,7 @@ export class GameService {
     const selectedRoom = this.gamingArcadeRooms.find(
       (room) => room.sockets.length < 2
     );
-    console.log(selectedRoom);
+    //console.log(selectedRoom);
     selectedRoom.sockets.push(user);
     this.gamingArcadeRooms = [
       ...this.gamingArcadeRooms.filter((room) => room.id !== selectedRoom.id),
@@ -149,7 +149,7 @@ export class GameService {
 
     setTimeout(()=>socket.emit("currentRoomDetails", room), 1000)
     
-    console.log("TWO USERS CONNEDTED STARTING GAME ARCADE", this.gamingArcadeRooms);
+    //console.log("TWO USERS CONNEDTED STARTING GAME ARCADE", this.gamingArcadeRooms);
   }
 
   getRoomBySocket(socket: Socket) {
@@ -232,7 +232,7 @@ export class GameService {
       winner = aroom?.sockets? aroom?.sockets.find((s) => s.socketId !== socket.id) : null;
     }
         
-    //console.log("room ar : ", room, aroom);
+    ////console.log("room ar : ", room, aroom);
     server?.to(room ? room?.id : aroom?.id).emit("winner", winner);
     /*
     // FIXME: add db handling
@@ -298,7 +298,7 @@ export class GameService {
     server: Server
   ) {
     const room = this.getRoomByPlayer(socket.data.user.id);
-    console.log("moveLeft", room, data);
+    //console.log("moveLeft", room, data);
     server
       ?.to(room?.id)
       .emit(data.value < 0 ? "moveLeftPaddleUp" : "moveLeftPaddleDown", data);
@@ -324,10 +324,10 @@ export class GameService {
   ) {
     //const room = this.getRoomByPlayer(socket.data.user.id);
     const room = this.getRoomByPlayer(socket.data.user.id)
-    //console.log("moveToPos", room, data);
+    ////console.log("moveToPos", room, data);
     if (!room) {
-      console.log("move TO pos : ", socket.data.user)
-      console.log("current room :" , room)
+      //console.log("move TO pos : ", socket.data.user)
+      //console.log("current room :" , room)
       throw new InternalServerErrorException();
     }
     server?.to(room?.id).emit(isRight ? "setRightPos" : "setLeftPos", data);
@@ -393,16 +393,16 @@ export class GameService {
     isRight?: boolean
   ) {
     const room = this.getRoomByPlayer(socket.data.user.id);
-    console.log(room, data);
+    //console.log(room, data);
     server?.to(room?.id).emit("initPuck", data);
   }
 
   async endGame(socket: Socket, payload: { leftscore: number, rightscore: number }){
       const room = this.getRoomBySocket(socket);
-      console.log("room : " ,room , this.gamingRooms);
+      //console.log("room : " ,room , this.gamingRooms);
       if(room){
         const fp = room.hostUserId || room.sockets[0].userID;
-        console.log("fp : ", fp);
+        //console.log("fp : ", fp);
         const sp =  room.sockets[1].userID;
         const data = {
           firstPlayer_id : fp,

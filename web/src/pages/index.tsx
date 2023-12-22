@@ -15,7 +15,7 @@ function Home(){
 			if(payload){
 				router.push(`/user/${payload.username}`)
 			}else {
-				console.log("log this out : ", payload)
+				//console.log("log this out : ", payload)
 				// logout !
 			}
 		})()

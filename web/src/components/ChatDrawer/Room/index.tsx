@@ -51,9 +51,9 @@ export const ChatRooms: React.FC<Props> = ({}) => {
 	const fetchBlockedUsers = () => {
 		blockedUsers().then((response: any) => {
 			setBlocked(response);
-			console.log("resp blocked :", response, blocked);
+			//console.log("resp blocked :", response, blocked);
 		}).catch(e => {
-			console.log("something went wrong getting blocked friends : ", e);
+			//console.log("something went wrong getting blocked friends : ", e);
 		})
 	}
 
@@ -67,7 +67,7 @@ export const ChatRooms: React.FC<Props> = ({}) => {
 
 	const fetchRooms = async () => {
 		const _data = await getUserRooms();	
-		console.log("rooms : ", _data);
+		//console.log("rooms : ", _data);
 		setRooms(_data);
 	}
 
@@ -84,7 +84,7 @@ export const ChatRooms: React.FC<Props> = ({}) => {
 			return;
 		}
 		const results = await searchRooms(query);
-		console.log("search results : ", results);
+		//console.log("search results : ", results);
 		setSearchRes(results);
 	}
 
@@ -104,7 +104,7 @@ export const ChatRooms: React.FC<Props> = ({}) => {
 
 	const handleJoinRoom = async (roomID: number, roomType: string, password?: string) => {
 		joinRoomService({room_id: roomID, roomType: roomType, password: password || ""}).then(async res => {
-			console.log("join response : ", res);
+			//console.log("join response : ", res);
 			toast({
 				title: 'Joined room successfuly',
 				status: 'success',
@@ -116,7 +116,7 @@ export const ChatRooms: React.FC<Props> = ({}) => {
 			setQuery("");
 			setSearchRes([]);
 		}).catch(e => {
-			console.log("join exp : ", e);
+			//console.log("join exp : ", e);
 			toast({
 				title: "Can't joint",
 				status: 'error',

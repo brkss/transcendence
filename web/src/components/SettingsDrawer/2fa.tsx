@@ -36,9 +36,9 @@ export const TwoFASettings : React.FC<Props> = ({isOpen, onClose, activated}) =>
                     setQrCode(response.code);
                     setLoading(false);
                 }
-                console.log("response : ", response);
+                //console.log("response : ", response);
             }).catch(e => {
-                console.log("error : ", e);
+                //console.log("error : ", e);
             })
         }
     }, [isOpen]);
@@ -51,7 +51,7 @@ export const TwoFASettings : React.FC<Props> = ({isOpen, onClose, activated}) =>
         }else if(code){
             
             Activate2FA(code).then(response => {
-                console.log("response : ", response);
+                //console.log("response : ", response);
                 toast({
                     title: "Two factor authentication is enabled successfuly",
                     status: 'success',
@@ -60,7 +60,7 @@ export const TwoFASettings : React.FC<Props> = ({isOpen, onClose, activated}) =>
                 })
                 activated();
             }).catch(e => {
-                console.log("error while activating 2fa : ", e);
+                //console.log("error while activating 2fa : ", e);
                 toast({
                     title: "Something went wrong activating 2 factor authentication",
                     status: 'error',

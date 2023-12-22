@@ -21,7 +21,7 @@ export interface IConnectedUser {
 }
 
 export default function Index() {
-  console.log("initsocket");
+  //console.log("initsocket");
   const [currentMode, setCurrentMode] = React.useState("NORMAL");
   const searchParams = useSearchParams();
   const [gameMode, setGameMode] = React.useState(false);
@@ -46,12 +46,12 @@ export default function Index() {
   const arcadeMode = searchParams.get("arcade");
   const gid = searchParams.get("gid");
 
-  console.log("user", socketIo);
+  //console.log("user", socketIo);
 
   useEffect(() => {
-    console.log("joinQueue emit", socketIo.id);
+    //console.log("joinQueue emit", socketIo.id);
     socketIo.on("connect", () => {
-      console.log("Connected to WebSocket server");
+      //console.log("Connected to WebSocket server");
       // socket.send("Hello, WebSocket server!");  
         if(gid)
           socketIo.emit("joinPrivateGame", { gid: gid });
@@ -62,12 +62,12 @@ export default function Index() {
 
     });
     socketIo.on("winner", (data: any) => {
-      console.log("winner what ?", data);
+      //console.log("winner what ?", data);
       setWinner(data);
     });
-    socketIo.on("moveX", () => console.log("movex"));
+    socketIo.on("moveX", () => //console.log("movex"));
     socketIo.on("joinedQueue", (data: any) => {``
-      console.log("queue joined", data);
+      //console.log("queue joined", data);
     });
     socketIo.on("notAllowed", (data: any) => {
       setIsNotAllowed(true);
@@ -79,11 +79,11 @@ export default function Index() {
     });
 
     socketIo.on("message", (data: any) => {
-      console.log("Message from server:", data);
+      //console.log("Message from server:", data);
     });
 
     socketIo.on("disconnect", () => {
-      console.log("Disconnected from WebSocket server");
+      //console.log("Disconnected from WebSocket server");
     });
 
     socketIo.connect();

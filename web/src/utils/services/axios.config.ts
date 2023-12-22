@@ -13,7 +13,7 @@ const refreshTokenBackground = async () => {
 	const data = await res.json();
 	if(data && data.status === true){
 		setAccessToken(data.access_token);
-		console.log("refreshed token in the background : ", data.access_token);
+		//console.log("refreshed token in the background : ", data.access_token);
 	}
 }
 
@@ -34,7 +34,7 @@ api.interceptors.request.use(
 		return config;
 	},
 	err => {
-		console.log("err axios request interseptor : ", err);
+		//console.log("err axios request interseptor : ", err);
 		return Promise.reject(err)
 	}
 )
