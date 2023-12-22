@@ -277,7 +277,7 @@ const draw = (
   p5.textSize(32);
   p5.text(leftscore, 32, 40);
   p5.text(rightscore, canvasWidth - 64, 40);
-  if ((leftscore >= 2 || rightscore >= 2) && !isGameOver) {
+  if ((leftscore >= 11 || rightscore >= 11) && !isGameOver) {
     if(isHost)
       socket.emit("endGame", { leftscore, rightscore })
     isGameOver = true;
