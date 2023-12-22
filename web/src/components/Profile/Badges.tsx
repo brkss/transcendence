@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Text, Center, Image } from '@chakra-ui/react'; 
+import { API_URL_BASE } from '@/utils/constants';
 
 interface Props {
 	badges: any[];
@@ -10,6 +11,10 @@ export const Badges : React.FC<Props> = ({badges}) => {
 
 
 
+	React.useEffect(() => {
+		console.log("got b : ", badges);
+	}, [badges])
+
 	return (
 		<Box>
 			<Text mb={'20px'} fontWeight={'bold'} fontSize={'30px'}>Badges</Text>
@@ -17,8 +22,8 @@ export const Badges : React.FC<Props> = ({badges}) => {
 				{
 					badges.map((badge, key) => (
 						<Center key={key} h={'150px'} w={'200px'} >
-							<Box>
-								<Image  w={'130px'} rounded={'18px'} src={badge.path} borderRadius={'18px'} />
+							<Box textAlign={'center'}>
+								<Image  w={'90px'} rounded={'18px'} src={`${API_URL_BASE}${badge.path}`} borderRadius={'18px'} />
 								<Text fontWeight={'bold'} fontSize={'15px'} >{badge.min_win} wins</Text>
 							</Box>
 						</Center>

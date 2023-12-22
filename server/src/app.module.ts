@@ -38,7 +38,7 @@ export const app_root: string = process.cwd()
 		}),
 		ServeStaticModule.forRoot({
 			rootPath: path.join(app_root, '/uploads/badges'),
-			serveRoot: '/user/badges/'
+			serveRoot: '/user/uploads/badges/'
 		}),
 		ChatModule,
 		GameModule,

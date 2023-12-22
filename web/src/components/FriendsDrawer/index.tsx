@@ -128,7 +128,7 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 					<Box>
 						{
 							friends?.map((friend: any, key: number) => (
-								<FriendBox unblockUser={() => handleUnblockingUser(friend.id)} blockUser={() => handleBlockingUser(friend.id)} sendMessage={() => sendMessage(friend.id)} key={key} name={friend.name} username={friend.username} image={friend.avatar} isBlocked={friend.isBlocked} />
+								<FriendBox unblockUser={() => handleUnblockingUser(friend.id)} blockUser={() => handleBlockingUser(friend.id)} sendMessage={() => sendMessage(friend.id)} key={key} name={friend.name} username={friend.username} image={friend.avatar} isBlocked={friend.isBlocked} status={friend.status} />
 							))
 						}
 					</Box>

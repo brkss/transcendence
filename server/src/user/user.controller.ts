@@ -170,7 +170,7 @@ export class UserController {
 		return (ranks);
 	}
 
-	@Get("achievements:/username")
+	@Get("achievements/:username")
 	async getAchievements(@Req() request: any, @Param("username") username: string)
 	{
 		const userID = await this.userService.getUserId(username);

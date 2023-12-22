@@ -234,6 +234,7 @@ export class GameService {
         
     //console.log("room ar : ", room, aroom);
     server?.to(room ? room?.id : aroom?.id).emit("winner", winner);
+    /*
     // FIXME: add db handling
     if (room_result != undefined && room_result.sockets.length > 1){
       const data = {
@@ -257,6 +258,7 @@ export class GameService {
     await this.gameservicedb.addScore(game_id, firstscore);
     await this.gameservicedb.addScore(game_id, secondscore);
     }
+    */
   }
 
   async joinQueue(
@@ -396,26 +398,31 @@ export class GameService {
   }
 
   async endGame(socket: Socket, payload: { leftscore: number, rightscore: number }){
-    const room = this.getRoomBySocket(socket);
-      const fp = room.hostUserId;
-      const sp = room.sockets.find(x => x.userID != room.hostUserId)[0];
-      const data = {
-        firstPlayer_id : fp,
-        secondPlayer_id : sp,
-        mode: "N/A"
+      const room = this.getRoomBySocket(socket);
+      console.log("room : " ,room , this.gamingRooms);
+      if(room){
+        const fp = room.hostUserId || room.sockets[0].userID;
+        console.log("fp : ", fp);
+        const sp =  room.sockets[1].userID;
+        const data = {
+          firstPlayer_id : fp,
+          secondPlayer_id : sp,
+          mode: "N/A"
+        }
+        const game_id = await this.gameservicedb.createGame(data);
+        const firstscore = {
+          game_id : game_id,
+          player_id : fp,
+          player_score: payload.leftscore
+        };
+        const secondscore = {
+          game_id : game_id,
+          player_id : sp,
+          player_score: payload.rightscore
+        };
+        await this.gameservicedb.addScore(game_id, firstscore);
+        await this.gameservicedb.addScore(game_id, secondscore);
       }
-      const game_id = await this.gameservicedb.createGame(data);
-      const firstscore = {
-        game_id : game_id,
-        player_id : fp,
-        player_score: payload.leftscore
-      };
-      const secondscore = {
-        game_id : game_id,
-        player_id : sp,
-        player_score: payload.rightscore
-      };
-      await this.gameservicedb.addScore(game_id, firstscore);
-      await this.gameservicedb.addScore(game_id, secondscore);
+     
   }
 }

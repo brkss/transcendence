@@ -11,14 +11,19 @@ import { Box, Text, Button, Grid, GridItem, Container, Table,
 } from '@chakra-ui/react';
 import { Badges } from './Badges';  
 import { userStatus, userChatHistory, userAchievements, userMatchHistory } from '@/utils/services'
+import Moment from 'moment';
+import { Loading } from '../General';
 
 interface Props {
 	username: string;
 }
 
+
 export const Stats: React.FC<Props> = ({username}) => {
 
-	const [loading, setLoading] = React.useState(true);
+	const [loading, setLoading] = React.useState(0);
+	const [badges, setBadges] = React.useState<any>([]);
+	const [stats, setStats] = React.useState<{wins: number, loss: number}>({wins: 0, loss: 0});
 	const [userGameData, setUserGameData] = React.useState<any>({
 		wins: 0,
 		loss: 0,
@@ -27,11 +32,14 @@ export const Stats: React.FC<Props> = ({username}) => {
 	});
 	const fetchUserStatus = () => {
 		userStatus(username).then(response => {
-			setUserGameData({
-				...userGameData,
-				wins: response[0],
-				loss: response[1],
-			})
+			console.log("getting status : ", response);
+			setLoading(curr => curr + 1);
+			// setUserGameData({
+			// 	...userGameData,
+			// 	wins: response[0],
+			// 	loss: response[1],
+			// })
+			setStats({wins: response[0], loss: response[1]});
 		}).catch(e => {
 			console.log("something went wrong getting status : ", e);
 		});
@@ -39,6 +47,8 @@ export const Stats: React.FC<Props> = ({username}) => {
 
 	const fetchUserBadges = () => {
 		userAchievements(username).then(response => {
+			console.log("badges response : ", response);
+			setBadges(response);
 			setUserGameData({
 				...userGameData,
 				badges: response
@@ -50,6 +60,7 @@ export const Stats: React.FC<Props> = ({username}) => {
 
 	const fetchUserHistory = () => {
 		userMatchHistory(username).then(response => {
+			console.log("history response : ", response);
 			setUserGameData({
 				...userGameData,
 				history: response
@@ -62,9 +73,11 @@ export const Stats: React.FC<Props> = ({username}) => {
 	
 
 	React.useEffect(() => {
-		fetchUserStatus()
-		fetchUserBadges()
-		fetchUserHistory()
+		(() => {
+			fetchUserStatus()
+			fetchUserBadges()
+			fetchUserHistory()
+		})()
 	}, []);
 
 	return (
@@ -75,21 +88,21 @@ export const Stats: React.FC<Props> = ({username}) => {
 								Stats
 							</Box>
 							<Box>
-								<Text fontWeight={'bold'} fontSize={"14px"} mb="3px" >Wins ({userGameData.wins}%)</Text>
+								<Text fontWeight={'bold'} fontSize={"14px"} mb="3px" >Wins ({stats.wins.toFixed()}%)</Text>
 								<Box w={'100%'} h={'20px'} bg={'gray.200'} rounded={'5px'} outline={"1px solid #0000005c"}>
-									<Box w={`${userGameData.wins}%`} bg={'green.200'} h={'20px'} rounded={'5px'} />
+									<Box w={`${stats.wins}%`} bg={'green.200'} h={'20px'} rounded={'5px'} />
 								</Box>
 							</Box>
 							<Box mt={'10px'}>
-								<Text fontWeight={'bold'} fontSize={"14px"} mb="3px">Loses ({userGameData.wins}%)</Text>
+								<Text fontWeight={'bold'} fontSize={"14px"} mb="3px">Loses ({stats.loss.toFixed()}%)</Text>
 								<Box w={'100%'} h={'20px'} bg={'gray.200'} rounded={'5px'} outline="1px solid #0000005c">
-									<Box w={`${userGameData.loss}%`} bg={'red.100'} h={'20px'} rounded={'5px'} />
+									<Box w={`${stats.loss}%`} bg={'red.100'} h={'20px'} rounded={'5px'} />
 								</Box>
 							</Box>
 							<Text  bottom={"10px"} fontSize={"14px"} opacity={.8}>This statistics are based on the games you played.</Text>
 						</GridItem>
 						<GridItem colSpan={{md: 6, base: 12}} mt={{base: '20px', md: '10px'}}>
-							<Badges badges={userGameData.badges} />
+							<Badges badges={badges} />
 						</GridItem>
 					</Grid>
 					<Text mt="40px" mb={'20px'} fontWeight={'bold'} fontSize={'30px'}>History</Text>
@@ -108,9 +121,9 @@ export const Stats: React.FC<Props> = ({username}) => {
 									userGameData.history.map((record:any, key:any) => (
 										<Tr key={key}>
 											<Th>{record.mode}</Th>
-											<Th>{record.status}</Th>
+											<Th>{record.game_status}</Th>
 											<Th>{record.opponent_username}</Th>
-											<Th isNumeric>{record.date}</Th>
+											<Th isNumeric>{Moment(record.date).format("DD/MM/YYYY")}</Th>
 										</Tr>
 									))
 								}

@@ -134,12 +134,12 @@ export const userStatus = async (username: string) => {
 }
 
 export const userAchievements = async (username: string) => {
-	const response = await api.get(`${API_URL}/user/achivements/${username}`);
+	const response = await api.get(`${API_URL}/user/achievements/${username}`);
 	return response.data;
 }
 
 export const userMatchHistory = async (username: string) => {
-	const response = await api.get(`${API_URL}/history/${username}`)
+	const response = await api.get(`${API_URL}/user/history/${username}`)
 	return response.data;
 }
 

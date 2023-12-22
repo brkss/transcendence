@@ -66,7 +66,7 @@ export class TwofactorauController {
             const refresh_token = generateRefreshToken(user.userID);
             resp.cookie('auth2fa_token', '') // clear temp token
             resp.cookie('refresh_token', refresh_token, {maxAge: 7 * 24 * 3600 * 1000, httpOnly: true});
-            resp.redirect("/")
+            resp.redirect("http://localhost:3000" + "/")
         }
         else {
             throw new BadRequestException("Invalid one time password")
