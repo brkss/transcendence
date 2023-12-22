@@ -134,7 +134,8 @@ export class ChatService {
                 user: user.username,
                 message: payload.message,
                 time: Date(),
-                avatar: userData.avatar
+                avatar: userData.avatar,
+                uid: user.id,
             }
             const data = {
                 userId: user.id,
