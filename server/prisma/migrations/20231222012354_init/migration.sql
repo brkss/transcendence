@@ -12,7 +12,7 @@ CREATE TABLE "user" (
     "fullName" TEXT NOT NULL,
     "auth2faOn" BOOLEAN DEFAULT false,
     "auth2faSercret" TEXT,
-    "lastSeen" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'offline',
     "avatar" TEXT,
 
     CONSTRAINT "user_pkey" PRIMARY KEY ("id")

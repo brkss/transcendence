@@ -13,6 +13,7 @@ import { Socket, Server } from "socket.io";
 import { GatewayService } from "./gateway.service";
 import { UseFilters, UsePipes, ValidationPipe } from "@nestjs/common";
 import { GameService } from "./game.service";
+import { UserService } from "src/user/user.service";
 
 const rooms = [];
 
@@ -31,15 +32,23 @@ const rooms = [];
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private gatewayService: GatewayService,
+    private userService: UserService,
     private gameService: GameService
   ) {}
   @WebSocketServer()
   server: Server;
-  handleConnection(socket: Socket) {
+  async handleConnection(socket: Socket) {
     this.gatewayService.socketConnection(socket, "game");
+    const user = socket.data.user
+    if (user)
+      await this.userService.updateUserStatus(user.userID, "ingame")
   }
 
   async handleDisconnect(socket: Socket) {
+    const user = socket.data.user
+    if (user)
+      await this.userService.updateUserStatus(user.userID, "online")
+
     this.gatewayService.handleDisconnect(socket)
     this.gameService.handleDisconnect(socket, this.server);
   }

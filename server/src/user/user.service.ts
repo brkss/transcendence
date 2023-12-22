@@ -7,6 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { validateMIMEType } from "validate-image-type";
 import path = require("path") // exported form  path (re checkit!!)
 import { UserHistory, UsersRanks } from './history.interface'
+import { API_URL} from 'src/constants';
 // ES module error: ?
 //import { fileTypeFromFile } from 'file-type';
 //import imageType from "image-type"
@@ -44,7 +45,6 @@ export class UserService {
 						    fullName: user.usual_full_name,
 						    login: user.login,
 						    username: user.login,
-						    lastSeen: Date(),
 						    avatar: user.image
 					    }, select: {
 						    id: true,
@@ -308,28 +308,26 @@ export class UserService {
 						blocker: true
 					}
 				});
-				// const blockedFriends = [];
-				// for(let i = 0; i < blocked.length; i++){
-				// 	const user = await this.prismaService.user.findFirst({
-				// 		where: { id: blocked[i].blockee },
-				// 		select: { id: true, username: true, email: true, avatar: true }
-				// 	});
-				// 	blockedFriends.push(user);
-				// }
-				// console.log('blocked users: ', blockedFriends);
 				return ( blocked );
 			}
 
 		    async getAllFriends(username: string) {
 			    const userId = await this.getUserId(username)
+				const select_data = { 
+					id: true,
+					username: true,
+					email: true,
+					status: true,
+					avatar: true
+				}
 			    const friends = await this.prismaService.friendship.findMany({
 				    where: { status: "accepted", OR: [{ user_id: userId }, { friend_id: userId }] },
 				    select: {
 					    friend: {
-						    select: { id: true, username: true, email: true, avatar: true }
+							select: select_data
 					    },
 					    user: {
-						    select: { id: true, username: true, email: true, avatar: true }
+							select: select_data
 					    }
 				    },
 			    })
@@ -344,7 +342,6 @@ export class UserService {
 					const blocked = await this.prismaService.block.findFirst({
 						where: { OR: [{blockee: user_friends[i].id}, {blocker: user_friends[i].id}]}
 					})
-					console.log("blocked : ", blocked);
 					if(blocked)
 						isBlocked = true;
 					friendsResponse.push({
@@ -380,31 +377,24 @@ export class UserService {
 					    username: true,
 					    email: true,
 					    fullName: true,
-					    lastSeen: true,
+					    status: true,
 					    avatar: true,
 					    auth2faOn: true
 				    }
 			    })
-			    //const lastSeen: bigint = BigInt(Date.now()) - profile.lastSeen
 			    if (profile == null)
 				    return (this.make_error(`User ${username} Not found`))
-
-			    let user_profile: UserProfile = profile;
-			    const ms_passed = Date.parse(Date()) - Date.parse(profile.lastSeen)
-			    user_profile.online = (ms_passed * 6000 < 3) // offline if mins_passed  3
 
 			    return (profile) // profile is const WTF!
 		    }
 
-
-
-		    async updateLastLogin(user_id: number) {
+		    async updateUserStatus(user_id: number, status: string) {
 			    await this.prismaService.user.update({
 				    where: {
 					    id: user_id
 				    },
 				    data: {
-					    lastSeen: Date()
+					    status: status
 				    }
 			    })
 		    }
@@ -558,7 +548,7 @@ export class UserService {
 		    }
 
 		    async updateAvatar(user_id: number, file: Express.Multer.File) {
-			    const avatar_link: string = "http://localhost/api/user/avatar/" + file.filename
+			    const avatar_link: string = API_URL + "/user/avatar/" + file.filename
 			    const is_valid_image = await this.validateImageType(file)
 
 			    if (is_valid_image == false) {
