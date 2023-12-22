@@ -55,7 +55,7 @@ export const Layout: React.FC<any> = ({ children, disablePadding }) => {
 			case "friends":
 				showFriends.onOpen();
 				break;
-			  case "normal game":
+			  case "game":
 				router.push("/game");
 				break;
 			  case "arcade game":
