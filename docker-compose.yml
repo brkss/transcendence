@@ -17,10 +17,11 @@ services:
         image: postgres:latest
         env_file:
             - ./server/.env
-        ports:
-            - "5432:5432"
         volumes:
             - "/tmp/postgres_data:/var/lib/postgresql/data"
+        #volumes:
+        #    - "/tmp/postgres_data:/var/lib/postgresql/data"
+
 
     server:
         container_name: transcendance_api
@@ -36,7 +37,6 @@ services:
             - "./server/:/var/www/html/app" 
             - /var/www/html/app/node_modules/
             - /var/www/html/app/dist
-
     
     front:
         container_name: transcendance_front
