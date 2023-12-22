@@ -42,6 +42,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleDisconnect(socket: Socket) {
     this.gatewayService.handleDisconnect(socket)
     this.gameService.handleDisconnect(socket, this.server);
+
   }
 
   @SubscribeMessage("joinArcadeQueue")
@@ -210,6 +211,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       } else {
         await this.gameService.createPrivateRoom(socket, payload.gid);
       }
+  }
+
+  @SubscribeMessage("endGame")
+  async endGame(socket: Socket, payload: { leftscore: number, rightscore: number }){
+      this.gameService.endGame(socket, payload);
   }
 
 }

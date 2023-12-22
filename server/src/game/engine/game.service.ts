@@ -373,6 +373,12 @@ export class GameService {
     isRight?: boolean
   ) {
     this.emitToRoomBySocket(socket, server, "getScore", data);
+    // const room = this.getRoomBySocket(socket);
+    // const host = this.get
+    // if(isRight)
+    //   room.scores.rightscore = data.value;
+    // else 
+    //   room.scores.leftscore = data.value;
   }
 
   async syncPuck(
@@ -387,5 +393,29 @@ export class GameService {
     const room = this.getRoomByPlayer(socket.data.user.id);
     console.log(room, data);
     server?.to(room?.id).emit("initPuck", data);
+  }
+
+  async endGame(socket: Socket, payload: { leftscore: number, rightscore: number }){
+    const room = this.getRoomBySocket(socket);
+      const fp = room.hostUserId;
+      const sp = room.sockets.find(x => x.userID != room.hostUserId)[0];
+      const data = {
+        firstPlayer_id : fp,
+        secondPlayer_id : sp,
+        mode: "N/A"
+      }
+      const game_id = await this.gameservicedb.createGame(data);
+      const firstscore = {
+        game_id : game_id,
+        player_id : fp,
+        player_score: payload.leftscore
+      };
+      const secondscore = {
+        game_id : game_id,
+        player_id : sp,
+        player_score: payload.rightscore
+      };
+      await this.gameservicedb.addScore(game_id, firstscore);
+      await this.gameservicedb.addScore(game_id, secondscore);
   }
 }
