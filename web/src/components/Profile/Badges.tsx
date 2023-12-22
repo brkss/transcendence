@@ -11,9 +11,7 @@ export const Badges : React.FC<Props> = ({badges}) => {
 
 
 
-	React.useEffect(() => {
-		//console.log("got b : ", badges);
-	}, [badges])
+	
 
 	return (
 		<Box>
@@ -21,10 +19,10 @@ export const Badges : React.FC<Props> = ({badges}) => {
 			<Box overflow={'auto'} whiteSpace={'nowrap'}>
 				{
 					badges.map((badge, key) => (
-						<Center key={key} h={'150px'} w={'200px'} >
+						<Center display={'inline-block'} key={key} h={'150px'} w={'140px'} >
 							<Box textAlign={'center'}>
-								<Image  w={'90px'} rounded={'18px'} src={`${API_URL_BASE}${badge.path}`} borderRadius={'18px'} />
-								<Text fontWeight={'bold'} fontSize={'15px'} >{badge.min_win} wins</Text>
+								<Image  m={'auto'} w={'90px'} rounded={'18px'} src={`${API_URL_BASE}${badge.path}`} borderRadius={'18px'} />
+								<Text textAlign={'center'} fontWeight={'bold'} fontSize={'15px'} >{badge.min_win} wins</Text>
 							</Box>
 						</Center>
 					))

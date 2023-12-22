@@ -707,12 +707,12 @@ export class UserService {
 				    },
 
 				    {
-					    path : '/user/uploades/badges/badge2.jpeg',
+					    path : '/user/uploads/badges/badge2.jpeg',
 					    min_win: 5,
 				    },
 
 				    {
-					    path : 'user/uploads/badges/badge3.jpeg',
+					    path : '/user/uploads/badges/badge3.jpeg',
 					    min_win: 10,
 				    },
 

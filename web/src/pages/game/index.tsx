@@ -65,7 +65,7 @@ export default function Index() {
       //console.log("winner what ?", data);
       setWinner(data);
     });
-    socketIo.on("moveX", () => //console.log("movex"));
+    socketIo.on("moveX", () => console.log("movex"));
     socketIo.on("joinedQueue", (data: any) => {``
       //console.log("queue joined", data);
     });

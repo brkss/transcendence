@@ -62,8 +62,14 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 		getChatHistory(chatId).then(response => {
 			const me = jwtDecode(getAccessToken()) as any;
 			if(me){
+				
 				const {username} = me;
-				const filtred = response.filter((msg: any) => !!blocked.find((x:any) => x.blockedd !== msg.sender.id));
+				let filtred = [];
+				for(let i = 0; i < response.length; i++){
+					if(!blocked.find(x => x.blockee === response[i].sender.id)){
+						filtred.push(response[i]);
+					}
+				}
 				setMessages([...messages, ...filtred.map((msg: any) => (
 					{ from: msg.sender.username === username ? "me" : msg.sender.username, text: msg.message, avatar: msg.sender.avatar }
 				))]);
