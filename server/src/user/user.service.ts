@@ -690,7 +690,7 @@ export class UserService {
 					    })
 				    );
 				    return usersRank.sort((a, b) => {
-					    return (a.wins >= b.wins ? 1 : -1);
+					    return (a.wins <= b.wins ? 1 : -1);
 				    });
 			    }
 			    catch (error) {

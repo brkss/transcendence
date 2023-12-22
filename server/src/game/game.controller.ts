@@ -28,5 +28,6 @@ export class GameController {
 		const secondScore = await this.gameService.addScore(secondPlayer_score.game_id, secondPlayer_score);
 		return [firstScore , secondScore];
 	}
+
 }
 

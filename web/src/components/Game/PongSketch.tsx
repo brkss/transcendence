@@ -210,7 +210,8 @@ const draw = (
   isSecondaryModeOn: boolean,
   socket: Socket,
   isHost: boolean,
-  isSecond: boolean
+  isSecond: boolean,
+  end: () => void
 ) => {
   p5.background(0);
   puck.checkPaddleRight(right);
@@ -276,9 +277,9 @@ const draw = (
   p5.textSize(32);
   p5.text(leftscore, 32, 40);
   p5.text(rightscore, canvasWidth - 64, 40);
-  if (leftscore >= 11 || rightscore >= 11) {
-    // Set isGameOver to true when the game is over
-    socket.emit("endGame", { leftscore, rightscore });
+  if ((leftscore >= 2 || rightscore >= 2) && !isGameOver) {
+    if(isHost)
+      socket.emit("endGame", { leftscore, rightscore })
     isGameOver = true;
   }
   if (isGameOver) {
@@ -293,10 +294,11 @@ const sketch = (
   isSecondary: boolean,
   socket: Socket,
   isHost: boolean,
-  isSecond: boolean
+  isSecond: boolean,
+  end: () => void,
 ) => {
   p5.setup = () => setup(p5, undefined, isSecondary, socket, isHost, isSecond);
-  p5.draw = () => draw(p5, isSecondary, socket, isHost, isSecond);
+  p5.draw = () => draw(p5, isSecondary, socket, isHost, isSecond, end);
 };
 
 const PongSketch = ({
@@ -313,11 +315,14 @@ const PongSketch = ({
   useEffect(() => {
     isGameStarted = false;
   }, [isSecondaryModeOn]);
-  console.log(socket, isHost);
+
+  const end = () => {
+    console.log("ended !");
+  }
 
   return (
     <NextReactP5Wrapper
-      sketch={(p5) => sketch(p5, isSecondaryModeOn, socket, isHost, isSecond)}
+      sketch={(p5) => sketch(p5, isSecondaryModeOn, socket, isHost, isSecond, end)}
     />
   );
 };

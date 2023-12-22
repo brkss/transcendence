@@ -124,13 +124,28 @@ export class GameService {
 			if (!gameExist)
 				throw new NotFoundException(`Game with ID: ${game_id} not found!`);
 
-			return await this.prismaService.score.create({
-				data: {
-					game: { connect: { id: game_id, } },
-					player_id: score.player_id,
-					score: score.player_score,
-				},
-			});
+			const scoreRecord = await this.prismaService.score.findFirst({ where: { game_id: game_id, player_id: score.player_id } });
+			if(scoreRecord){
+				return await this.prismaService.score.update({
+					where: {
+							id: scoreRecord.id,
+							game_id,
+							player_id: score.player_id 
+					},
+					data: {
+						player_id: score.player_id,
+						score: score.player_score,
+					},
+				});
+			}else {
+				return await this.prismaService.score.create({
+					data: {
+						game_id: game_id,
+						player_id: score.player_id,
+						score: score.player_score,
+					},
+				});	
+			}
 		}
 		catch (error) {
 			console.error('Error: Can\'t add the player\'s score', error);

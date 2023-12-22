@@ -25,6 +25,7 @@
     "eslint-config-next": "13.4.13",
     "framer-motion": "^10.16.5",
     "jwt-decode": "^3.1.2",
+    "moment": "^2.29.4",
     "net": "^1.0.2",
     "next": "^14.0.4",
     "next-compose": "^0.0.2",
@@ -42,6 +43,7 @@
     "ws": "^8.14.2"
   },
   "devDependencies": {
+    "@types/moment": "^2.13.0",
     "@types/react-icons": "^3.0.0",
     "@types/ws": "^8.5.9",
     "file-loader": "^6.2.0",

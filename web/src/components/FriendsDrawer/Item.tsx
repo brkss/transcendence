@@ -11,9 +11,10 @@ interface Props {
 	blockUser: () => void;
 	unblockUser: () => void;
 	isBlocked: boolean;
+	status: string;
 }
 
-export const FriendBox: React.FC<Props> = ({name, username, image, sendMessage, blockUser, isBlocked, unblockUser}) => {
+export const FriendBox: React.FC<Props> = ({name, username, image, sendMessage, blockUser, isBlocked, unblockUser, status}) => {
 
 	return (
 		<Box mt={'30px'} opacity={isBlocked ? .8 : 1}>
@@ -25,7 +26,7 @@ export const FriendBox: React.FC<Props> = ({name, username, image, sendMessage, 
 						isBlocked ? 
 						<Text bg={'orange.100'} rounded={'4px'} fontWeight={'bold'} fontSize={'13px'} p={'1px 6px'} display={'inline-block'}>blocked</Text>
 						: 
-						<Text bg={'green.100'} rounded={'4px'} fontWeight={'bold'} fontSize={'13px'} p={'1px 6px'} display={'inline-block'}>online</Text>
+						<Text bg={'green.100'} rounded={'4px'} fontWeight={'bold'} fontSize={'13px'} p={'1px 6px'} display={'inline-block'}>{status}</Text>
 					}
 					
 				</Box>
