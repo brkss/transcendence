@@ -34,7 +34,7 @@ export class authController {
             maxAge: 7 * 24 * 3600 * 1000
             , httpOnly: true
         });
-        resp.redirect("http://localhost:3000/")
+        resp.redirect("/")
     }
 
     @Post("/logout")

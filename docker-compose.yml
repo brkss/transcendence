@@ -1,10 +1,17 @@
 version: '3'
+
+networks:
+  transcendance-network:
+      driver: bridge
+
 services:
     nginx:
         container_name: nginx
         build:
             context: ./nginx
             dockerfile: Dockerfile
+        networks:
+            - transcendance-network
         depends_on:
             - server
             - front 
@@ -13,8 +20,10 @@ services:
             - "80:80"
             
     postgres:
-        container_name: postgres_db
+        #container_name: postgres_db
         image: postgres:latest
+        networks:
+            - transcendance-network
         env_file:
             - ./server/.env
         #ports:
@@ -29,9 +38,12 @@ services:
         container_name: transcendance_api
         depends_on:
             - postgres
+        restart: always
         build: 
             context: ./server/
             dockerfile: Dockerfile
+        networks:
+            - transcendance-network
         env_file:
             - ./server/.env
 
@@ -42,6 +54,9 @@ services:
     
     front:
         container_name: transcendance_front
+
+        networks:
+            - transcendance-network
         depends_on:
             - server
         build: 
