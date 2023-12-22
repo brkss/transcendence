@@ -305,18 +305,19 @@ export class UserService {
 					where: { OR: [{blocker: uid}, {blockee: uid}] },
 					select: {
 						blockee: true,
+						blocker: true
 					}
 				});
-				const blockedFriends = [];
-				for(let i = 0; i < blocked.length; i++){
-					const user = await this.prismaService.user.findFirst({
-						where: { id: blocked[i].blockee },
-						select: { id: true, username: true, email: true, avatar: true }
-					});
-					blockedFriends.push(user);
-				}
-				console.log('blocked users: ', blockedFriends);
-				return ( blockedFriends );
+				// const blockedFriends = [];
+				// for(let i = 0; i < blocked.length; i++){
+				// 	const user = await this.prismaService.user.findFirst({
+				// 		where: { id: blocked[i].blockee },
+				// 		select: { id: true, username: true, email: true, avatar: true }
+				// 	});
+				// 	blockedFriends.push(user);
+				// }
+				// console.log('blocked users: ', blockedFriends);
+				return ( blocked );
 			}
 
 		    async getAllFriends(username: string) {

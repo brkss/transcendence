@@ -8,7 +8,7 @@ import { API_URL, API_URL_BASE } from '@/utils/constants';
 import { getAccessToken } from '@/utils/token';
 import { io } from 'socket.io-client';
 import decode from 'jwt-decode';
-import { getChatHistory } from '@/utils/services';
+import { blockedUsers, getChatHistory, getFriends } from '@/utils/services';
 import jwtDecode from 'jwt-decode';
 
 interface Props {
@@ -17,9 +17,10 @@ interface Props {
 	chatId: number;
 	removeRoom: (id: number) => void;
 	name: string;
+	blocked: any[];
 }
 
-export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, name}) => {
+export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, name, blocked}) => {
 
 	// init socket 
 	let socket = React.useMemo(() => io(API_URL_BASE, {
@@ -27,12 +28,15 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 			Authorization: getAccessToken()
 		}
 	}), []); 
+	
 
 	const toast = useToast();
 	const _settings = useDisclosure();
 	const [messages, setMessages] = React.useState<any>([]);
-
+	//const [blocked, setBlocked] = React.useState<any>([]);
 	const [inputMessage, setInputMessage] = React.useState("");
+
+	
 	
 	const handleSendMessage = () => {
 		if (!inputMessage.trim().length) {
@@ -48,9 +52,10 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 		setInputMessage("");
 	};
 
-	const handleRecievingMessage = (data: { user: string, message: string, time: string, avatar: string }) => {
-		console.log("recieved message : ", data, messages);
-		setMessages((old: any) => [...old, { from: data.user, text: data.message, avatar: data.avatar}])
+	const handleRecievingMessage = (data: { uid: number, user: string, message: string, time: string, avatar: string }) => {
+		console.log("recieved message : ", data, messages, blocked);
+		if(!blocked.find((x:any) => x.blockee === data.uid))
+			setMessages((old:any) => [...old, { from: data.user, text: data.message, avatar: data.avatar}])
 	}
 
 	const fetchChatHostory = async () => {
@@ -59,7 +64,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 			if(me){
 				const {username} = me;
 				console.log("messages : ", response)
-				setMessages([...messages, ...response.map((msg: any) => (
+				setMessages([...messages, ...response.filter((msg: any) => blocked.findIndex((x:any) => x.blockedd === msg.sender.id) === -1).map((msg: any) => (
 					{ from: msg.sender.username === username ? "me" : msg.sender.username, text: msg.message, avatar: msg.sender.avatar }
 				))]);
 			}
@@ -73,9 +78,12 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 			console.log("socket connected");
 			console.log("join data : ",  {room_id: chatId, roomType: "PUBLIC"});
 			socket.emit("joinChat", {room_id: chatId, roomType: "PUBLIC"});
+			
 		})
 
 		fetchChatHostory();
+		
+
 		setMessages([]);
 		
 		socket.connect()
@@ -105,6 +113,7 @@ export const Chat : React.FC<Props> = ({isOpen, onClose, chatId, removeRoom, nam
 		}
 	}, [socket, chatId])
 
+	
 
 	return (
 		<Drawer
