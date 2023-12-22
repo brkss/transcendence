@@ -1,5 +1,4 @@
 server/test
 server/dist
 server/node_modules
-server/uploads
 .git_p*

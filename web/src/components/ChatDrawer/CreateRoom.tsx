@@ -57,7 +57,7 @@ export const CreateRoom : React.FC<Props> = ({isOpen, onClose, updateRooms}) => 
 			return;
 		}
 		setError("")
-		console.log("form : ", form, roomType, selectedMembers);
+		//console.log("form : ", form, roomType, selectedMembers);
 		const data : CreateRoomInput = {
 			roomName: form.roomName,
 			roomType: roomType,
@@ -65,7 +65,7 @@ export const CreateRoom : React.FC<Props> = ({isOpen, onClose, updateRooms}) => 
 			mebers_id: selectedMembers.map(m => m.id)
 		}
 		createRoomService(data).then(response => {
-			console.log("create room data : ", response);
+			//console.log("create room data : ", response);
 			updateRooms({ id: response.id, name: form.roomName, roomType: roomType });
 			onClose();	
 			toast({
@@ -75,7 +75,7 @@ export const CreateRoom : React.FC<Props> = ({isOpen, onClose, updateRooms}) => 
 				status: "success"
 			})
 		}).catch(e => {
-			console.log("creating room error : ", e);
+			//console.log("creating room error : ", e);
 			toast({
 				title: "something went wrong creating room chat",
 				duration: 9000,

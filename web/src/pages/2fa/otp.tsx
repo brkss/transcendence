@@ -14,11 +14,11 @@ export default function Otp(){
         if(v.length >= 6){
             setLoading(true);
             Verify2FA(v).then(response => {
-                console.log("response verifying code : ", response);
+                //console.log("response verifying code : ", response);
             }).catch(e => {
                 setLoading(false);
                 setError("Invalid Code");
-                console.log("error verifying code : ", e);
+                //console.log("error verifying code : ", e);
             })
         }
     }

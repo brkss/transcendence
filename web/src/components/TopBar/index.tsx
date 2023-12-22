@@ -71,20 +71,20 @@ export const TopBar : React.FC = () => {
 				// save user's info
 				localStorage.removeItem("ME");
 				localStorage.setItem("ME", JSON.stringify(response));
-				console.log("user's profile response : ", response);
+				//console.log("user's profile response : ", response);
 			}).catch(e => {
-				console.log("get user profile erro : ", e);
+				//console.log("get user profile erro : ", e);
 			})
 		}
 
 
 		// 	// -- main socket 
 		socket.on('connect', () => {
-			console.log("main socket connected");
+			//console.log("main socket connected");
 		});
 		
 		socket.on('disconnect', () => {
-			console.log("main socket disconected ")
+			//console.log("main socket disconected ")
 		});
 		socket.connect()
 

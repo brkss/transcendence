@@ -37,10 +37,10 @@ export const SelectPrivateRoomMemebers : React.FC<Props> = ({isOpen, onClose, do
 
     const handleGetFriends = () => {
         getFriends().then(response => {
-            console.log("friends : ", response);
+            //console.log("friends : ", response);
             setFriends(response);
         }).catch(e => {
-            console.log("something went wrong : ", e);
+            //console.log("something went wrong : ", e);
         })
     }
 

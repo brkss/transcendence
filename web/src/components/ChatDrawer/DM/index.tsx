@@ -32,10 +32,10 @@ export const Dms : React.FC = () => {
 
     const fetchChats = () => {
         getUserChats().then(response => {
-            console.log("get chats response : ", response);
+            //console.log("get chats response : ", response);
             setDms(response);
         }).catch(e => {
-            console.log("something wrong geting chats : ", e);
+            //console.log("something wrong geting chats : ", e);
         })
     }
 

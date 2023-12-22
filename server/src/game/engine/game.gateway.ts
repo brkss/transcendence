@@ -72,7 +72,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         });
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   }
 
@@ -94,7 +94,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         });
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   }
 

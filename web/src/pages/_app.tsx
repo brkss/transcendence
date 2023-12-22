@@ -20,15 +20,15 @@ export default function App({ Component, pageProps }: AppProps) {
 			method: "POST"
 		}).then(async res => {
 			const data = await res.json();
-			console.log("data : ", data);
+			//console.log("data : ", data);
 			if(data.status === true){
 				setAccessToken(data.access_token)
 				
-				console.log("access token : ", getAccessToken());
+				//console.log("access token : ", getAccessToken());
 			}
 			setLoading(false);
 		}).catch(e => {
-			console.log("something went wrong fetching access_token : ", e)
+			//console.log("something went wrong fetching access_token : ", e)
 			setLoading(false);
 		});
 

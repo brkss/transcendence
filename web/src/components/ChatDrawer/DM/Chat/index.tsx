@@ -46,7 +46,7 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 		getUserById(userId).then(response => {
 			setUser(response);
 		}).catch(e => {
-			console.log("something went wrong getting user : ", e);
+			//console.log("something went wrong getting user : ", e);
 			onClose();
 		})
 	}
@@ -67,7 +67,7 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 	};
 
 	const handleRecievingMessage = (data: { user: string, message: string, time: string }) => {
-		console.log("recieved message : ", data, messages);
+		//console.log("recieved message : ", data, messages);
 		setMessages((old: any) => [...old, { from: data.user, text: data.message}])
 	}
 
@@ -75,14 +75,14 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 		userChatHistory(userId).then(response => {
 			const me = jwtDecode(getAccessToken()) as any;
 			if(me){
-				console.log("DM messages : ", response)
+				//console.log("DM messages : ", response)
 				setMessages([...messages, ...response.map((msg: any) => (
 					{ from: msg.sender.username === me.username ? "me" : msg.sender.username, text: msg.message, avatar: msg.sender.avatar }
 				))])
 			}
-			//console.log("chat hostory dm response : ", response);
+			////console.log("chat hostory dm response : ", response);
 		}).catch(e => {
-			console.log("getting chat history error : ", e);
+			//console.log("getting chat history error : ", e);
 		}) 
 	}
 
@@ -90,7 +90,7 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 	React.useEffect(() => {
 
 		socket.on('connect', () => {
-			console.log("socket connected");
+			//console.log("socket connected");
 		});
 
 		getUser();
@@ -112,7 +112,7 @@ export const PrivateChat : React.FC<Props> = ({isOpen, onClose, userId }) => {
 		});
 
 		socket.on("success", (data) => {
-			console.log("got success : ", data);
+			//console.log("got success : ", data);
 		});
 		
 

@@ -32,8 +32,8 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 			(async () => {
 				const reqs = await getRequests();
 				const frds = await getFriends();
-				console.log("frds : ", frds);
-				console.log("get friends : ", frds);
+				//console.log("frds : ", frds);
+				//console.log("get friends : ", frds);
 				setFriends(frds);
 				setRequests(reqs);
 			})();
@@ -42,13 +42,13 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 
 	const friendAccepted = (uid: number) => {
 		const reqIndex = requests.findIndex(x => x.id === uid);
-		console.log("accespt friend : ", reqIndex, requests, friends);
+		//console.log("accespt friend : ", reqIndex, requests, friends);
 		if(reqIndex > -1){
 			const user = requests.splice(reqIndex, 1)[0];
-			console.log("spliced : ", user);
+			//console.log("spliced : ", user);
 			setFriends([user, ...friends]);
 		}
-		console.log("accespt friend : ", reqIndex, requests, friends);
+		//console.log("accespt friend : ", reqIndex, requests, friends);
 	}
 
 	const requestRejected = (uid: number) => {
@@ -62,7 +62,7 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 
 	const handleUnblockingUser = (uid: number) => {
 		unblockUser(uid).then(response => {
-			console.log("block user response : ", response);
+			//console.log("block user response : ", response);
 			toast({
 				status: 'success',
 				title: "You unblocked user successfuly",
@@ -72,7 +72,7 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 			const tmp = friends.map(f => { if(f.id === uid) f.isBlocked = false; return f })
 			setFriends([...tmp]);	
 		}).catch(e => {
-			console.log("got an error unblocking user : ", e);
+			//console.log("got an error unblocking user : ", e);
 			toast({
 				status: 'error',
 				title: "Error: Can't unblock user !",
@@ -84,7 +84,7 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 
 	const handleBlockingUser = (uid: number) => {
 		blockUser(uid).then(response => {
-			console.log("block user response : ", response);
+			//console.log("block user response : ", response);
 			toast({
 				status: 'success',
 				title: "You blocked user successfuly",
@@ -94,7 +94,7 @@ export const FriendsDrawer : React.FC<Props> = ({isOpen, onClose, sendMessage}) 
 			const tmp = friends.map(f => { if(f.id === uid) f.isBlocked = true; return f })
 			setFriends([...tmp]);
 		}).catch(e => {
-			console.log("got an error : ", e);
+			//console.log("got an error : ", e);
 			toast({
 				status: 'error',
 				title: "Error: Can't block user !",

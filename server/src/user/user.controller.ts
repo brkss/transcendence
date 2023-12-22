@@ -149,7 +149,7 @@ export class UserController {
 		let total_games = await this.userService.getNumberOfGames(userID);
 		if (total_games == 0)
 			return [0, 0];
-		console.log("number of games: " , total_games);
+		//console.log("number of games: " , total_games);
 		const [wins, loses] = await this.userService.getUserLosesWins(userID);
 		const [status_wins, status_loses] = [(wins / total_games) * 100, (loses / total_games) * 100];
 		return [status_wins, status_loses];

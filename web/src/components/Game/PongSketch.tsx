@@ -60,9 +60,9 @@ const setup = (
   p5.createCanvas(canvasWidth, canvasHeight).parent(canvasParentRef);
   crazyModePuck = undefined;
   socket.on("moveX", () => {
-    console.log("MOVE X");
+    //console.log("MOVE X");
   });
-  console.log("isHost", isHost);
+  //console.log("isHost", isHost);
   puck = new Puck(
     canvasWidth,
     canvasHeight,
@@ -93,11 +93,11 @@ const setup = (
   );
 
   socket.on("moveLeftPaddleUp", (data) => {
-    console.log("move paddle left", data);
+    //console.log("move paddle left", data);
     left.move(data.value);
   });
   socket.on("moveLeftPaddleDown", (data) => {
-    console.log("move paddle left", data);
+    //console.log("move paddle left", data);
     left.move(data.value);
   });
 
@@ -137,7 +137,7 @@ const setup = (
     keyPressed(p5, ev, socket, puck);
     if (ev.key === "Enter") {
       socket.emit("userReady");
-      console.log("user ready event emited!!!!!!!! ")
+      //console.log("user ready event emited!!!!!!!! ")
     }
   });
   window.addEventListener("keyup", (e) => keyReleased(socket, e.key));
@@ -255,14 +255,14 @@ const draw = (
   }
 
   if (crazyModePuck && isSecondaryModeOn) {
-    console.log("ACRADE MODE!");
+    //console.log("ACRADE MODE!");
     crazyModePuck.checkPaddleRight(right);
     crazyModePuck.checkPaddleLeft(left);
     crazyModePuck.show();
     crazyModePuck.update();
 
     const goal = crazyModePuck.edges();
-    console.log("Serving player:", crazyModePuck.getServingPlayer());
+    //console.log("Serving player:", crazyModePuck.getServingPlayer());
     if (goal) {
       if (crazyModePuck.getServingPlayer() === "left") leftscore++;
       else if (crazyModePuck.getServingPlayer() === "right") rightscore++;
@@ -317,7 +317,7 @@ const PongSketch = ({
   }, [isSecondaryModeOn]);
 
   const end = () => {
-    console.log("ended !");
+    //console.log("ended !");
   }
 
   return (

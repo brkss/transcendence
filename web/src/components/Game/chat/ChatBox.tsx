@@ -30,7 +30,7 @@ export default function ChatBox(props: IChatBox) {
   React.useEffect(() => {
     scrollToBottom();
     socket.on('gameChatMessage', (data: IMessage & {senderId: number}) => {
-      console.log(data);
+      //console.log(data);
       const newData = {...data, date: new Date(data.date), isSelfMessage: user?.userID === data?.senderId};
 
       if (messages)

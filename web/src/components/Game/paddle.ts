@@ -43,14 +43,14 @@ class Paddle {
 
     socket.on("setLeftPos", (data) => {
       if (this.isLeft) {
-        console.log('is left', this.isLeft);
+        //console.log('is left', this.isLeft);
         this.y = data.value;
       }
     });
 
     socket.on("setRightPos", (data) => {
       if (!this.isLeft) {
-        console.log('not left', this.isLeft);
+        //console.log('not left', this.isLeft);
         this.y = data.value;
       }
     });
