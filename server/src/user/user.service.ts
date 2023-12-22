@@ -389,6 +389,8 @@ export class UserService {
 		    }
 
 		    async updateUserStatus(user_id: number, status: string) {
+			    try{ 
+
 			    await this.prismaService.user.update({
 				    where: {
 					    id: user_id
@@ -397,6 +399,8 @@ export class UserService {
 					    status: status
 				    }
 			    })
+			   }catch(error) {
+				}
 		    }
 
 		    // get user by its id 
