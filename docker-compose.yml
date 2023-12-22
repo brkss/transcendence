@@ -11,8 +11,6 @@ services:
         restart: always
         ports:
             - "80:80"
-        logging:
-            driver: none
             
     postgres:
         container_name: postgres_db
@@ -23,8 +21,6 @@ services:
             - "5432:5432"
         volumes:
             - "/tmp/postgres_data:/var/lib/postgresql/data"
-        logging:
-            driver: none
 
     server:
         container_name: transcendance_api
@@ -53,5 +49,3 @@ services:
             - "./web/:/var/www/html/app" 
             - /var/www/html/app/node_modules/
             - /var/www/html/app/.next
-        logging:
-            driver: none

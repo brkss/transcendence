@@ -38,8 +38,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
   async handleConnection(socket: Socket) {
-    const user = socket.data.user
     this.gatewayService.socketConnection(socket, "game");
+    const user = socket.data.user
     if (user)
       await this.userService.updateUserStatus(user.userID, "ingame")
   }

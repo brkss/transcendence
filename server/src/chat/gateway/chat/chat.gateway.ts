@@ -33,9 +33,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private chatService: ChatService) {
   }
 
-  async handleConnection(socket: Socket) {
-    const user = socket.data.user
+   async handleConnection(socket: Socket) {
     this.gatewayService.socketConnection(socket)
+    const user = socket.data.user
     if (user)
       await this.userService.updateUserStatus(user.userID, "online")
   }

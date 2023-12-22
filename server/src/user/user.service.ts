@@ -7,7 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { validateMIMEType } from "validate-image-type";
 import path = require("path") // exported form  path (re checkit!!)
 import { UserHistory, UsersRanks } from './history.interface'
-import { API_URL_BASE } from 'src/constants';
+import { API_URL} from 'src/constants';
 // ES module error: ?
 //import { fileTypeFromFile } from 'file-type';
 //import imageType from "image-type"
@@ -315,20 +315,26 @@ export class UserService {
 					});
 					blockedFriends.push(user);
 				}
-				console.log('blocked users: ', blockedFriends);
 				return ( blockedFriends );
 			}
 
 		    async getAllFriends(username: string) {
 			    const userId = await this.getUserId(username)
+				const select_data = { 
+					id: true,
+					username: true,
+					email: true,
+					status: true,
+					avatar: true
+				}
 			    const friends = await this.prismaService.friendship.findMany({
 				    where: { status: "accepted", OR: [{ user_id: userId }, { friend_id: userId }] },
 				    select: {
 					    friend: {
-						    select: { id: true, username: true, email: true, avatar: true }
+							select: select_data
 					    },
 					    user: {
-						    select: { id: true, username: true, email: true, avatar: true }
+							select: select_data
 					    }
 				    },
 			    })
@@ -343,7 +349,6 @@ export class UserService {
 					const blocked = await this.prismaService.block.findFirst({
 						where: { OR: [{blockee: user_friends[i].id}, {blocker: user_friends[i].id}]}
 					})
-					console.log("blocked : ", blocked);
 					if(blocked)
 						isBlocked = true;
 					friendsResponse.push({
@@ -550,7 +555,7 @@ export class UserService {
 		    }
 
 		    async updateAvatar(user_id: number, file: Express.Multer.File) {
-			    const avatar_link: string = API_URL_BASE + "/api/user/avatar/" + file.filename
+			    const avatar_link: string = API_URL + "/user/avatar/" + file.filename
 			    const is_valid_image = await this.validateImageType(file)
 
 			    if (is_valid_image == false) {

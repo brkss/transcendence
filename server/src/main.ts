@@ -5,12 +5,12 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import path = require('path')
-import { API_URL_BASE } from './constants';
+import { ALLOW_ORIGIN } from './constants';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
 	app.use(cors({
-		origin: API_URL_BASE, 
+		origin: ALLOW_ORIGIN, 
 		credentials: true, 
 	}))
 	app.useGlobalPipes(new ValidationPipe({
