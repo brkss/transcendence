@@ -25,9 +25,9 @@ export class GameService {
 		});
 	}
 
-	async createGame(game: CreateGameDTO): Promise<any>
+	async createGame(game: CreateGameDTO): Promise<number>
 	{
-		 return await this.prismaService.game.create({
+		 const result=  await this.prismaService.game.create({
 		 	data: {
 		 		players: {
 		 			connect: [{ id: game.firstPlayer_id }, { id: game.secondPlayer_id }],
@@ -40,13 +40,14 @@ export class GameService {
 
 		 	},
 		 });
+		 return result.id;
 	}
 
 	async deleteGame(game_id: number): Promise<any> {
 		try {
 			const gameExist = await this.prismaService.game.findUnique({ where: { id: game_id } });
 			if (!gameExist)
-				throw new NotFoundException('Can\'t delete game with ID: ${game_id}');
+				throw new NotFoundException(`Can\'t delete game with ID: ${game_id}`);
 
 			return await this.prismaService.game.delete({ where: { id: game_id } });
 		}
@@ -61,10 +62,9 @@ export class GameService {
 			const gameExist = await this.prismaService.game.findUnique({ where: { id: game_id, } });
 
 			if (!gameExist)
-				throw new NotFoundException('Can\'t find game with ID: ${game_id}');
+				throw new NotFoundException(`Can\'t find game with ID: ${game_id}`);
 
-			return await this.prismaService.game.findUnique({
-
+			const result = await this.prismaService.game.findUnique({
 				where: {
 					id: game_id,
 				},
@@ -72,6 +72,9 @@ export class GameService {
 					scores: true,
 				},
 			});
+			if (!result)
+				throw new NotFoundException(`Can\'t find scores of game with ID: ${game_id}`);
+			return result.scores;
 		}
 		catch (error) {
 			console.error(error);
@@ -82,33 +85,25 @@ export class GameService {
 	async getPlayerScore(game_id: number, player_id: number): Promise<number> {
 		try {
 			const gameExist = await this.prismaService.game.findUnique({ where: { id: game_id, } });
+			const userExist = await this.prismaService.user.findUnique({where:{ id : player_id,}});
 
 			if (!gameExist)
-				throw new NotFoundException('Can\'t find game with ID: ${game_id}');
+				throw new NotFoundException(`Can\'t find game with ID: ${game_id}`);
+			if (!userExist)
+				throw new NotFoundException(`Can\'t find user with ID: ${player_id}`);
 
-			const result = await this.prismaService.game.findFirst({
+			const result = await this.prismaService.score.findFirst({
 				where: {
-					id: game_id,
-					scores:{
-						some: {
-							player_id : player_id,
-						},
-					},
+					game_id: game_id,
+					player_id : player_id,
 				},
-				include: {
-					scores: {
-						where: {
-							player_id: player_id,
-						},
 						select: {
 							score: true,
 						},
-					}
-				},
 			});
-
-			const player_score = result.scores[0].score;
-			return player_score;
+			if (!result)
+				throw new NotFoundException(`Something went wrong: score Indefined for game: ${game_id} player: ${player_id}!`);
+			return result.score;
 		}
 		catch (error) {
 			console.error(error);
@@ -127,7 +122,7 @@ export class GameService {
 				},
 			});
 			if (!gameExist)
-				throw new NotFoundException('Game with ID: ${game_id} not found!');
+				throw new NotFoundException(`Game with ID: ${game_id} not found!`);
 
 			return await this.prismaService.score.create({
 				data: {
@@ -148,34 +143,21 @@ export class GameService {
 		{
 			const gameExist = await this.prismaService.game.findUnique({where: {id : game_id,}});
 			if (!gameExist)
-				throw new NotFoundException('Game with ID: ${game_id} not found!');
-			const id =  await this.prismaService.game.findFirst({
+				throw new NotFoundException(`Game with ID: ${game_id} not found!`);
+			
+			const result =  await this.prismaService.score.findFirst({
 				where: {
-					id: game_id,
-					players:
-						{
-						some: {
-							id : {not: player_id},
-						},
-					},
+					game_id: game_id,
+					player_id : {not : player_id},
 				},
 				select:{
-					players:
-						{
-						where: {
-							id: {not: player_id},
-						},
-						select:{
-							id: true,
-						},
-					}
+					player_id : true,
 				},	
 
 		});
-
-			const opponent_id: number = id.players[0].id;
-			return opponent_id;
-
+			if (!result)
+				throw new NotFoundException(`Can\'t get opponent id for game: ${game_id}!`);
+			return result.player_id;
 		}catch(error)
 		{
 			console.error(error);
@@ -184,13 +166,20 @@ export class GameService {
 
 	async getStatus(game_id: number, player_id: number) : Promise<string>
 	{
-		const opponent_id = this.GetOpponentId(game_id, player_id);
-		const opponent_score = this.getPlayerScore(game_id, player_id);
-		const player_score = this.getPlayerScore(game_id, player_id);
+		const opponent_id: number = await this.GetOpponentId(game_id, player_id);
+		const opponent_score : number = await this.getPlayerScore(game_id, opponent_id);
+		const player_score: number = await this.getPlayerScore(game_id, player_id);
 
 		if (player_score > opponent_score)
 			return "won";
-		else
+		
 			return "lost";
 	}
+
+async deleteAllGames() : Promise<any>{
+	const score = await this.prismaService.score.findMany();
+	if (!score)
+	console.error("WTF");
+	return await this.prismaService.game.deleteMany();
+}
 }

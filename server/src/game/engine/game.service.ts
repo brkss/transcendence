@@ -4,6 +4,7 @@ import { Socket, Server } from "socket.io";
 import { GatewayService } from "./gateway.service";
 import { IConnectedUser } from "src/utils";
 import { InternalOAuthError } from "passport-oauth2";
+import { GameService as GameServicedb } from "../game.service";
 
 interface IRoom {
   id: string;
@@ -12,13 +13,15 @@ interface IRoom {
   sockets: IConnectedUser[];
   readyCount: number[];
   isPrivate?: boolean;
+  gameID: number;
+  scores: {leftscore : number, rightscore: number};
 }
 
 @Injectable()
 export class GameService {
   gamingRooms: IRoom[] = [];
   gamingArcadeRooms: IRoom[] = [];
-  constructor(private gatewayService: GatewayService) {}
+  constructor(private gatewayService: GatewayService, private gameservicedb: GameServicedb) {}
 
   connectionSuccess(
     socket: Socket,
@@ -36,6 +39,8 @@ export class GameService {
       hostUserId: user.userID,
       sockets: [user],
       readyCount: [],
+      gameID: 0,
+      scores : {leftscore : 0, rightscore: 0},
     };
     this.gamingRooms.push(currentRoom);
     socket.join(roomId);
@@ -54,6 +59,8 @@ export class GameService {
       sockets: [user],
       readyCount: [],
       isPrivate: true,
+      gameID : 0,
+      scores : {leftscore : 0, rightscore : 0},
     };
     this.gamingRooms.push(currentRoom);
     socket.join(gameId.toString());
@@ -69,6 +76,8 @@ export class GameService {
       hostUserId: user.userID,
       sockets: [user],
       readyCount: [],
+      gameID: 0,
+      scores : {leftscore: 0, rightscore: 0},
     };
     this.gamingArcadeRooms.push(currentRoom);
     socket.join(roomId);
@@ -203,25 +212,51 @@ export class GameService {
     // normal 
     let room = this.getRoomByPlayer(socket.data.user.id);
     let aroom = this.getArcadeRoomBySocket(socket);
+    let room_result: IRoom;
+    let mode: string;
 
     let winner = null;
     if(room){
+      room_result = room;
+      mode = "default";
       this.gamingRooms = this.gamingRooms?.filter(
         (gRoom) => gRoom?.id !== room?.id
       );  
       winner = room?.sockets ? room?.sockets?.find((s) => s.socketId !== socket.id) : null;
     }else if(aroom){
+      room_result = aroom;
+      mode = "nuke";
       this.gamingArcadeRooms = this.gamingArcadeRooms?.filter(
         (gRoom) => gRoom?.id !== aroom?.id
       );  
       winner = aroom?.sockets? aroom?.sockets.find((s) => s.socketId !== socket.id) : null;
     }
         
-   
-    
     //console.log("room ar : ", room, aroom);
     server?.to(room ? room?.id : aroom?.id).emit("winner", winner);
     // FIXME: add db handling
+    if (room_result != undefined && room_result.sockets.length > 1){
+      const data = {
+      firstPlayer_id : room_result.sockets[0].userID,
+      secondPlayer_id : room_result.sockets[1].userID,
+      mode: mode
+    }
+
+    const game_id = await this.gameservicedb.createGame(data);
+    room_result.gameID = game_id;
+    const firstscore = {
+      game_id : game_id,
+      player_id : room_result.sockets[1].userID,
+      player_score: 3
+    };
+    const secondscore = {
+      game_id : game_id,
+      player_id : room_result.sockets[0].userID,
+      player_score: 5
+    };
+    await this.gameservicedb.addScore(game_id, firstscore);
+    await this.gameservicedb.addScore(game_id, secondscore);
+    }
   }
 
   async joinQueue(
@@ -338,6 +373,12 @@ export class GameService {
     isRight?: boolean
   ) {
     this.emitToRoomBySocket(socket, server, "getScore", data);
+    // const room = this.getRoomBySocket(socket);
+    // const host = this.get
+    // if(isRight)
+    //   room.scores.rightscore = data.value;
+    // else 
+    //   room.scores.leftscore = data.value;
   }
 
   async syncPuck(
@@ -352,5 +393,29 @@ export class GameService {
     const room = this.getRoomByPlayer(socket.data.user.id);
     console.log(room, data);
     server?.to(room?.id).emit("initPuck", data);
+  }
+
+  async endGame(socket: Socket, payload: { leftscore: number, rightscore: number }){
+    const room = this.getRoomBySocket(socket);
+      const fp = room.hostUserId;
+      const sp = room.sockets.find(x => x.userID != room.hostUserId)[0];
+      const data = {
+        firstPlayer_id : fp,
+        secondPlayer_id : sp,
+        mode: "N/A"
+      }
+      const game_id = await this.gameservicedb.createGame(data);
+      const firstscore = {
+        game_id : game_id,
+        player_id : fp,
+        player_score: payload.leftscore
+      };
+      const secondscore = {
+        game_id : game_id,
+        player_id : sp,
+        player_score: payload.rightscore
+      };
+      await this.gameservicedb.addScore(game_id, firstscore);
+      await this.gameservicedb.addScore(game_id, secondscore);
   }
 }

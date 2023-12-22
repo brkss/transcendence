@@ -576,39 +576,7 @@ export class UserService {
 			    return (true)
 		    }
 
-		    async getUserLosesWins(userId: number) {
-			    let loses: number = 0;
-			    let wins: number = 0;
-			    let userScore: number;
-			    let opponentScore: number;
-
-			    const all_games = await this.prismaService.user.findMany({
-				    where: {
-					    id: userId,
-				    },
-				    select:
-					    {
-					    games: {
-						    include:
-							    {
-							    scores: true,
-						    },
-					    },
-				    },
-			    });
-
-			    for (const user of all_games) {
-				    for (const game of user.games) {
-					    const game_status = await this.gameService.getStatus(game.id, userId);
-					    if (game_status == "won")
-						    wins++;
-					    else if (game_status == "lost")
-						    loses++;
-				    }
-			    }
-
-			    return [wins, loses];
-		    }
+		    
 
 		    async getUserGames(user_id: number): Promise<any> {
 			    try {
@@ -616,7 +584,7 @@ export class UserService {
 				    if (!userExist)
 					    throw new NotFoundException('User with ID ${user_id} not found!');
 
-				    const allgames = await this.prismaService.user.findMany({
+				    const allgames = await this.prismaService.user.findFirst({
 					    where: {
 						    id: user_id,
 					    },
@@ -625,10 +593,31 @@ export class UserService {
 						    games: true,
 					    }
 				    });
-				    return allgames;
+				    return allgames.games;
 			    } catch (error) {
 				    console.error(error);
 			    }
+		    }
+
+			async getUserLosesWins(userId: number): Promise<number[]> {
+			    let loses: number = 0;
+			    let wins: number = 0;
+				let i : number = 0;
+			    let userScore: number;
+			    let opponentScore: number;
+
+				 const games = await this.getUserGames(userId);
+
+				    for (const game of games) {
+					    const game_status = await this.gameService.getStatus(game.id, userId);
+					    if (game_status == "won")
+						    wins++;
+					    else if (game_status == "lost")
+						    loses++;
+						console.log(game_status);
+				    }
+
+			    return [wins, loses];
 		    }
 
 		    async getNumberOfGames(user_id: number): Promise<number> {
@@ -637,6 +626,8 @@ export class UserService {
 				    if (!userExist)
 					    throw new NotFoundException('User with ID ${user_id} not found!');
 				    const games = await this.getUserGames(user_id);
+					if (!games)
+					  	 return 0;
 				    return (games.length);
 			    }
 			    catch (error) {
@@ -656,8 +647,6 @@ export class UserService {
 
 				    const allgames = await this.getUserGames(user_id);
 
-				    //for (const user of allgames)
-				    //{
 				    for (const game of allgames) {
 					    const game_status: string = await this.gameService.getStatus(game.id, user_id);
 					    const opId = await this.gameService.GetOpponentId(game.id, user_id);
@@ -671,7 +660,6 @@ export class UserService {
 					    });
 				    }
 
-				    //					    }
 				    return history;
 			    }
 			    catch (error) {
