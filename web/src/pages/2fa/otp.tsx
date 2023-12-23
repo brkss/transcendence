@@ -1,19 +1,21 @@
 import React from 'react';
 import { HStack, Center, Box, Text, PinInput, PinInputField, Spinner } from '@chakra-ui/react';
 import { Verify2FA } from '@/utils/services';
-
+import { useRouter } from 'next/router';
 
 export default function Otp(){
 
     const [error, setError] = React.useState("");
     const [loading, setLoading] = React.useState(false);
     const [code, setCode] = React.useState("");
-
+    const router = useRouter();
 
     const handleCodeChange = (v: string) => {
         if(v.length >= 6){
             setLoading(true);
             Verify2FA(v).then(response => {
+                setLoading(false);
+                window.location.replace("/")
                 //console.log("response verifying code : ", response);
             }).catch(e => {
                 setLoading(false);
